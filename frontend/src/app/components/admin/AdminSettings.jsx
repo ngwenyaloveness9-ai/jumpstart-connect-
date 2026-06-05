@@ -61,8 +61,8 @@ export function AdminSettings() {
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Platform Settings</h1>
-          <p className="text-[#444] text-xs mt-0.5">Account-level configuration, governance, and operational controls</p>
+          <h1 className="text-xl font-bold text-black">Platform Settings</h1>
+          <p className="text-[#F5C518] text-xs mt-0.5">Account-level configuration, governance, and operational controls</p>
         </div>
         <button onClick={handleSave} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${saved ? "bg-green-500 text-white" : "bg-[#F5C518] text-black hover:bg-[#E6B800]"}`}>
           {saved ? <><CheckCircle size={15}/> Saved!</> : <><Save size={15}/> Save Settings</>}

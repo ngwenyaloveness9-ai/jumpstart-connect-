@@ -32,8 +32,8 @@ export function ApiWebhooks() {
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">API & Webhooks</h1>
-          <p className="text-[#444] text-xs mt-0.5">Manage API keys, webhook endpoints, and external event subscriptions</p>
+          <h1 className="text-xl font-bold text-black">API & Webhooks</h1>
+          <p className="text-[#F5C518] text-xs mt-0.5">Manage API keys, webhook endpoints, and external event subscriptions</p>
         </div>
         <button onClick={() => activeTab === "api" ? setShowNewKey(true) : setShowNewWebhook(true)} className="flex items-center gap-2 bg-[#F5C518] text-black px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#E6B800] transition-all">
           <Plus size={15}/> {activeTab === "api" ? "New API Key" : "New Webhook"}

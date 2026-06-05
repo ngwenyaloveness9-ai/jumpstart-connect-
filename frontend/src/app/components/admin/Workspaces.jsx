@@ -45,8 +45,8 @@ export function Workspaces() {
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Workspaces</h1>
-          <p className="text-[#444] text-xs mt-0.5">Departmental and program-level containers for all work</p>
+          <h1 className="text-xl font-bold text-black">Workspaces</h1>
+          <p className="text-[#F5C518] text-xs mt-0.5">Departmental and program-level containers for all work</p>
         </div>
         <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 bg-[#F5C518] text-black px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#E6B800] transition-all">
           <Plus size={15}/> New Workspace

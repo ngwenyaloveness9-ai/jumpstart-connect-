@@ -69,8 +69,8 @@ export function DashboardHome() {
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">System Dashboard</h1>
-          <p className="text-[#444] text-xs mt-0.5">JYC Platform — Account Administration · Version 2.0</p>
+          <h1 className="text-xl font-bold text-black">System Dashboard</h1>
+          <p className="text-[#F5C518] text-xs mt-0.5">JYC Platform — Overview</p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-lg">
           <CircleCheck size={12}/> All Systems Operational

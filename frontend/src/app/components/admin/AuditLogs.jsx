@@ -36,10 +36,10 @@ export function AuditLogs() {
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Audit Logs</h1>
-          <p className="text-[#444] text-xs mt-0.5">Immutable activity and governance history across the platform</p>
+          <h1 className="text-xl font-bold text-black">Audit Logs</h1>
+          <p className="text-[#F5C518] text-xs mt-0.5">Immutable activity and governance history across the platform</p>
         </div>
-        <button className="flex items-center gap-2 border border-[#2A2A2A] text-[#888] px-4 py-2 rounded-xl text-sm hover:text-white hover:border-[#3A3A3A] transition-all">
+        <button className="flex items-center gap-2 border border-[#F5C518] text-[#888] px-4 py-2 rounded-xl text-sm hover:text-white hover:border-[#F5C518] transition-all">
           <Download size={14}/> Export CSV
         </button>
       </div>
