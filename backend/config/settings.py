@@ -92,6 +92,11 @@ DATABASES = {
 }
 
 # -------------------------------------------------
+# CUSTOM USER MODEL
+# -------------------------------------------------
+AUTH_USER_MODEL = 'users.User'
+
+# -------------------------------------------------
 # PASSWORD VALIDATION
 # -------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
@@ -136,3 +141,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+# -------------------------------------------------
+# EMAIL CONFIGURATION (DEVELOPMENT)
+# -------------------------------------------------
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEFAULT_FROM_EMAIL = 'noreply@jumpstart.com'
