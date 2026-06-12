@@ -7,8 +7,29 @@ export function Messages({ threads, activeThreadId, onThreadSelect, onSendMessag
   const [attachments, setAttachments] = useState([]);
   const [recipientEmail, setRecipientEmail] = useState("");
 
-  const selectedThread = useMemo(() => threads.find((t) => t.id === activeThreadId) ?? threads[0], [threads, activeThreadId]);
-  const unreadCount = useMemo(() => threads.filter((t) => t.unread).length, [threads]);
+ const selectedThread = useMemo(
+  () => threads.find((t) => t.id === activeThreadId) ?? threads[0],
+  [threads, activeThreadId]
+);
+
+if (!selectedThread) {
+  return (
+    <div className="space-y-5">
+      <div className="rounded-3xl border border-border bg-card p-6">
+        <h2 className="text-lg font-semibold text-white">
+          No conversations available
+        </h2>
+        <p className="text-sm text-[#888] mt-2">
+          There are currently no message threads to display.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+console.log("THREADS:", threads);
+console.log("ACTIVE THREAD:", activeThreadId);
+console.log("SELECTED THREAD:", selectedThread);
 
   // recipientEmail input is optional; if empty we'll fall back to the thread's contactEmail when sending
 

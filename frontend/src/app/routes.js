@@ -1,9 +1,10 @@
 import { createBrowserRouter } from "react-router";
 import { LandingPage } from "./components/LandingPage";
 import { LoginPage } from "./components/LoginPage";
-import { AdminDashboard } from "./components/AdminDashboard";
+import { ProtectedAdmin } from "./components/ProtectedAdmin";
+
 export const router = createBrowserRouter([
     { index: true, Component: LandingPage },
     { path: "login", Component: LoginPage },
-    { path: "admin", Component: AdminDashboard },
+    { path: "admin", Component: ProtectedAdmin },
 ]);

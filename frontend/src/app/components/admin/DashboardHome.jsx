@@ -1,40 +1,9 @@
 import { Users, Briefcase, Clock, AlertTriangle, TrendingUp, TrendingDown, CircleCheck, CircleX, MoreHorizontal, Shield, Key, Activity, Globe, } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, } from "recharts";
-const ACTIVITY_DATA = [
-    { month: "Jan", tasks: 42, users: 12 },
-    { month: "Feb", tasks: 58, users: 18 },
-    { month: "Mar", tasks: 75, users: 24 },
-    { month: "Apr", tasks: 91, users: 31 },
-    { month: "May", tasks: 112, users: 44 },
-    { month: "Jun", tasks: 134, users: 52 },
-];
-const WORKSPACE_DATA = [
-    { name: "Ops", boards: 12 },
-    { name: "HR", boards: 8 },
-    { name: "IT", boards: 15 },
-    { name: "Finance", boards: 6 },
-    { name: "Projects", boards: 11 },
-];
-const STAT_CARDS = [
-    { label: "Total Users", value: "487", change: "+12", up: true, icon: Users, color: "#F5C518" },
-    { label: "Active Projects", value: "32", change: "+4", up: true, icon: Briefcase, color: "#60A5FA" },
-    { label: "Pending Requests", value: "18", change: "-3", up: false, icon: Clock, color: "#F472B6" },
-    { label: "System Alerts", value: "3", change: "+1", up: false, icon: AlertTriangle, color: "#FB923C" },
-];
-const RECENT_USERS = [
-    { name: "W. Magagula", role: "System Admin", dept: "Technology", status: "active" },
-    { name: "S. Dlamini", role: "Administrator", dept: "Operations", status: "active" },
-    { name: "T. Mokoena", role: "Employee", dept: "HR", status: "active" },
-    { name: "K. Nkosi", role: "Viewer", dept: "Finance", status: "inactive" },
-    { name: "L. Zulu", role: "Board Owner", dept: "IT", status: "active" },
-];
-const AUDIT_LOGS = [
-    { user: "W. Magagula", action: "Updated permission policy for IT workspace", time: "2m ago", type: "security" },
-    { user: "S. Dlamini", action: "Approved off-site access for K. Nkosi", time: "18m ago", type: "access" },
-    { user: "System", action: "2FA enforcement enabled for all admins", time: "1h ago", type: "system" },
-    { user: "T. Mokoena", action: "Created new board: Recruitment Q3", time: "3h ago", type: "board" },
-    { user: "L. Zulu", action: "Configured webhook for Slack integration", time: "5h ago", type: "integration" },
-];
+import { useEffect, useState } from "react";
+import { statsApi } from "../../services/statsApi";
+
+// Component-local loading/error state and placeholders are used until data arrives
 function StatusBadge({ status }) {
     const colors = {
         active: "bg-green-500/10 text-green-400 border-green-500/20",
@@ -66,6 +35,43 @@ const CustomTooltip = ({ active, payload, label }) => {
     </div>);
 };
 export function DashboardHome() {
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [payload, setPayload] = useState(null);
+
+    useEffect(() => {
+      let mounted = true;
+      const load = async () => {
+        try {
+          setLoading(true);
+          const data = await statsApi.getDashboard();
+          if (mounted) setPayload(data);
+        } catch (err) {
+          console.error('Failed to load dashboard:', err);
+          if (mounted) setError(err.message || 'Failed to load dashboard');
+        } finally {
+          if (mounted) setLoading(false);
+        }
+      };
+      load();
+      return () => { mounted = false; };
+    }, []);
+
+    const STAT_CARDS = payload ? [
+      { label: "Total Users", value: String(payload.stats.total_users || 0), change: "", up: true, icon: Users, color: "#F5C518" },
+      { label: "Active Projects", value: String(payload.stats.active_projects || 0), change: "", up: true, icon: Briefcase, color: "#60A5FA" },
+      { label: "Pending Requests", value: String(payload.stats.pending_requests || 0), change: "", up: false, icon: Clock, color: "#F472B6" },
+      { label: "System Alerts", value: String(payload.stats.system_alerts || 0), change: "", up: false, icon: AlertTriangle, color: "#FB923C" },
+    ] : [];
+
+    const ACTIVITY_DATA = payload?.activity || [];
+    const WORKSPACE_DATA = payload?.workspaces || [];
+    const RECENT_USERS = payload?.recent_users || [];
+    const AUDIT_LOGS = payload?.audit_logs || [];
+
+    if (loading) return (<div className="p-5">Loading dashboard…</div>);
+    if (error) return (<div className="p-5 text-red-400">Error: {error}</div>);
+
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>

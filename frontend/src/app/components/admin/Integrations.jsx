@@ -1,23 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, CheckCircle, XCircle, Settings, RefreshCw } from "lucide-react";
 function Toggle({ enabled, onChange }) {
     return (<button onClick={onChange} className={`relative w-9 rounded-full transition-all ${enabled ? "bg-[#F5C518]" : "bg-[#2A2A2A]"}`} style={{ height: "20px", width: "36px" }}>
       <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-4" : "translate-x-0"}`}/>
     </button>);
 }
-const INTEGRATIONS = [
-    { id: 1, name: "Microsoft Teams", category: "Communication", status: "connected", enabled: true, lastSync: "5m ago", icon: "MS", color: "#6264A7", desc: "Post board updates and notifications to Teams channels" },
-    { id: 2, name: "Slack", category: "Communication", status: "connected", enabled: true, lastSync: "12m ago", icon: "SL", color: "#4A154B", desc: "Receive task alerts and status changes in Slack" },
-    { id: 3, name: "Google Workspace", category: "Productivity", status: "connected", enabled: true, lastSync: "1h ago", icon: "GW", color: "#4285F4", desc: "Sync calendar events and use Google Drive for files" },
-    { id: 4, name: "OneDrive / SharePoint", category: "Storage", status: "connected", enabled: false, lastSync: "3d ago", icon: "OD", color: "#0078D4", desc: "Attach and manage files via Microsoft SharePoint" },
-    { id: 5, name: "Zoom", category: "Communication", status: "disconnected", enabled: false, lastSync: "—", icon: "ZM", color: "#2D8CFF", desc: "Schedule and join Zoom calls from within the platform" },
-    { id: 6, name: "SendGrid", category: "Email", status: "connected", enabled: true, lastSync: "30m ago", icon: "SG", color: "#1A82E2", desc: "Transactional email delivery for notifications and OTPs" },
-    { id: 7, name: "Twilio", category: "SMS / OTP", status: "connected", enabled: true, lastSync: "1h ago", icon: "TW", color: "#F22F46", desc: "SMS-based OTP delivery for off-site access control" },
-    { id: 8, name: "Jira", category: "Project Mgmt", status: "disconnected", enabled: false, lastSync: "—", icon: "JR", color: "#0052CC", desc: "Sync issues and projects from Jira into JYC boards" },
-];
+import { integrationsApi } from "../../services/integrationsApi";
 const CATEGORIES = ["All", "Communication", "Productivity", "Storage", "Email", "SMS / OTP", "Project Mgmt"];
 export function Integrations() {
-    const [integrations, setIntegrations] = useState(INTEGRATIONS);
+    const [integrations, setIntegrations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    useEffect(() => {
+      let mounted = true;
+      integrationsApi.list().then((data) => {
+        if (!mounted) return;
+        const mapped = data.map((i) => ({
+          id: i.id,
+          name: i.name,
+          category: i.category || 'Other',
+          status: i.status || 'disconnected',
+          enabled: !!i.enabled,
+          lastSync: i.last_sync ? new Date(i.last_sync).toLocaleString() : '—',
+          icon: (i.name || '').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase(),
+          color: '#6264A7',
+          desc: i.description || '',
+        }));
+        setIntegrations(mapped);
+        setLoading(false);
+      }).catch((err) => { console.error(err); setError(err.message); setLoading(false); });
+      return () => { mounted = false; };
+    }, []);
     const [category, setCategory] = useState("All");
     const [showAdd, setShowAdd] = useState(false);
     const toggle = (id) => {

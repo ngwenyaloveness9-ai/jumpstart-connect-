@@ -1,37 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, LayoutGrid, List, Users, Layers, MoreHorizontal, Search, Settings, Eye, Trash2, Lock } from "lucide-react";
-const WORKSPACES = [
-    {
-        id: 1, name: "Technology", owner: "W. Magagula", members: 14, boards: 15, type: "Department",
-        status: "active", created: "Jan 2026", color: "#60A5FA",
-        boards_list: ["Infrastructure", "DevOps Pipeline", "Security Controls", "API Management", "SRD Tracker"],
-    },
-    {
-        id: 2, name: "Operations", owner: "S. Dlamini", members: 22, boards: 12, type: "Department",
-        status: "active", created: "Jan 2026", color: "#F5C518",
-        boards_list: ["Daily Ops", "Incident Management", "Fleet Tracking", "Supplier Relations", "Compliance"],
-    },
-    {
-        id: 3, name: "Human Resources", owner: "R. Mthembu", members: 8, boards: 8, type: "Department",
-        status: "active", created: "Feb 2026", color: "#F472B6",
-        boards_list: ["Recruitment Q3", "Onboarding", "Leave Management", "Performance Reviews"],
-    },
-    {
-        id: 4, name: "Finance", owner: "K. Nkosi", members: 6, boards: 6, type: "Department",
-        status: "active", created: "Feb 2026", color: "#4ADE80",
-        boards_list: ["Budget 2026", "Expense Reports", "Audit Prep", "Payroll"],
-    },
-    {
-        id: 5, name: "Projects", owner: "N. Khumalo", members: 18, boards: 11, type: "Program",
-        status: "active", created: "Mar 2026", color: "#A78BFA",
-        boards_list: ["Platform Rollout", "Phase 2 Workflows", "Integration Tracker", "Training Roadmap"],
-    },
-    {
-        id: 6, name: "Executive", owner: "W. Magagula", members: 5, boards: 3, type: "Restricted",
-        status: "restricted", created: "Mar 2026", color: "#FB923C",
-        boards_list: ["KPI Dashboard", "Board Reports", "Strategic Planning"],
-    },
-];
+import { workspacesApi } from "../../services/workspacesApi";
 export function Workspaces() {
     const [view, setView] = useState("grid");
     const [search, setSearch] = useState("");
@@ -40,8 +9,34 @@ export function Workspaces() {
     const [newName, setNewName] = useState("");
     const [newType, setNewType] = useState("Department");
     const [openMenu, setOpenMenu] = useState(null);
-    const filtered = WORKSPACES.filter((w) => w.name.toLowerCase().includes(search.toLowerCase()) ||
-        w.owner.toLowerCase().includes(search.toLowerCase()));
+    const [workspaces, setWorkspaces] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+      let mounted = true;
+      workspacesApi.list().then((data) => {
+        if (!mounted) return;
+        // map backend shape to UI expectations
+        const mapped = data.map((w) => ({
+          id: w.id,
+          name: w.name,
+          owner: w.owner || '—',
+          members: w.members || 0,
+          boards: w.boards || 0,
+          type: w.type || 'Department',
+          status: w.status || 'active',
+          created: new Date(w.created_at).toLocaleDateString(),
+          color: w.color || '#60A5FA',
+          boards_list: w.boards_list || [],
+        }));
+        setWorkspaces(mapped);
+        setLoading(false);
+      }).catch((err) => { console.error(err); setError(err.message); setLoading(false); });
+      return () => { mounted = false; };
+    }, []);
+
+    const filtered = workspaces.filter((w) => w.name.toLowerCase().includes(search.toLowerCase()) || (w.owner||'').toLowerCase().includes(search.toLowerCase()));
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>

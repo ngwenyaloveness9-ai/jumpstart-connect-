@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { LayoutDashboard, Users, Briefcase, Settings, Shield, Bell, Search, Zap, LogOut, Menu, X, Globe, Key, FileText, ChevronDown, Moon, Sun, MessageSquare, } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
@@ -13,43 +13,8 @@ import { ApiWebhooks } from "./admin/ApiWebhooks";
 import { AdminSettings } from "./admin/AdminSettings";
 import { Messages } from "./admin/Messages";
 import logo from "../../assets/images/jumpstart-logo.webp";
-const INITIAL_THREADS = [
-    {
-      id: "thread-1",
-      sender: "Client Support",
-      subject: "Platform onboarding help",
-      lastMessage: "Can you share the new workspace setup file?",
-      time: "1h ago",
-      unread: true,
-      messages: [
-        { id: "m1", author: "Client Support", text: "Hi, can you share the new workspace setup file?", time: "1h ago" },
-        { id: "m2", author: "You", text: "Sure — I’ll attach the file in this chat now.", time: "50m ago" },
-      ],
-    },
-    {
-      id: "thread-2",
-      sender: "Security Team",
-      subject: "Audit export delivery",
-      lastMessage: "The export is ready for your review.",
-      time: "3h ago",
-      unread: true,
-      messages: [
-        { id: "m3", author: "Security Team", text: "The audit export is ready for your review.", time: "3h ago" },
-      ],
-    },
-    {
-      id: "thread-3",
-      sender: "Development",
-      subject: "Weekly sync note",
-      lastMessage: "Thanks — I’ll check the notes and confirm tomorrow.",
-      time: "Yesterday",
-      unread: false,
-      messages: [
-        { id: "m4", author: "Development", text: "Please review the weekly sync note attached.", time: "Yesterday" },
-        { id: "m5", author: "You", text: "Thanks — I’ll check the notes and confirm tomorrow.", time: "Yesterday" },
-      ],
-    },
-];
+import { messageApi } from "../services/messageApi";
+
 const SIDEBAR_ITEMS = [
     { icon: LayoutDashboard, label: "Dashboard", component: "Dashboard" },
     { icon: Users, label: "Users & Access", component: "Users" },
@@ -80,43 +45,62 @@ function renderSection(section, threads, activeThreadId, onThreadSelect, onSendM
 export function AdminDashboard() {
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
-    const [threads, setThreads] = useState(INITIAL_THREADS);
-    const [activeThreadId, setActiveThreadId] = useState(INITIAL_THREADS[0].id);
+    const [threads, setThreads] = useState([]);
+    const [activeThreadId, setActiveThreadId] = useState(null);
     const [activeSection, setActiveSection] = useState("Dashboard");
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch threads on component mount
+    useEffect(() => {
+      const fetchThreads = async () => {
+        try {
+          setLoading(true);
+          const data = await messageApi.getThreads();
+          setThreads(data);
+          if (data.length > 0) {
+            setActiveThreadId(data[0].id);
+          }
+        } catch (err) {
+          setError(err.message);
+          console.error('Failed to load threads:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchThreads();
+    }, []);
 
     const activeItem = SIDEBAR_ITEMS.find((i) => i.component === activeSection);
     const unreadCount = useMemo(() => threads.filter((thread) => thread.unread).length, [threads]);
 
-    const handleSelectThread = (id) => {
-      setThreads((prev) => prev.map((thread) => thread.id === id ? { ...thread, unread: false } : thread));
+    const handleSelectThread = async (id) => {
       setActiveThreadId(id);
       setActiveSection("Messages");
+      try {
+        await messageApi.markThreadAsRead(id);
+        setThreads((prev) => prev.map((thread) => thread.id === id ? { ...thread, unread: false } : thread));
+      } catch (err) {
+        console.error('Failed to mark thread as read:', err);
+      }
     };
 
-    const handleSendMessage = (threadId, messageText, attachments, recipientEmail) => {
-      const attachmentsWithUrls = (attachments || []).map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
-      setThreads((prev) => prev.map((thread) => {
-        if (thread.id !== threadId) return thread;
-        return {
-          ...thread,
-          contactEmail: recipientEmail || thread.contactEmail,
-          lastMessage: messageText || attachmentsWithUrls.map((a) => a.name).join(", "),
-          time: "Just now",
-          messages: [
-            ...thread.messages,
-            {
-              id: `out-${Date.now()}`,
-              author: "You",
-              authorEmail: "you@jumpstart.local",
-              text: messageText || "Sent attachments",
-              time: "Just now",
-              attachments: attachmentsWithUrls,
-            },
-          ],
-        };
-      }));
+    const handleSendMessage = async (threadId, messageText, attachments, recipientEmail) => {
+      try {
+        const updatedThread = await messageApi.sendMessage(threadId, {
+          text: messageText,
+          author: "You",
+          authorEmail: "admin@jumpstart.local",
+          contactEmail: recipientEmail,
+          attachments,
+        });
+        setThreads((prev) => prev.map((thread) => thread.id === threadId ? updatedThread : thread));
+      } catch (err) {
+        console.error('Failed to send message:', err);
+        setError(err.message);
+      }
     };
 
     return (<div className="min-h-screen bg-background text-foreground flex" style={{ fontFamily: "system-ui, sans-serif" }}>

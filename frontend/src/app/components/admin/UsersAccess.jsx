@@ -1,20 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Plus, MoreHorizontal, UserCheck, UserX, Mail, Download, Edit2, Trash2, Shield, ChevronDown, } from "lucide-react";
 const ROLES = ["All Roles", "System Admin", "Administrator", "Employee", "Viewer", "Board Owner"];
 const DEPTS = ["All Departments", "Technology", "Operations", "HR", "Finance", "IT", "Projects"];
 const STATUSES = ["All", "Active", "Inactive", "Pending"];
-const USERS = [
-    { id: 1, name: "W. Magagula", email: "w.magagula@jumpstartyourcareer.co.za", role: "System Admin", dept: "Technology", status: "active", joined: "Jan 2026", last: "2m ago", twofa: true },
-    { id: 2, name: "S. Dlamini", email: "s.dlamini@jumpstartyourcareer.co.za", role: "Administrator", dept: "Operations", status: "active", joined: "Feb 2026", last: "1h ago", twofa: true },
-    { id: 3, name: "T. Mokoena", email: "t.mokoena@jumpstartyourcareer.co.za", role: "Employee", dept: "HR", status: "active", joined: "Feb 2026", last: "3h ago", twofa: false },
-    { id: 4, name: "K. Nkosi", email: "k.nkosi@jumpstartyourcareer.co.za", role: "Viewer", dept: "Finance", status: "inactive", joined: "Jan 2026", last: "5d ago", twofa: false },
-    { id: 5, name: "L. Zulu", email: "l.zulu@jumpstartyourcareer.co.za", role: "Board Owner", dept: "IT", status: "active", joined: "Mar 2026", last: "30m ago", twofa: true },
-    { id: 6, name: "N. Khumalo", email: "n.khumalo@jumpstartyourcareer.co.za", role: "Employee", dept: "Projects", status: "active", joined: "Mar 2026", last: "2h ago", twofa: false },
-    { id: 7, name: "P. Ndlovu", email: "p.ndlovu@jumpstartyourcareer.co.za", role: "Employee", dept: "Operations", status: "pending", joined: "Apr 2026", last: "—", twofa: false },
-    { id: 8, name: "R. Mthembu", email: "r.mthembu@jumpstartyourcareer.co.za", role: "Administrator", dept: "HR", status: "active", joined: "Apr 2026", last: "1d ago", twofa: true },
-    { id: 9, name: "B. Sithole", email: "b.sithole@jumpstartyourcareer.co.za", role: "Viewer", dept: "Finance", status: "active", joined: "May 2026", last: "6h ago", twofa: false },
-    { id: 10, name: "C. Hadebe", email: "c.hadebe@jumpstartyourcareer.co.za", role: "Employee", dept: "IT", status: "pending", joined: "May 2026", last: "—", twofa: false },
-];
 const STATUS_STYLE = {
     active: "bg-green-500/10 text-green-400 border-green-500/20",
     inactive: "bg-[#2A2A2A] text-[#666] border-[#333]",
@@ -37,7 +25,34 @@ export function UsersAccess() {
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteRole, setInviteRole] = useState("Employee");
     const [inviteDept, setInviteDept] = useState("Technology");
-    const filtered = USERS.filter((u) => {
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+      let mounted = true;
+      import('../../services/usersApi').then(({ usersApi }) => {
+        usersApi.list().then((data) => {
+          if (!mounted) return;
+          // map backend user shape to UI expected fields
+          const mapped = data.map((u) => ({
+            id: u.id,
+            name: `${u.first_name} ${u.last_name}`,
+            email: u.email,
+            role: u.role || 'Employee',
+            dept: u.department || '',
+            status: u.is_active ? 'active' : 'inactive',
+            joined: new Date(u.created_at).toLocaleDateString(),
+            last: '-',
+            twofa: false,
+          }));
+          setUsers(mapped);
+          setLoading(false);
+        }).catch((err) => { console.error(err); if (mounted) { setError(err.message); setLoading(false); } });
+      });
+      return () => { mounted = false; };
+    }, []);
+    const filtered = users.filter((u) => {
         const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
         const matchRole = roleFilter === "All Roles" || u.role === roleFilter;
         const matchDept = deptFilter === "All Departments" || u.dept === deptFilter;
@@ -58,15 +73,15 @@ export function UsersAccess() {
 
       {/* Stats row */}
       <div className="grid grid-cols-4 gap-4">
-        {[
-            { label: "Total Users", value: USERS.length, color: "#F5C518" },
-            { label: "Active", value: USERS.filter((u) => u.status === "active").length, color: "#4ADE80" },
-            { label: "Pending", value: USERS.filter((u) => u.status === "pending").length, color: "#FBBF24" },
-            { label: "2FA Enabled", value: USERS.filter((u) => u.twofa).length, color: "#60A5FA" },
+        {loading ? (<div>Loading users…</div>) : ([
+            { label: "Total Users", value: users.length, color: "#F5C518" },
+            { label: "Active", value: users.filter((u) => u.status === "active").length, color: "#4ADE80" },
+            { label: "Pending", value: users.filter((u) => u.status === "pending").length, color: "#FBBF24" },
+            { label: "2FA Enabled", value: users.filter((u) => u.twofa).length, color: "#60A5FA" },
         ].map((s) => (<div key={s.label} className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-4">
             <div className="text-2xl font-bold mb-0.5" style={{ color: s.color }}>{s.value}</div>
             <div className="text-[#444] text-xs">{s.label}</div>
-          </div>))}
+          </div>)))}
       </div>
 
       {/* Filters */}

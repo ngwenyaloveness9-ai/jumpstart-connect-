@@ -1,17 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Key, Globe, Copy, Eye, EyeOff, RefreshCw, Trash2, CheckCircle, Activity } from "lucide-react";
-const API_KEYS = [
-    { id: 1, name: "Operations Integration Key", key: "jyc_live_k1_xG4tP9rQ2mLz7dNvS3wX", scopes: ["read:boards", "write:items", "read:users"], created: "Jan 2026", lastUsed: "2m ago", status: "active" },
-    { id: 2, name: "HR Reporting Key", key: "jyc_live_k2_hR5nM8bW0cYq4jKuT6eA", scopes: ["read:boards", "read:dashboards"], created: "Feb 2026", lastUsed: "1h ago", status: "active" },
-    { id: 3, name: "Dev Environment Key", key: "jyc_test_k3_dP2vL9xZ1fOs6yBqN7wK", scopes: ["read:boards", "write:boards", "admin:users"], created: "Mar 2026", lastUsed: "5d ago", status: "active" },
-    { id: 4, name: "Deprecated Legacy Key", key: "jyc_live_k4_rT8mX3bN0sQy5hJkV2cE", scopes: ["read:boards"], created: "Jan 2026", lastUsed: "30d ago", status: "revoked" },
-];
-const WEBHOOKS = [
-    { id: 1, name: "Slack — Status Changed", url: "https://hooks.slack.com/services/T0***", events: ["item.status_changed"], workspace: "Operations", lastTriggered: "5m ago", status: "active", successRate: "99.2%" },
-    { id: 2, name: "External CRM Update", url: "https://crm.internal/api/jyc-hook", events: ["form.submitted", "item.created"], workspace: "Projects", lastTriggered: "2h ago", status: "active", successRate: "97.8%" },
-    { id: 3, name: "Finance ERP Sync", url: "https://erp.finance.internal/webhook", events: ["item.status_changed", "board.archived"], workspace: "Finance", lastTriggered: "1d ago", status: "active", successRate: "100%" },
-    { id: 4, name: "Legacy Notification Hook", url: "https://old-system.internal/notify", events: ["item.created"], workspace: "Technology", lastTriggered: "15d ago", status: "failing", successRate: "12.0%" },
-];
+import { webhooksApi } from "../../services/webhooksApi";
+const API_KEYS = [];
 const SCOPES = ["read:boards", "write:boards", "read:items", "write:items", "read:users", "write:users", "read:dashboards", "admin:users", "admin:workspaces"];
 const EVENTS = ["item.created", "item.status_changed", "item.deleted", "form.submitted", "board.archived", "user.invited", "user.deactivated"];
 export function ApiWebhooks() {
@@ -23,12 +13,25 @@ export function ApiWebhooks() {
     const [newKeyName, setNewKeyName] = useState("");
     const [newWebhookName, setNewWebhookName] = useState("");
     const [newWebhookUrl, setNewWebhookUrl] = useState("");
+  const [webhooks, setWebhooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
     const copyKey = (id, key) => {
         navigator.clipboard.writeText(key);
         setCopiedKey(id);
         setTimeout(() => setCopiedKey(null), 1500);
     };
     const maskKey = (key) => key.slice(0, 14) + "•".repeat(20) + key.slice(-4);
+
+    useEffect(() => {
+      let mounted = true;
+      webhooksApi.list().then((data) => {
+        if (!mounted) return;
+        setWebhooks(data);
+        setLoading(false);
+      }).catch((err) => { console.error(err); setError(err.message); setLoading(false); });
+      return () => { mounted = false; };
+    }, []);
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
@@ -104,7 +107,7 @@ export function ApiWebhooks() {
 
       {/* Webhooks */}
       {activeTab === "webhooks" && (<div className="space-y-3">
-          {WEBHOOKS.map((wh) => (<div key={wh.id} className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-5 hover:border-[#2A2A2A] transition-all group">
+          {loading ? (<div>Loading webhooks…</div>) : webhooks.map((wh) => (<div key={wh.id} className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-5 hover:border-[#2A2A2A] transition-all group">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2">
@@ -114,7 +117,7 @@ export function ApiWebhooks() {
                       {wh.status}
                     </span>
                   </div>
-                  <div className="text-[#444] text-[10px] mt-0.5">{wh.workspace} · Last triggered {wh.lastTriggered}</div>
+                  <div className="text-[#444] text-[10px] mt-0.5">{wh.workspace} · Last triggered {wh.last_triggered ? new Date(wh.last_triggered).toLocaleString() : '—'}</div>
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button className="text-[#444] hover:text-[#F5C518]"><RefreshCw size={13}/></button>
@@ -126,11 +129,11 @@ export function ApiWebhooks() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex flex-wrap gap-1.5">
-                  {wh.events.map((ev) => (<span key={ev} className="text-[10px] text-[#555] bg-[#1A1A1A] border border-[#2A2A2A] px-2 py-0.5 rounded-md font-mono">{ev}</span>))}
+                  {(wh.events || []).map((ev) => (<span key={ev} className="text-[10px] text-[#555] bg-[#1A1A1A] border border-[#2A2A2A] px-2 py-0.5 rounded-md font-mono">{ev}</span>))}
                 </div>
                 <div className="flex items-center gap-1.5 text-xs">
-                  <Activity size={11} className={wh.successRate === "100%" ? "text-green-400" : parseFloat(wh.successRate) > 90 ? "text-[#F5C518]" : "text-red-400"}/>
-                  <span className="text-[#555]">{wh.successRate} success</span>
+                  <Activity size={11} className={wh.success_rate === "100%" ? "text-green-400" : parseFloat((wh.success_rate||'0').replace('%','')) > 90 ? "text-[#F5C518]" : "text-red-400"}/>
+                  <span className="text-[#555]">{wh.success_rate || '0%'} success</span>
                 </div>
               </div>
             </div>))}
