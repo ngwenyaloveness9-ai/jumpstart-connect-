@@ -18,16 +18,23 @@ User = get_user_model()
 
 
 class CreateEmployeeView(APIView):
-    # TEMPORARY FOR TESTING ONLY
     permission_classes = [AllowAny]
 
     def post(self, request):
 
         serializer = EmployeeCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+
+        if not serializer.is_valid():
+            print("VALIDATION ERRORS:", serializer.errors)
+            print("REQUEST DATA:", request.data)
+
+            return Response(
+                serializer.errors,
+                status=400
+            )
 
         data = serializer.validated_data
-
+        
         if User.objects.filter(email=data["email"]).exists():
             return Response(
                 {"error": "User already exists"},

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, Plus, MoreHorizontal, UserCheck, UserX, Mail, Download, Edit2, Trash2, Shield, ChevronDown, } from "lucide-react";
+import { usersApi } from "../../services/usersApi";
 const ROLES = ["All Roles", "System Admin", "Administrator", "Employee", "Viewer", "Board Owner"];
 const DEPTS = ["All Departments", "Technology", "Operations", "HR", "Finance", "IT", "Projects"];
 const STATUSES = ["All", "Active", "Inactive", "Pending"];
@@ -29,29 +30,84 @@ export function UsersAccess() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-      let mounted = true;
-      import('../../services/usersApi').then(({ usersApi }) => {
-        usersApi.list().then((data) => {
-          if (!mounted) return;
-          // map backend user shape to UI expected fields
-          const mapped = data.map((u) => ({
-            id: u.id,
-            name: `${u.first_name} ${u.last_name}`,
-            email: u.email,
-            role: u.role || 'Employee',
-            dept: u.department || '',
-            status: u.is_active ? 'active' : 'inactive',
-            joined: new Date(u.created_at).toLocaleDateString(),
-            last: '-',
-            twofa: false,
-          }));
-          setUsers(mapped);
-          setLoading(false);
-        }).catch((err) => { console.error(err); if (mounted) { setError(err.message); setLoading(false); } });
-      });
-      return () => { mounted = false; };
-    }, []);
+    const loadUsers = async () => {
+  try {
+    setLoading(true);
+
+    const data = await usersApi.list();
+
+    const mapped = data.map((u) => ({
+      id: u.id,
+      name: `${u.first_name} ${u.last_name}`,
+      email: u.email,
+      role: u.role || "Employee",
+      dept: u.department || "",
+      status: u.is_active ? "active" : "inactive",
+      joined: new Date(u.created_at).toLocaleDateString(),
+      last: "-",
+      twofa: false,
+    }));
+
+    setUsers(mapped);
+  } catch (err) {
+    console.error(err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleCreateUser = async () => {
+  try {
+    if (!inviteEmail.trim()) {
+      alert("Please enter an email address");
+      return;
+    }
+
+    const username = inviteEmail.split("@")[0];
+    const parts = username.split(".");
+
+    const firstName =
+      parts[0]?.charAt(0).toUpperCase() +
+      parts[0]?.slice(1);
+
+    const lastName =
+      parts[1]?.charAt(0).toUpperCase() +
+      parts[1]?.slice(1);
+
+    await usersApi.create({
+      email: inviteEmail,
+      first_name: firstName || "User",
+      last_name: lastName || "",
+      department: inviteDept,
+      role: inviteRole,
+    });
+
+    await loadUsers();
+
+    setInviteEmail("");
+    setInviteRole("Employee");
+    setInviteDept("Technology");
+
+    setShowInviteModal(false);
+
+    alert("User created successfully");
+  } catch (err) {
+    console.error(err);
+
+    alert(
+      err?.response?.data?.error ||
+      err?.response?.data?.details ||
+      err.message
+    );
+  }
+};
+
+useEffect(() => {
+  loadUsers();
+}, []);
+
+    
     const filtered = users.filter((u) => {
         const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
         const matchRole = roleFilter === "All Roles" || u.role === roleFilter;
@@ -191,8 +247,12 @@ export function UsersAccess() {
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowInviteModal(false)} className="flex-1 border border-[#2A2A2A] text-[#888] py-2.5 rounded-xl text-sm hover:text-white hover:border-[#3A3A3A] transition-all">Cancel</button>
-              <button onClick={() => setShowInviteModal(false)} className="flex-1 bg-[#F5C518] text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-[#E6B800] transition-all">Send Invite</button>
+              <button
+  onClick={handleCreateUser}
+  className="flex-1 bg-[#F5C518] text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-[#E6B800] transition-all"
+>
+  Send Invite
+</button>
             </div>
           </div>
         </div>)}
