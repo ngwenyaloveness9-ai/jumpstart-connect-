@@ -46,6 +46,12 @@ INSTALLED_APPS = [
     'authentication',
     'superadmin',
     'organization',
+
+    # Phase 3 apps
+    'jyc_apps.chat',
+    'jyc_apps.announcements',
+    'jyc_apps.files',
+    'jyc_apps.directory',
 ]
 
 MIDDLEWARE = [
@@ -129,6 +135,12 @@ USE_TZ = True
 # STATIC FILES
 # -------------------------------------------------
 STATIC_URL = '/static/'
+
+# -------------------------------------------------
+# MEDIA FILES (for file uploads)
+# -------------------------------------------------
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # -------------------------------------------------
 # DJANGO REST FRAMEWORK CONFIG
