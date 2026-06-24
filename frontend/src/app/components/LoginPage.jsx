@@ -15,76 +15,127 @@ export function LoginPage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const token = localStorage.getItem("token") || localStorage.getItem("accessToken");
+    const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("accessToken");
 
-        if (token) {
+    const user = JSON.parse(
+        localStorage.getItem("currentUser") || "{}"
+    );
+
+    if (token) {
+        if (
+            user?.role === "superadmin" ||
+            user?.role === "admin"
+        ) {
             navigate("/admin", { replace: true });
+        } else {
+            navigate("/dashboard", { replace: true });
         }
-    }, [navigate]);
+    }
+}, [navigate]);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
+    e.preventDefault();
+    setError("");
 
-        console.log("=== LOGIN START ===");
+    console.log("=== LOGIN START ===");
 
-        if (!email || !password) {
-            setError("Please enter your email and password.");
-            return;
-        }
+    if (!email || !password) {
+        setError("Please enter your email and password.");
+        return;
+    }
 
-        if (!email.includes("@")) {
-            setError("Please enter a valid organisational email address.");
-            return;
-        }
+    if (!email.includes("@")) {
+        setError("Please enter a valid organisational email address.");
+        return;
+    }
 
-        setLoading(true);
+    setLoading(true);
 
-        try {
-            console.log("Sending login request...");
-            console.log("Email:", email);
+    try {
+        console.log("Sending login request...");
+        console.log("Email:", email);
 
-            const response = await authApi.login({
-                email,
-                password,
+        const response = await authApi.login({
+            email,
+            password,
+        });
+
+        console.log("LOGIN RESPONSE:", response);
+
+        console.log("Login response:", response);
+
+        // First-time login
+        if (response?.first_login) {
+
+    localStorage.setItem(
+        "verification_email",
+        response.email || email
+    );
+
+    navigate("/verify-otp", {
+        state: {
+            email: response.email || email,
+            firstLogin: true,
+        },
+    });
+
+    return;
+}
+
+        // OTP required
+        if (response?.requires_otp) {
+            navigate("/verify-otp", {
+                state: {
+                    email,
+                },
             });
 
-            console.log("Login response:", response);
+            return;
+        }
 
-            if (response?.token) {
-                console.log("Token received:", response.token);
+        // Successful login
+        if (response?.token) {
+            localStorage.setItem("token", response.token);
 
-                localStorage.setItem("token", response.token);
-                localStorage.setItem(
-                    "currentUser",
-                    JSON.stringify(response.user || {})
-                );
+            localStorage.setItem(
+                "currentUser",
+                JSON.stringify(response.user || {})
+            );
 
+            // Route based on role
+            if (
+                response.user?.role === "superadmin" ||
+                response.user?.role === "admin"
+            ) {
                 navigate("/admin", { replace: true });
-                return;
+            } else {
+                navigate("/dashboard", { replace: true });
             }
 
-            setError(response?.message || "Login failed. Please try again.");
+            return;
         }
-        catch (err) {
-            console.error("LOGIN ERROR");
-            console.error(err);
-            console.error("MESSAGE:", err.message);
-            console.error("PAYLOAD:", err.payload);
-            console.error("RESPONSE:", err.response);
 
-            setError(
-                err.payload?.error ||
-                err.message ||
-                "Unable to sign in. Please check your credentials."
-            );
-        }
-        finally {
-            setLoading(false);
-            console.log("=== LOGIN END ===");
-        }
-    };
+        setError(response?.message || "Login failed. Please try again.");
+    } catch (err) {
+        console.error("LOGIN ERROR");
+        console.error(err);
+        console.error("MESSAGE:", err.message);
+        console.error("PAYLOAD:", err.payload);
+        console.error("RESPONSE:", err.response);
 
+        setError(
+            err?.response?.data?.error ||
+            err?.payload?.error ||
+            err?.message ||
+            "Unable to sign in. Please check your credentials."
+        );
+    } finally {
+        setLoading(false);
+        console.log("=== LOGIN END ===");
+    }
+};
     return (
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center relative p-8">
             {/* Theme Toggle Button */}

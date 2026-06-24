@@ -25,7 +25,8 @@ class CreateEmployeeView(APIView):
         serializer = EmployeeCreateSerializer(data=request.data)
 
         if not serializer.is_valid():
-            print("VALIDATION ERRORS:", serializer.errors)
+            print("VALIDATI" \
+            "ON ERRORS:", serializer.errors)
             print("REQUEST DATA:", request.data)
 
             return Response(

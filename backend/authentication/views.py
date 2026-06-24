@@ -29,11 +29,19 @@ class VerifyOTPView(APIView):
 
     def post(self, request):
 
+        print("REQUEST DATA:", request.data)
+
         serializer = OTPVerifySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+
+        if not serializer.is_valid():
+            print("SERIALIZER ERRORS:", serializer.errors)
+            return Response(serializer.errors, status=400)
 
         email = serializer.validated_data["email"]
         otp_code = serializer.validated_data["otp"]
+
+        print("EMAIL:", repr(email))
+        print("OTP:", repr(otp_code))
 
         try:
             otp = OTP.objects.filter(
@@ -41,13 +49,21 @@ class VerifyOTPView(APIView):
                 code=otp_code
             ).latest("created_at")
 
+            print("OTP FOUND:", otp.code)
+
         except OTP.DoesNotExist:
+            print("OTP NOT FOUND")
             return Response(
                 {"error": "Invalid OTP"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        print("USED:", otp.is_used)
+        print("EXPIRES:", otp.expires_at)
+        print("NOW:", timezone.now())
+
         if not otp.is_valid():
+            print("OTP INVALID")
             return Response(
                 {"error": "OTP expired or already used"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -56,12 +72,12 @@ class VerifyOTPView(APIView):
         otp.is_used = True
         otp.save()
 
+        print("OTP VERIFIED SUCCESS")
+
         return Response({
             "message": "OTP verified successfully",
             "first_login": True
         })
-
-
 # =====================================================
 # CREATE FIRST PASSWORD
 # =====================================================
