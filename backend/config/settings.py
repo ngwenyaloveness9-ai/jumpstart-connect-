@@ -59,13 +59,18 @@ INSTALLED_APPS = [
 'rest_framework.authtoken',
 'corsheaders',
 
-# Your apps
+
+# Your apps (core system modules)
 'users',
 'authentication',
 'superadmin',
 'organization',
 
-
+# Phase 3 apps
+'jyc_apps.chat',
+'jyc_apps.announcements',
+'jyc_apps.files',
+'jyc_apps.directory',
 ]
 
 MIDDLEWARE = [
@@ -173,6 +178,13 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# MEDIA FILES (for file uploads)
+# -------------------------------------------------
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# -------------------------------------------------
+# DJANGO REST FRAMEWORK CONFIG
 # -------------------------------------------------
 
 # DJANGO REST FRAMEWORK
