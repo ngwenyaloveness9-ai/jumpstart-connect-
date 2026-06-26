@@ -1,13 +1,31 @@
-export function UserDashboard() {
-  return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold">
-        Employee Dashboard
-      </h1>
+import { useState } from "react";
+import { Messages } from "./admin/Messages";
 
-      <p className="mt-4 text-muted-foreground">
-        Welcome to Jumpstart Connect.
-      </p>
+export function UserDashboard() {
+  const [threads, setThreads] = useState([]);
+  const [activeThreadId, setActiveThreadId] = useState(null);
+
+  const handleSelectThread = (id) => {
+    setActiveThreadId(id);
+  };
+
+  const handleSendMessage = (threadId, text, attachments, recipientEmail) => {
+    console.log({
+      threadId,
+      text,
+      attachments,
+      recipientEmail,
+    });
+  };
+
+  return (
+    <div className="h-screen bg-background p-6">
+      <Messages
+        threads={threads}
+        activeThreadId={activeThreadId}
+        onThreadSelect={handleSelectThread}
+        onSendMessage={handleSendMessage}
+      />
     </div>
   );
 }

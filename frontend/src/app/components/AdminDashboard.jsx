@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { LayoutDashboard, Users, Briefcase, Settings, Shield, Bell, Search, Zap, LogOut, Menu, X, Globe, Key, FileText, ChevronDown, Moon, Sun, MessageSquare, } from "lucide-react";
@@ -59,6 +60,11 @@ export function AdminDashboard() {
         try {
           setLoading(true);
           const data = await messageApi.getThreads();
+
+console.log("THREAD API RESPONSE:", data);
+console.log("TYPE:", typeof data);
+console.log("IS ARRAY:", Array.isArray(data));
+
           setThreads(data);
           if (data.length > 0) {
             setActiveThreadId(data[0].id);
