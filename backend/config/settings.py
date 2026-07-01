@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
 
-    # Your apps (core system modules)
+    # Your apps
     'users',
     'authentication',
     'superadmin',
@@ -143,8 +143,18 @@ REST_FRAMEWORK = {
 }
 
 # -------------------------------------------------
-# EMAIL CONFIGURATION (DEVELOPMENT)
+# GMAIL SMTP EMAIL CONFIGURATION
 # -------------------------------------------------
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-DEFAULT_FROM_EMAIL = 'noreply@jumpstart.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+EMAIL_HOST_USER = "ngwenyaloveness9@gmail.com"
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+
+DEFAULT_FROM_EMAIL = f"JumpStart Your Career <{EMAIL_HOST_USER}>"
