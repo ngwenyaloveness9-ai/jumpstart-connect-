@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useMemo, useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { LayoutDashboard, Users, Briefcase, Settings, Shield, Bell, Search, Zap, LogOut, Menu, X, Globe, Key, FileText, ChevronDown, Moon, Sun, MessageSquare, } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
@@ -14,7 +14,6 @@ import { ApiWebhooks } from "./admin/ApiWebhooks";
 import { AdminSettings } from "./admin/AdminSettings";
 import { Messages } from "./admin/Messages";
 import logo from "../../assets/images/jumpstart-logo.webp";
-import { messageApi } from "../services/messageApi";
 
 const SIDEBAR_ITEMS = [
     { icon: LayoutDashboard, label: "Dashboard", component: "Dashboard" },
@@ -28,7 +27,8 @@ const SIDEBAR_ITEMS = [
     { icon: MessageSquare, label: "Messages", component: "Messages" },
     { icon: Settings, label: "Settings", component: "Settings" },
 ];
-function renderSection(section, threads, activeThreadId, onThreadSelect, onSendMessage) {
+
+function renderSection(section) {
     switch (section) {
         case "Dashboard": return <DashboardHome />;
         case "Users": return <UsersAccess />;
@@ -38,76 +38,20 @@ function renderSection(section, threads, activeThreadId, onThreadSelect, onSendM
         case "Integrations": return <Integrations />;
         case "AuditLogs": return <AuditLogs />;
         case "ApiWebhooks": return <ApiWebhooks />;
-        case "Messages": return <Messages threads={threads} activeThreadId={activeThreadId} onThreadSelect={onThreadSelect} onSendMessage={onSendMessage}/>;
+        case "Messages": return <Messages />;
         case "Settings": return <AdminSettings />;
         default: return <DashboardHome />;
     }
 }
+
 export function AdminDashboard() {
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
-    const [threads, setThreads] = useState([]);
-    const [activeThreadId, setActiveThreadId] = useState(null);
     const [activeSection, setActiveSection] = useState("Dashboard");
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [search, setSearch] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    // Fetch threads on component mount
-    useEffect(() => {
-      const fetchThreads = async () => {
-        try {
-          setLoading(true);
-          const data = await messageApi.getThreads();
-
-console.log("THREAD API RESPONSE:", data);
-console.log("TYPE:", typeof data);
-console.log("IS ARRAY:", Array.isArray(data));
-
-          setThreads(data);
-          if (data.length > 0) {
-            setActiveThreadId(data[0].id);
-          }
-        } catch (err) {
-          setError(err.message);
-          console.error('Failed to load threads:', err);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchThreads();
-    }, []);
 
     const activeItem = SIDEBAR_ITEMS.find((i) => i.component === activeSection);
-    const unreadCount = useMemo(() => threads.filter((thread) => thread.unread).length, [threads]);
-
-    const handleSelectThread = async (id) => {
-      setActiveThreadId(id);
-      setActiveSection("Messages");
-      try {
-        await messageApi.markThreadAsRead(id);
-        setThreads((prev) => prev.map((thread) => thread.id === id ? { ...thread, unread: false } : thread));
-      } catch (err) {
-        console.error('Failed to mark thread as read:', err);
-      }
-    };
-
-    const handleSendMessage = async (threadId, messageText, attachments, recipientEmail) => {
-      try {
-        const updatedThread = await messageApi.sendMessage(threadId, {
-          text: messageText,
-          author: "You",
-          authorEmail: "admin@jumpstart.local",
-          contactEmail: recipientEmail,
-          attachments,
-        });
-        setThreads((prev) => prev.map((thread) => thread.id === threadId ? updatedThread : thread));
-      } catch (err) {
-        console.error('Failed to send message:', err);
-        setError(err.message);
-      }
-    };
 
     return (<div className="min-h-screen bg-background text-foreground flex" style={{ fontFamily: "system-ui, sans-serif" }}>
       {/* Mobile overlay */}
@@ -201,9 +145,6 @@ console.log("IS ARRAY:", Array.isArray(data));
             </button>
             <button onClick={() => setActiveSection("Messages")} className="relative text-muted-foreground hover:text-primary transition-colors p-2" aria-label="Open messages">
               <Bell size={18}/>
-              <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
-                {unreadCount}
-              </span>
             </button>
             <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-1.5 text-xs cursor-pointer hover:border-primary/30 transition-all">
               <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
@@ -217,7 +158,7 @@ console.log("IS ARRAY:", Array.isArray(data));
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-5">
-          {renderSection(activeSection, threads, activeThreadId, handleSelectThread, handleSendMessage)}
+          {renderSection(activeSection)}
         </main>
       </div>
     </div>);

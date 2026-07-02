@@ -166,16 +166,16 @@ class LoginView(APIView):
         token, _ = Token.objects.get_or_create(user=user)
 
         return Response({
-            "message": "Login successful",
-            "token": token.key,
-            "user": {
-                "email": user.email,
-                "role": user.role,
-                "first_name": user.first_name,
-                "last_name": user.last_name
-            }
-        })
-
+    "message": "Login successful",
+    "token": token.key,
+    "user": {
+        "id": user.id,
+        "email": user.email,
+        "role": user.role,
+        "first_name": user.first_name,
+        "last_name": user.last_name
+    }
+})
 
 # =====================================================
 # CHANGE PASSWORD
@@ -233,12 +233,12 @@ class MeView(APIView):
             return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "role": user.role
-        })
-
+    "id": user.id,
+    "email": user.email,
+    "first_name": user.first_name,
+    "last_name": user.last_name,
+    "role": user.role
+})
 
 # =====================================================
 # LOGOUT

@@ -1,40 +1,30 @@
-import { api, retryableGet } from "./api";
+import { api } from "./api";
 
 export const messageApi = {
-  // Fetch all message threads
-  getThreads: async () => {
-    return retryableGet("/messages/threads/");
-  },
-
-  // Fetch a specific thread with all messages
-  getThread: async (threadId) => {
-    const res = await api.get(`/messages/threads/${threadId}/`);
+  // Get inbox for the logged-in user
+  getThreads: async (userId) => {
+    const res = await api.get(`/chat/inbox/${userId}`);
     return res.data;
   },
 
-  // Send a message with optional attachments
-  sendMessage: async (threadId, { text, author, authorEmail, contactEmail, attachments }) => {
-    const formData = new FormData();
-    formData.append("text", text);
-    if (author) formData.append("author", author);
-    if (authorEmail) formData.append("author_email", authorEmail);
-    formData.append("contact_email", contactEmail || "");
+  // Get conversation between two users
+ getThread: async (currentUserId, otherUserId) => {
+    const res = await api.get(
+        `/chat/conversation/${currentUserId}/${otherUserId}`
+    );
 
-    if (attachments && attachments.length > 0) {
-      attachments.forEach((file) => {
-        formData.append("attachments", file);
-      });
-    }
+    console.log("CONVERSATION RESPONSE:", res.data);
 
-    const res = await api.post(`/messages/threads/${threadId}/messages/`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    return res.data;
+},
+  // Send a direct message
+  sendMessage: async ({ senderId, receiverId, message }) => {
+    const res = await api.post("/chat/send", {
+      sender_id: senderId,
+      receiver_id: receiverId,
+      message,
     });
-    return res.data;
-  },
 
-  // Mark a thread as read
-  markThreadAsRead: async (threadId) => {
-    const res = await api.patch(`/messages/threads/${threadId}/mark-read/`);
     return res.data;
   },
 };
