@@ -4,6 +4,7 @@ from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 from authentication.models import OTP
 
@@ -28,11 +29,19 @@ class VerifyOTPView(APIView):
 
     def post(self, request):
 
+        print("REQUEST DATA:", request.data)
+
         serializer = OTPVerifySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+
+        if not serializer.is_valid():
+            print("SERIALIZER ERRORS:", serializer.errors)
+            return Response(serializer.errors, status=400)
 
         email = serializer.validated_data["email"]
         otp_code = serializer.validated_data["otp"]
+
+        print("EMAIL:", repr(email))
+        print("OTP:", repr(otp_code))
 
         try:
             otp = OTP.objects.filter(
@@ -40,13 +49,21 @@ class VerifyOTPView(APIView):
                 code=otp_code
             ).latest("created_at")
 
+            print("OTP FOUND:", otp.code)
+
         except OTP.DoesNotExist:
+            print("OTP NOT FOUND")
             return Response(
                 {"error": "Invalid OTP"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        print("USED:", otp.is_used)
+        print("EXPIRES:", otp.expires_at)
+        print("NOW:", timezone.now())
+
         if not otp.is_valid():
+            print("OTP INVALID")
             return Response(
                 {"error": "OTP expired or already used"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -55,12 +72,12 @@ class VerifyOTPView(APIView):
         otp.is_used = True
         otp.save()
 
+        print("OTP VERIFIED SUCCESS")
+
         return Response({
             "message": "OTP verified successfully",
             "first_login": True
         })
-
-
 # =====================================================
 # CREATE FIRST PASSWORD
 # =====================================================
@@ -106,6 +123,9 @@ class CreatePasswordView(APIView):
 # =====================================================
 # NORMAL LOGIN
 # =====================================================
+from rest_framework.authtoken.models import Token
+
+
 class LoginView(APIView):
 
     authentication_classes = []
@@ -119,10 +139,17 @@ class LoginView(APIView):
         email = serializer.validated_data["email"]
         password = serializer.validated_data["password"]
 
+        print("================================")
+        print("EMAIL RECEIVED:", repr(email))
+        print("PASSWORD RECEIVED:", repr(password))
+        print("================================")
+
         user = authenticate(
             username=email,
             password=password
         )
+
+        print("AUTH RESULT:", user)
 
         if not user:
             return Response(
@@ -136,14 +163,19 @@ class LoginView(APIView):
                 "message": "Password expired"
             })
 
-        return Response({
-            "message": "Login successful",
-            "email": user.email,
-            "role": user.role,
-            "first_name": user.first_name,
-            "last_name": user.last_name
-        })
+        token, _ = Token.objects.get_or_create(user=user)
 
+        return Response({
+    "message": "Login successful",
+    "token": token.key,
+    "user": {
+        "id": user.id,
+        "email": user.email,
+        "role": user.role,
+        "first_name": user.first_name,
+        "last_name": user.last_name
+    }
+})
 
 # =====================================================
 # CHANGE PASSWORD
@@ -188,3 +220,35 @@ class ChangePasswordView(APIView):
         return Response({
             "message": "Password changed successfully"
         })
+
+
+# =====================================================
+# ME (CURRENT USER)
+# =====================================================
+class MeView(APIView):
+
+    def get(self, request):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response({
+    "id": user.id,
+    "email": user.email,
+    "first_name": user.first_name,
+    "last_name": user.last_name,
+    "role": user.role
+})
+
+# =====================================================
+# LOGOUT
+# =====================================================
+class LogoutView(APIView):
+
+    def post(self, request):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        Token.objects.filter(user=user).delete()
+        return Response({"message": "Logged out successfully."})
