@@ -245,6 +245,7 @@ export function Messages({
   const currentUserId = currentUser?.id ?? null;
 
   const [directMessages, setDirectMessages] = useState([]);
+  const [availableContacts, setAvailableContacts] = useState([]);
   const [activeChannelId, setActiveChannelId] = useState(null);
   const [conversationMessages, setConversationMessages] = useState([]);
   const [loadingInbox, setLoadingInbox] = useState(true);
@@ -315,9 +316,62 @@ export function Messages({
     }
   }, [currentUserId]);
 
+  const loadContacts = useCallback(async () => {
+    if (!currentUserId) {
+      setAvailableContacts([]);
+      return;
+    }
+
+    try {
+      const data = await messageApi.getContacts(currentUserId);
+      const contacts = Array.isArray(data?.contacts) ? data.contacts : [];
+      setAvailableContacts(contacts);
+    } catch (err) {
+      console.error("Failed to load contacts:", err);
+      setAvailableContacts([]);
+    }
+  }, [currentUserId]);
+
   useEffect(() => {
     loadInbox();
-  }, [loadInbox]);
+    loadContacts();
+  }, [loadInbox, loadContacts]);
+
+  const sidebarContacts = useMemo(() => {
+    const existingIds = new Set(directMessages.map((conversation) => conversation.id));
+
+    return (availableContacts || [])
+      .filter((contact) => !existingIds.has(contact.id))
+      .map((contact) => ({
+        id: contact.id,
+        name: contact.name || contact.email || "Unknown",
+        email: contact.email,
+        department: contact.department,
+        role: contact.role,
+        lastMessage: "",
+        lastTimestamp: null,
+        unread: 0,
+        isContact: true,
+      }));
+  }, [availableContacts, directMessages]);
+
+  const sidebarChannels = useMemo(() => {
+    return [...directMessages, ...sidebarContacts].sort((a, b) => {
+      if (!a.lastTimestamp && !b.lastTimestamp) return 0;
+      if (!a.lastTimestamp) return 1;
+      if (!b.lastTimestamp) return -1;
+      return new Date(b.lastTimestamp) - new Date(a.lastTimestamp);
+    });
+  }, [directMessages, sidebarContacts]);
+
+  useEffect(() => {
+    setActiveChannelId((prev) => {
+      if (prev && sidebarChannels.some((channel) => channel.id === prev)) {
+        return prev;
+      }
+      return sidebarChannels[0]?.id ?? null;
+    });
+  }, [sidebarChannels]);
 
   // ── Load the open conversation's messages ─────────────────────────────────
   const loadConversation = useCallback(async (partnerId) => {
@@ -380,9 +434,15 @@ export function Messages({
     return directMessages.filter((d) => d.name.toLowerCase().includes(q));
   }, [directMessages, channelSearch]);
 
+  const filteredContacts = useMemo(() => {
+    if (!channelSearch.trim()) return sidebarContacts;
+    const q = channelSearch.toLowerCase();
+    return sidebarContacts.filter((contact) => contact.name.toLowerCase().includes(q));
+  }, [sidebarContacts, channelSearch]);
+
   const selectedChannel = useMemo(
-    () => directMessages.find((d) => d.id === activeChannelId) ?? null,
-    [directMessages, activeChannelId]
+    () => sidebarChannels.find((channel) => channel.id === activeChannelId) ?? null,
+    [sidebarChannels, activeChannelId]
   );
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -419,6 +479,7 @@ export function Messages({
 
       await loadConversation(selectedChannel.id);
       await loadInbox();
+      await loadContacts();
     } catch (err) {
       console.error("Failed to send message:", err);
       setError(err.message);
@@ -504,14 +565,37 @@ export function Messages({
             </button>
             {dmsExpanded && (
               <div className="space-y-0.5 mt-1">
-                {filteredDMs.map((dm) => (
-                  <DMItem
-                    key={dm.id}
-                    dm={dm}
-                    isActive={dm.id === selectedChannel.id}
-                    onSelect={handleChannelSelect}
-                  />
-                ))}
+                {filteredDMs.length > 0 && (
+                  <>
+                    <div className="px-1 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#444]">
+                      Conversations
+                    </div>
+                    {filteredDMs.map((dm) => (
+                      <DMItem
+                        key={dm.id}
+                        dm={dm}
+                        isActive={dm.id === selectedChannel?.id}
+                        onSelect={handleChannelSelect}
+                      />
+                    ))}
+                  </>
+                )}
+
+                {filteredContacts.length > 0 && (
+                  <>
+                    <div className="px-1 py-1 mt-2 text-[10px] font-semibold uppercase tracking-wider text-[#444]">
+                      Available people
+                    </div>
+                    {filteredContacts.map((contact) => (
+                      <DMItem
+                        key={contact.id}
+                        dm={{ ...contact, unread: 0 }}
+                        isActive={contact.id === selectedChannel?.id}
+                        onSelect={handleChannelSelect}
+                      />
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>

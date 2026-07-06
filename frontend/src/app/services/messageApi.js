@@ -7,6 +7,12 @@ export const messageApi = {
     return res.data;
   },
 
+  // Get all active users that can be messaged
+  getContacts: async (userId) => {
+    const res = await api.get(`/chat/contacts/${userId}`);
+    return res.data;
+  },
+
   // Get conversation between two users
  getThread: async (currentUserId, otherUserId) => {
     const res = await api.get(

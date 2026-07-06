@@ -77,6 +77,30 @@ class GetConversationView(View):
         return JsonResponse({"messages": data, "count": len(data)})
 
 
+class GetContactsView(View):
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Employee not found"}, status=404)
+
+        contacts = (
+            User.objects.filter(is_active=True)
+            .exclude(id=user.id)
+            .order_by('first_name', 'last_name', 'email')
+        )
+
+        data = [{
+            "id": contact.id,
+            "name": f"{contact.first_name} {contact.last_name}".strip() or contact.email,
+            "email": contact.email,
+            "department": contact.department or "",
+            "role": contact.role or "",
+        } for contact in contacts]
+
+        return JsonResponse({"contacts": data, "count": len(data)})
+
+
 class GetInboxView(View):
     def get(self, request, user_id):
         try:
