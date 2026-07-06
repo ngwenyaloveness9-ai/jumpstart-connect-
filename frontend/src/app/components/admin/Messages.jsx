@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
   Hash,
@@ -25,6 +24,7 @@ import {
   Mic,
   X,
   MessageSquare,
+  CornerUpRight,
 } from "lucide-react";
 import { messageApi } from "../../services/messageApi";
 
@@ -37,36 +37,183 @@ const ATTACH_ICONS = {
   image: { color: "text-purple-400", bg: "bg-purple-500/10" },
 };
 
-function AttachmentCard({ att }) {
+function AttachmentCard({ att, onShare }) {
   const s = ATTACH_ICONS[att.type] || ATTACH_ICONS.pdf;
-  if (att.type === "image") {
+  const isImage = att.type === "image" || att.mimeType?.startsWith?.("image/");
+
+  if (isImage) {
     return (
-      <div className="mt-2 rounded-xl overflow-hidden border border-[#2A2A2A] max-w-xs">
-        <div className={`h-32 ${s.bg} flex items-center justify-center`}>
-          <ImageIcon size={32} className={s.color} />
-        </div>
-        <div className="flex items-center justify-between bg-[#1A1A1A] px-3 py-2">
-          <div className="flex items-center gap-2">
-            <ImageIcon size={12} className={s.color} />
-            <span className="text-xs text-[#888]">{att.name}</span>
+      <div className="mt-2 rounded-xl overflow-hidden border border-[#2A2A2A] max-w-xs bg-[#111]">
+        <a
+          href={att.url}
+          target="_blank"
+          rel="noreferrer noopener"
+          className={`block h-32 ${s.bg} overflow-hidden`}
+        >
+          <img
+            src={att.url}
+            alt={att.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center text-white/80">
+            <ImageIcon size={32} className={s.color} />
           </div>
-          <span className="text-[10px] text-[#444]">{att.size}</span>
+        </a>
+        <div className="flex items-center justify-between bg-[#1A1A1A] px-3 py-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <ImageIcon size={12} className={s.color} />
+            <span className="text-xs text-[#888] truncate">{att.name}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href={att.url}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-[#444] hover:text-white transition-colors"
+              title="Open attachment"
+            >
+              <Download size={13} />
+            </a>
+            <button
+              type="button"
+              onClick={() => onShare?.(att)}
+              className="text-[#444] hover:text-white transition-colors"
+              title="Share attachment"
+            >
+              <CornerUpRight size={13} />
+            </button>
+          </div>
         </div>
       </div>
     );
   }
+
   return (
-    <div className="mt-2 flex items-center gap-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-3 py-2.5 max-w-xs group/att">
-      <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center flex-shrink-0`}>
-        <FileText size={14} className={s.color} />
+    <div className="mt-2 rounded-xl overflow-hidden border border-[#2A2A2A] max-w-xs bg-[#111]">
+      <a
+        href={att.url}
+        target="_blank"
+        rel="noreferrer noopener"
+        className="flex items-center gap-3 px-3 py-2.5 group/att hover:border-[#444] transition-colors"
+      >
+        <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center flex-shrink-0`}>
+          <FileText size={14} className={s.color} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-white truncate">{att.name}</p>
+          <p className="text-[10px] text-[#444]">{att.size} · {att.type.toUpperCase()}</p>
+        </div>
+      </a>
+      <div className="flex items-center justify-between bg-[#1A1A1A] px-3 py-2">
+        <div className="text-[10px] text-[#444] truncate">{att.type.toUpperCase()}</div>
+        <div className="flex items-center gap-2">
+          <a
+            href={att.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-[#444] hover:text-white transition-colors"
+            title="Open attachment"
+          >
+            <Download size={13} />
+          </a>
+          <button
+            type="button"
+            onClick={() => onShare?.(att)}
+            className="text-[#444] hover:text-white transition-colors"
+            title="Share attachment"
+          >
+            <CornerUpRight size={13} />
+          </button>
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-white truncate">{att.name}</p>
-        <p className="text-[10px] text-[#444]">{att.size} · {att.type.toUpperCase()}</p>
+    </div>
+  );
+}
+
+function ShareAttachmentModal({
+  attachment,
+  targets,
+  selectedTargetId,
+  onSelectTarget,
+  note,
+  onNoteChange,
+  onClose,
+  onSubmit,
+  submitting,
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-3xl border border-[#2A2A2A] bg-[#0B0B0B] shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E1E1E]">
+          <div>
+            <h3 className="text-sm font-semibold text-white">Share attachment</h3>
+            <p className="text-[11px] text-[#777]">Choose a recipient and add an optional note.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[#888] hover:text-white transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-3">
+            <p className="text-xs text-[#888]">Attachment</p>
+            <p className="mt-1 text-sm text-white truncate">{attachment?.name}</p>
+          </div>
+
+          <div>
+            <label className="text-[11px] text-[#888] uppercase tracking-[0.2em]">Recipient</label>
+            <select
+              value={selectedTargetId || ""}
+              onChange={(e) => onSelectTarget(e.target.value)}
+              className="mt-2 w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
+            >
+              <option value="" disabled>
+                Select a user
+              </option>
+              {targets.map((target) => (
+                <option key={target.id} value={target.id}>
+                  {target.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[11px] text-[#888] uppercase tracking-[0.2em]">Note</label>
+            <textarea
+              value={note}
+              onChange={(e) => onNoteChange(e.target.value)}
+              className="mt-2 h-24 w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-3 py-2 text-sm text-white focus:outline-none focus:border-primary resize-none"
+              placeholder="Add a note or context..."
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-[#2A2A2A] px-4 py-2 text-sm text-[#888] hover:border-white hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={!selectedTargetId || submitting}
+              onClick={onSubmit}
+              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {submitting ? "Sharing…" : "Share attachment"}
+            </button>
+          </div>
+        </div>
       </div>
-      <button className="opacity-0 group-hover/att:opacity-100 transition-opacity text-[#444] hover:text-white">
-        <Download size={13} />
-      </button>
     </div>
   );
 }
@@ -97,7 +244,7 @@ function SystemMessage({ text }) {
   );
 }
 
-function MessageRow({ msg, onReact }) {
+function MessageRow({ msg, onReact, onShare }) {
   const [hovered, setHovered] = useState(false);
 
   if (msg.system) return <SystemMessage text={msg.text} />;
@@ -127,7 +274,7 @@ function MessageRow({ msg, onReact }) {
         {msg.attachments?.length > 0 && (
           <div className="mt-2 space-y-2">
             {msg.attachments.map((att, idx) => (
-              <AttachmentCard key={idx} att={att} />
+              <AttachmentCard key={idx} att={att} onShare={onShare} />
             ))}
           </div>
         )}
@@ -138,7 +285,7 @@ function MessageRow({ msg, onReact }) {
             {msg.reactions.map((r) => (
               <ReactionPill key={r.emoji} {...r} onToggle={() => onReact(msg.id, r.emoji)} />
             ))}
-            <button className="flex items-center justify-center w-7 h-5 rounded-full bg-[#1E1E1E] border border-[#2A2A2A] text-[#444] hover:text-white hover:border-[#444] transition-all text-xs">
+            <button className="flex items-center justify-center w-7 h-5 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] text-[#444] hover:text-white hover:border-[#444] transition-all text-xs">
               <Plus size={10} />
             </button>
           </div>
@@ -252,9 +399,12 @@ export function Messages({
   const [loadingConversation, setLoadingConversation] = useState(false);
   const [error, setError] = useState(null);
 
-  const fileInputRef = useRef(null);
   const [draft, setDraft] = useState("");
   const [attachments, setAttachments] = useState([]);
+  const [shareAttachment, setShareAttachment] = useState(null);
+  const [shareRecipientId, setShareRecipientId] = useState(null);
+  const [shareNote, setShareNote] = useState("");
+  const [shareSubmitting, setShareSubmitting] = useState(false);
   const [dmsExpanded, setDmsExpanded] = useState(true);
   const [channelSearch, setChannelSearch] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -364,6 +514,14 @@ export function Messages({
     });
   }, [directMessages, sidebarContacts]);
 
+  const shareTargets = useMemo(() => {
+    const unique = new Map();
+    sidebarChannels.forEach((target) => {
+      if (!unique.has(target.id)) unique.set(target.id, target);
+    });
+    return Array.from(unique.values());
+  }, [sidebarChannels]);
+
   useEffect(() => {
     setActiveChannelId((prev) => {
       if (prev && sidebarChannels.some((channel) => channel.id === prev)) {
@@ -403,8 +561,18 @@ export function Messages({
         .map((m) => ({
           id: m.id,
           author: m.sender_id === currentUserId ? "You" : m.sender_name,
-          text: m.message,
+          text: m.message || "",
           time: formatTime(m.timestamp),
+          attachments: Array.isArray(m.attachments)
+            ? m.attachments.map((att) => ({
+                id: att.id,
+                name: att.name,
+                size: typeof att.size === "number" ? `${(att.size / 1024).toFixed(1)} KB` : att.size,
+                type: att.type,
+                mimeType: att.mimeType,
+                url: att.url,
+              }))
+            : [],
         }));
 
       setConversationMessages(mapped);
@@ -415,7 +583,7 @@ export function Messages({
     } finally {
       setLoadingConversation(false);
     }
-  }, [currentUserId]);
+  }, [currentUserId, activeChannelId]);
 
   useEffect(() => {
     if (activeChannelId) {
@@ -450,6 +618,46 @@ export function Messages({
     setActiveChannelId(id);
   }, []);
 
+  const handleOpenShareAttachment = (attachment) => {
+    setShareAttachment(attachment);
+    setShareRecipientId(shareTargets[0]?.id || null);
+    setShareNote("");
+  };
+
+  const handleCloseShareAttachment = () => {
+    setShareAttachment(null);
+    setShareRecipientId(null);
+    setShareNote("");
+    setShareSubmitting(false);
+  };
+
+  const handleConfirmShareAttachment = async () => {
+    if (!shareAttachment || !shareRecipientId || !currentUserId) return;
+
+    try {
+      setShareSubmitting(true);
+      setError(null);
+
+      await messageApi.shareAttachment({
+        senderId: currentUserId,
+        receiverId: shareRecipientId,
+        attachmentId: shareAttachment.id,
+        message: shareNote.trim(),
+      });
+
+      if (shareRecipientId === activeChannelId) {
+        await loadConversation(activeChannelId);
+      }
+      await loadInbox();
+      await loadContacts();
+      handleCloseShareAttachment();
+    } catch (err) {
+      console.error("Failed to share attachment:", err);
+      setError(err.message);
+      setShareSubmitting(false);
+    }
+  };
+
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
@@ -463,13 +671,14 @@ export function Messages({
 
   const handleSendMessage = async () => {
     const text = draft.trim();
-    if (!selectedChannel || !currentUserId || !text) return;
+    if (!selectedChannel || !currentUserId || (!text && attachments.length === 0)) return;
 
     try {
       await messageApi.sendMessage({
         senderId: currentUserId,
         receiverId: selectedChannel.id,
         message: text,
+        attachments,
       });
 
       setDraft("");
@@ -641,7 +850,7 @@ export function Messages({
               </div>
             ) : (
               conversationMessages.map((msg) => (
-                <MessageRow key={msg.id} msg={msg} onReact={handleReact} />
+                <MessageRow key={msg.id} msg={msg} onReact={handleReact} onShare={handleOpenShareAttachment} />
               ))
             )}
 
@@ -679,7 +888,7 @@ export function Messages({
                 style={{ minHeight: "44px", maxHeight: "120px" }}
               />
 
-              {/* Attachments preview (UI only — backend has no attachment support yet) */}
+              {/* Attachments preview */}
               {attachments.length > 0 && (
                 <div className="px-3 pb-2 space-y-1.5">
                   {attachments.map((file) => {
@@ -711,21 +920,33 @@ export function Messages({
                 <div className="flex items-center gap-1">
                   {[
                     { icon: Smile, label: "Emoji" },
-                    { icon: Paperclip, label: "Attach", onClick: () => fileInputRef.current?.click() },
+                    { icon: Paperclip, label: "Attach", isLabel: true },
                     { icon: AtSign, label: "Mention" },
                     { icon: Mic, label: "Voice note" },
-                  ].map(({ icon: Icon, label, onClick }) => (
-                    <button
-                      key={label}
-                      title={label}
-                      onClick={onClick}
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-[#444] hover:text-white hover:bg-[#2A2A2A] transition-all"
-                    >
-                      <Icon size={14} />
-                    </button>
-                  ))}
+                  ].map(({ icon: Icon, label, isLabel }) =>
+                    isLabel ? (
+                      <label
+                        key={label}
+                        htmlFor="chat-file-input"
+                        title={label}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-[#444] hover:text-white hover:bg-[#2A2A2A] transition-all cursor-pointer"
+                      >
+                        <Icon size={14} />
+                      </label>
+                    ) : (
+                      <button
+                        key={label}
+                        title={label}
+                        type="button"
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-[#444] hover:text-white hover:bg-[#2A2A2A] transition-all"
+                      >
+                        <Icon size={14} />
+                      </button>
+                    )
+                  )}
+
                   <input
-                    ref={fileInputRef}
+                    id="chat-file-input"
                     type="file"
                     className="hidden"
                     multiple
@@ -734,7 +955,7 @@ export function Messages({
                 </div>
                 <button
                   onClick={handleSendMessage}
-                  disabled={!draft.trim()}
+                  disabled={!draft.trim() && attachments.length === 0}
                   className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <Send size={12} /> Send
@@ -748,6 +969,20 @@ export function Messages({
           </div>
         </div>
       </div>
+
+      {shareAttachment && (
+        <ShareAttachmentModal
+          attachment={shareAttachment}
+          targets={shareTargets}
+          selectedTargetId={shareRecipientId}
+          onSelectTarget={setShareRecipientId}
+          note={shareNote}
+          onNoteChange={setShareNote}
+          onClose={handleCloseShareAttachment}
+          onSubmit={handleConfirmShareAttachment}
+          submitting={shareSubmitting}
+        />
+      )}
     </div>
   );
 }
