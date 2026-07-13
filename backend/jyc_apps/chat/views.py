@@ -6,7 +6,14 @@ from django.contrib.auth import get_user_model
 import json
 from django.conf import settings
 
-from .models import Message, MessageAttachment
+from .models import (
+    Message,
+    MessageAttachment,
+    Group,
+    GroupMember,
+    GroupMessage,
+    GroupMessageAttachment,
+)
 
 User = get_user_model()
 
@@ -260,3 +267,361 @@ class GetInboxView(View):
             })
 
         return JsonResponse({"inbox": data, "count": len(data)})
+# =====================================================
+# GROUP CHAT
+# =====================================================
+
+class GetGroupsView(View):
+
+    def get(self, request, user_id):
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse(
+                {"error": "User not found"},
+                status=404
+            )
+
+        groups = (
+            Group.objects
+            .filter(members__user=user)
+            .distinct()
+            .order_by("name")
+        )
+
+        results = []
+
+        for group in groups:
+
+            results.append({
+
+                "id": group.id,
+                "name": group.name,
+                "description": group.description,
+                "group_type": group.group_type,
+
+            })
+
+        return JsonResponse({
+            "groups": results,
+            "count": len(results)
+        })
+
+
+class GetGroupMessagesView(View):
+
+    def get(self, request, group_id):
+
+        try:
+            group = Group.objects.get(id=group_id)
+        except Group.DoesNotExist:
+            return JsonResponse(
+                {"error": "Group not found"},
+                status=404
+            )
+
+        messages = (
+            GroupMessage.objects
+            .filter(group=group)
+            .select_related("sender")
+            .order_by("created_at")
+        )
+
+        results = []
+
+        for msg in messages:
+
+            attachments = []
+
+            for att in msg.attachments.all():
+
+                content_type = att.content_type or ""
+
+                simplified_type = "file"
+
+                if content_type.startswith("image/"):
+                    simplified_type = "image"
+
+                elif "pdf" in content_type:
+                    simplified_type = "pdf"
+
+                elif "excel" in content_type or "spreadsheet" in content_type:
+                    simplified_type = "excel"
+
+                elif "word" in content_type or "msword" in content_type:
+                    simplified_type = "word"
+
+                attachments.append({
+                    "id": att.id,
+                    "name": att.filename,
+                    "size": att.size_bytes,
+                    "type": simplified_type,
+                    "mimeType": att.content_type,
+                    "url": request.build_absolute_uri(att.file.url),
+                })
+
+            results.append({
+                "id": msg.id,
+                "sender_id": msg.sender.id,
+                "sender_name": f"{msg.sender.first_name} {msg.sender.last_name}",
+                "message": msg.message,
+                "timestamp": msg.created_at.isoformat(),
+                "attachments": attachments,
+            })
+
+        return JsonResponse({
+            "group": group.name,
+            "messages": results,
+            "count": len(results)
+        })
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class SendGroupMessageView(View):
+
+    def post(self, request):
+
+        # --------------------------
+        # Handle multipart uploads
+        # --------------------------
+
+        if request.content_type and "multipart/form-data" in request.content_type:
+
+            sender_id = request.POST.get("sender_id")
+            group_id = request.POST.get("group_id")
+            message = request.POST.get("message", "").strip()
+
+            attachments = request.FILES.getlist("attachments")
+
+        else:
+
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse(
+                    {"error": "Invalid JSON"},
+                    status=400
+                )
+
+            sender_id = data.get("sender_id")
+            group_id = data.get("group_id")
+            message = data.get("message", "").strip()
+
+            attachments = []
+
+        if not message and not attachments:
+
+            return JsonResponse(
+                {"error": "Message cannot be empty"},
+                status=400
+            )
+
+        try:
+            sender = User.objects.get(id=sender_id)
+        except User.DoesNotExist:
+
+            return JsonResponse(
+                {"error": "Sender not found"},
+                status=404
+            )
+
+        try:
+            group = Group.objects.get(id=group_id)
+        except Group.DoesNotExist:
+
+            return JsonResponse(
+                {"error": "Group not found"},
+                status=404
+            )
+
+        group_message = GroupMessage.objects.create(
+            sender=sender,
+            group=group,
+            message=message
+        )
+
+        attachment_payload = []
+
+        for attachment in attachments:
+
+            content_type = getattr(
+                attachment,
+                "content_type",
+                ""
+            ) or "application/octet-stream"
+
+            simplified_type = "file"
+
+            if content_type.startswith("image/"):
+                simplified_type = "image"
+
+            elif "pdf" in content_type:
+                simplified_type = "pdf"
+
+            elif "excel" in content_type or "spreadsheet" in content_type:
+                simplified_type = "excel"
+
+            elif "word" in content_type or "msword" in content_type:
+                simplified_type = "word"
+
+            att = GroupMessageAttachment.objects.create(
+                message=group_message,
+                file=attachment,
+                filename=attachment.name,
+                content_type=content_type,
+                size_bytes=getattr(
+                    attachment,
+                    "size",
+                    0
+                )
+            )
+
+            attachment_payload.append({
+
+                "id": att.id,
+
+                "name": att.filename,
+
+                "size": att.size_bytes,
+
+                "type": simplified_type,
+
+                "mimeType": att.content_type,
+
+                "url": request.build_absolute_uri(att.file.url)
+
+            })
+
+        return JsonResponse({
+
+            "status": "sent",
+
+            "message": {
+
+                "id": group_message.id,
+
+                "sender_id": sender.id,
+
+                "sender_name": f"{sender.first_name} {sender.last_name}",
+
+                "group_id": group.id,
+
+                "group_name": group.name,
+
+                "message": group_message.message,
+
+                "timestamp": group_message.created_at.isoformat(),
+
+                "attachments": attachment_payload
+
+            }
+
+        }, status=201)
+@method_decorator(csrf_exempt, name="dispatch")
+class ContactDepartmentView(View):
+
+    def post(self, request):
+
+        if request.content_type and "multipart/form-data" in request.content_type:
+
+            sender_id = request.POST.get("sender_id")
+            group_id = request.POST.get("group_id")
+            message_text = request.POST.get("message", "").strip()
+
+            attachments = request.FILES.getlist("attachments")
+
+        else:
+
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse(
+                    {"error": "Invalid JSON"},
+                    status=400
+                )
+
+            sender_id = data.get("sender_id")
+            group_id = data.get("group_id")
+            message_text = data.get("message", "").strip()
+
+            attachments = []
+
+        if not message_text and not attachments:
+
+            return JsonResponse(
+                {"error": "Message cannot be empty"},
+                status=400
+            )
+
+        try:
+            sender = User.objects.get(id=sender_id)
+        except User.DoesNotExist:
+
+            return JsonResponse(
+                {"error": "Sender not found"},
+                status=404
+            )
+
+        try:
+            group = Group.objects.get(id=group_id)
+        except Group.DoesNotExist:
+
+            return JsonResponse(
+                {"error": "Department not found"},
+                status=404
+            )
+
+        # Members of the department
+        members = (
+            GroupMember.objects
+            .filter(group=group)
+            .select_related("user")
+        )
+
+        delivered = 0
+
+        for member in members:
+
+            # Don't send to yourself
+            if member.user.id == sender.id:
+                continue
+
+            private_message = Message.objects.create(
+                sender=sender,
+                receiver=member.user,
+                message=f"[{group.name}] {message_text}"
+            )
+
+            for attachment in attachments:
+
+                MessageAttachment.objects.create(
+                    message=private_message,
+                    file=attachment,
+                    filename=attachment.name,
+                    content_type=getattr(
+                        attachment,
+                        "content_type",
+                        ""
+                    ),
+                    size_bytes=getattr(
+                        attachment,
+                        "size",
+                        0
+                    ),
+                    scan_status="pending",
+                    is_safe=True,
+                    moderation_reason=""
+                )
+
+            delivered += 1
+
+        return JsonResponse({
+
+            "status": "sent",
+
+            "department": group.name,
+
+            "delivered_to": delivered
+
+        }, status=201) 

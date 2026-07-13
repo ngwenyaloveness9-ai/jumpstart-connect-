@@ -1,10 +1,79 @@
 from django.urls import path
-from .views import SendMessageView, ShareAttachmentView, GetConversationView, GetInboxView, GetContactsView
+
+from .views import (
+    SendMessageView,
+    ShareAttachmentView,
+    GetConversationView,
+    GetInboxView,
+    GetContactsView,
+    GetGroupsView,
+    GetGroupMessagesView,
+    SendGroupMessageView,
+    ContactDepartmentView,
+)
 
 urlpatterns = [
-    path('send', SendMessageView.as_view(), name='chat-send'),
-    path('share', ShareAttachmentView.as_view(), name='chat-share'),
-    path('conversation/<int:user1_id>/<int:user2_id>', GetConversationView.as_view(), name='chat-conversation'),
-    path('contacts/<int:user_id>', GetContactsView.as_view(), name='chat-contacts'),
-    path('inbox/<int:user_id>', GetInboxView.as_view(), name='chat-inbox'),
+
+    # -------------------------
+    # PRIVATE CHAT
+    # -------------------------
+
+    path(
+        "send",
+        SendMessageView.as_view(),
+        name="chat-send"
+    ),
+
+    path(
+        "share",
+        ShareAttachmentView.as_view(),
+        name="chat-share"
+    ),
+
+    path(
+        "conversation/<int:user1_id>/<int:user2_id>",
+        GetConversationView.as_view(),
+        name="chat-conversation"
+    ),
+
+    path(
+        "contacts/<int:user_id>",
+        GetContactsView.as_view(),
+        name="chat-contacts"
+    ),
+
+    path(
+        "inbox/<int:user_id>",
+        GetInboxView.as_view(),
+        name="chat-inbox"
+    ),
+
+    # -------------------------
+    # GROUP CHAT
+    # -------------------------
+
+    path(
+        "groups/<int:user_id>",
+        GetGroupsView.as_view(),
+        name="chat-groups"
+    ),
+
+    path(
+        "group/<int:group_id>/messages",
+        GetGroupMessagesView.as_view(),
+        name="group-messages"
+    ),
+
+    path(
+        "group/send",
+        SendGroupMessageView.as_view(),
+        name="group-send"
+    ),
+    path(
+    "department/contact",
+    ContactDepartmentView.as_view(),
+    name="department-contact"
+),
+
 ]
+    

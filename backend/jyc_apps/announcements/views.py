@@ -5,59 +5,363 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 import json
 
-from .models import Announcement
+from .models import Announcement, AnnouncementAttachment
+from jyc_apps.chat.models import Group
 
 User = get_user_model()
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class CreateAnnouncementView(View):
+
     def post(self, request):
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-        author_id = data.get('author_id')
-        title = data.get('title', '').strip()
-        body = data.get('body', '').strip()
+        # -------------------------------------
+        # Support multipart/form-data and JSON
+        # -------------------------------------
 
-        if not title or not body:
-            return JsonResponse({"error": "Title and body cannot be empty"}, status=400)
+        if request.content_type and "multipart/form-data" in request.content_type:
+
+            author_id = request.POST.get("author_id")
+
+            title = request.POST.get("title", "").strip()
+
+            body = request.POST.get("body", "").strip()
+
+            target_type = request.POST.get(
+                "target_type",
+                "everyone"
+            )
+
+            group_id = request.POST.get("group_id")
+
+            department = request.POST.get(
+                "department",
+                ""
+            ).strip()
+
+            attachments = request.FILES.getlist("attachments")
+
+        else:
+
+            try:
+                data = json.loads(request.body)
+
+            except json.JSONDecodeError:
+
+                return JsonResponse(
+                    {"error": "Invalid JSON"},
+                    status=400
+                )
+
+            author_id = data.get("author_id")
+
+            title = data.get("title", "").strip()
+
+            body = data.get("body", "").strip()
+
+            target_type = data.get(
+                "target_type",
+                "everyone"
+            )
+
+            group_id = data.get("group_id")
+
+            department = data.get(
+                "department",
+                ""
+            ).strip()
+
+            attachments = []
+
+        if not title:
+
+            return JsonResponse(
+                {"error": "Title cannot be empty"},
+                status=400
+            )
+
+        if not body and not attachments:
+
+            return JsonResponse(
+                {"error": "Announcement cannot be empty"},
+                status=400
+            )
+
+        # -------------------------------------
+        # Author
+        # -------------------------------------
 
         try:
             author = User.objects.get(id=author_id)
-        except User.DoesNotExist:
-            return JsonResponse({"error": "Author not found"}, status=404)
 
-        ann = Announcement.objects.create(author=author, title=title, body=body)
+        except User.DoesNotExist:
+
+            return JsonResponse(
+                {"error": "Author not found"},
+                status=404
+            )
+
+        # -------------------------------------
+        # Group (optional)
+        # -------------------------------------
+
+        group = None
+
+        if target_type == "group":
+
+            if not group_id:
+
+                return JsonResponse(
+                    {"error": "group_id is required"},
+                    status=400
+                )
+
+            try:
+                group = Group.objects.get(id=group_id)
+
+            except Group.DoesNotExist:
+
+                return JsonResponse(
+                    {"error": "Group not found"},
+                    status=404
+                )
+
+        # -------------------------------------
+        # Department validation
+        # -------------------------------------
+
+        if target_type == "department" and not department:
+
+            return JsonResponse(
+                {"error": "department is required"},
+                status=400
+            )
+
+        # -------------------------------------
+        # Create Announcement
+        # -------------------------------------
+
+        announcement = Announcement.objects.create(
+
+            author=author,
+
+            title=title,
+
+            body=body,
+
+            target_type=target_type,
+
+            group=group,
+
+            department=department
+
+        )
+
+        attachment_payload = []
+
+        # -------------------------------------
+        # Save Attachments
+        # -------------------------------------
+
+        for attachment in attachments:
+
+            content_type = getattr(
+                attachment,
+                "content_type",
+                ""
+            ) or "application/octet-stream"
+
+            simplified_type = "file"
+
+            if content_type.startswith("image/"):
+
+                simplified_type = "image"
+
+            elif "pdf" in content_type:
+
+                simplified_type = "pdf"
+
+            elif "excel" in content_type or "spreadsheet" in content_type:
+
+                simplified_type = "excel"
+
+            elif "word" in content_type or "msword" in content_type:
+
+                simplified_type = "word"
+
+            elif content_type.startswith("video/"):
+
+                simplified_type = "video"
+
+            elif content_type.startswith("audio/"):
+
+                simplified_type = "audio"
+
+            attachment_obj = AnnouncementAttachment.objects.create(
+
+                announcement=announcement,
+
+                file=attachment,
+
+                filename=attachment.name,
+
+                content_type=content_type,
+
+                size_bytes=getattr(
+                    attachment,
+                    "size",
+                    0
+                )
+
+            )
+
+            attachment_payload.append({
+
+                "id": attachment_obj.id,
+
+                "name": attachment_obj.filename,
+
+                "size": attachment_obj.size_bytes,
+
+                "type": simplified_type,
+
+                "mimeType": attachment_obj.content_type,
+
+                "url": request.build_absolute_uri(
+                    attachment_obj.file.url
+                )
+
+            })
 
         return JsonResponse({
+
             "status": "created",
+
             "announcement": {
-                "id": ann.id,
+
+                "id": announcement.id,
+
                 "author_id": author.id,
-                "author_name": f"{author.first_name} {author.last_name}",
-                "title": ann.title,
-                "body": ann.body,
-                "timestamp": ann.timestamp.isoformat(),
+
+                "author_name":
+                    f"{author.first_name} {author.last_name}",
+
+                "title": announcement.title,
+
+                "body": announcement.body,
+
+                "target_type": announcement.target_type,
+
+                "group":
+                    announcement.group.name
+                    if announcement.group
+                    else None,
+
+                "department": announcement.department,
+
+                "timestamp":
+                    announcement.timestamp.isoformat(),
+
+                "attachments": attachment_payload
+
             }
+
         }, status=201)
 
 
 class GetAllAnnouncementsView(View):
-    def get(self, request):
-        announcements = Announcement.objects.select_related('author').all()
-        data = [{
-            "id": a.id,
-            "author_id": a.author_id,
-            "author_name": f"{a.author.first_name} {a.author.last_name}",
-            "title": a.title,
-            "body": a.body,
-            "timestamp": a.timestamp.isoformat(),
-        } for a in announcements]
 
-        return JsonResponse({"announcements": data, "count": len(data)})
+    def get(self, request):
+
+        announcements = (
+            Announcement.objects
+            .select_related("author", "group")
+            .prefetch_related("attachments")
+            .order_by("-timestamp")
+        )
+
+        results = []
+
+        for announcement in announcements:
+
+            attachment_payload = []
+
+            for att in announcement.attachments.all():
+
+                content_type = att.content_type or ""
+
+                simplified_type = "file"
+
+                if content_type.startswith("image/"):
+                    simplified_type = "image"
+
+                elif "pdf" in content_type:
+                    simplified_type = "pdf"
+
+                elif "excel" in content_type or "spreadsheet" in content_type:
+                    simplified_type = "excel"
+
+                elif "word" in content_type or "msword" in content_type:
+                    simplified_type = "word"
+
+                elif content_type.startswith("video/"):
+                    simplified_type = "video"
+
+                elif content_type.startswith("audio/"):
+                    simplified_type = "audio"
+
+                attachment_payload.append({
+
+                    "id": att.id,
+
+                    "name": att.filename,
+
+                    "size": att.size_bytes,
+
+                    "type": simplified_type,
+
+                    "mimeType": att.content_type,
+
+                    "url": request.build_absolute_uri(att.file.url)
+
+                })
+
+            results.append({
+
+                "id": announcement.id,
+
+                "author_id": announcement.author.id,
+
+                "author_name":
+                    f"{announcement.author.first_name} {announcement.author.last_name}",
+
+                "title": announcement.title,
+
+                "body": announcement.body,
+
+                "target_type": announcement.target_type,
+
+                "group":
+                    announcement.group.name
+                    if announcement.group
+                    else None,
+
+                "department": announcement.department,
+
+                "timestamp": announcement.timestamp.isoformat(),
+
+                "attachments": attachment_payload
+
+            })
+
+        return JsonResponse({
+
+            "announcements": results,
+
+            "count": len(results)
+
+        })
 
 
 @method_decorator(csrf_exempt, name='dispatch')

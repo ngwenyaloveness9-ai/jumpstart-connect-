@@ -2,5 +2,8 @@ from django.apps import AppConfig
 
 
 class ChatConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'jyc_apps.chat'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "jyc_apps.chat"
+
+    def ready(self):
+        import jyc_apps.chat.signals

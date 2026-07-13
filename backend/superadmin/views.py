@@ -13,13 +13,13 @@ from rest_framework.permissions import AllowAny
 
 from authentication.models import OTP
 from authentication.serializers import EmployeeCreateSerializer
+from jyc_apps.chat.models import Group, GroupMember
 
 
 User = get_user_model()
 
 
 class CreateEmployeeView(APIView):
-
 
     permission_classes = [AllowAny]
 
@@ -28,8 +28,7 @@ class CreateEmployeeView(APIView):
         serializer = EmployeeCreateSerializer(data=request.data)
 
         if not serializer.is_valid():
-            print("VALIDATI" \
-            "ON ERRORS:", serializer.errors)
+            print("VALIDATION ERRORS:", serializer.errors)
             print("REQUEST DATA:", request.data)
 
             return Response(
@@ -38,7 +37,7 @@ class CreateEmployeeView(APIView):
             )
 
         data = serializer.validated_data
-        # Prevent duplicate employee accounts
+
         if User.objects.filter(email=data["email"]).exists():
             return Response(
                 {
@@ -50,7 +49,10 @@ class CreateEmployeeView(APIView):
         try:
             with transaction.atomic():
 
-                # Create employee
+                # -----------------------------------
+                # Create Employee
+                # -----------------------------------
+
                 user = User.objects.create(
                     email=data["email"],
                     first_name=data["first_name"],
@@ -62,7 +64,49 @@ class CreateEmployeeView(APIView):
                     otp_verified=False,
                 )
 
-                # Generate 6-digit OTP
+                # -----------------------------------
+                # MAIN GROUP
+                # -----------------------------------
+
+                main_group, created = Group.objects.get_or_create(
+                    name="Company",
+                    defaults={
+                        "description": "Company Main Group",
+                        "group_type": "MAIN",
+                        "created_by": user,
+                    }
+                )
+
+                GroupMember.objects.get_or_create(
+                    group=main_group,
+                    user=user,
+                )
+
+                # -----------------------------------
+                # DEPARTMENT GROUP
+                # -----------------------------------
+
+                if user.department:
+
+                    department_group, created = Group.objects.get_or_create(
+                        name=user.department,
+                        defaults={
+                            "description": f"{user.department} Department",
+                            "group_type": "DEPARTMENT",
+                            "department": user.department,
+                            "created_by": user,
+                        }
+                    )
+
+                    GroupMember.objects.get_or_create(
+                        group=department_group,
+                        user=user,
+                    )
+
+                # -----------------------------------
+                # Generate OTP
+                # -----------------------------------
+
                 otp_code = str(random.randint(100000, 999999))
 
                 OTP.objects.create(
@@ -71,10 +115,12 @@ class CreateEmployeeView(APIView):
                     expires_at=timezone.now() + timedelta(minutes=10)
                 )
 
-                # Send onboarding email
+                # -----------------------------------
+                # Send Email
+                # -----------------------------------
+
                 send_mail(
                     subject="Welcome to JumpStart Your Career",
-
                     message=f"""
 Hello {user.first_name},
 
@@ -86,25 +132,24 @@ Your employee account has been created successfully.
 Your One-Time Password (OTP)
 
 {otp_code}
+
 ----------------------------------------
 
-This OTP will expire in 10 minutes.
+This OTP expires in 10 minutes.
 
-Use your work email together with this OTP to complete your first-time login and create your password.
-
-If you did not expect this email, please contact your administrator.
+Use your work email together with this OTP to complete your first login.
 
 Regards,
 
 JumpStart Your Career
 """,
-
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
                     fail_silently=False,
                 )
 
         except Exception as e:
+
             return Response(
                 {
                     "error": "Employee creation failed.",
