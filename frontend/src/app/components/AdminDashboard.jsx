@@ -53,6 +53,12 @@ export function AdminDashboard() {
 
     const activeItem = SIDEBAR_ITEMS.find((i) => i.component === activeSection);
 
+    const handleLogout = () => {
+        localStorage.clear();
+        sessionStorage.clear();
+        navigate("/login", { replace: true });
+    };
+
     return (<div className="min-h-screen bg-background text-foreground flex" style={{ fontFamily: "system-ui, sans-serif" }}>
       {/* Mobile overlay */}
       {sidebarOpen && (<div className="fixed inset-0 bg-black/70 z-40 lg:hidden" onClick={() => setSidebarOpen(false)}/>)}
@@ -109,7 +115,7 @@ export function AdminDashboard() {
               <div className="text-sidebar-foreground text-xs font-medium truncate">D. Mathebula</div>
               <div className="text-muted-foreground text-[10px]">Chairperson</div>
             </div>
-            <button onClick={() => navigate("/")} className="text-muted-foreground hover:text-primary transition-colors" title="Sign out">
+            <button onClick={handleLogout} className="text-muted-foreground hover:text-primary transition-colors" title="Sign out">
               <LogOut size={14}/>
             </button>
           </div>
