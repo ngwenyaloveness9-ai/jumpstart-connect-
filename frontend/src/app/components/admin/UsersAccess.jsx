@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 import { Search, Plus, MoreHorizontal, UserCheck, UserX, Mail, Download, Edit2, Trash2, Shield, ChevronDown, } from "lucide-react";
 import { usersApi } from "../../services/usersApi";
-const ROLES = ["All Roles", "System Admin", "Administrator", "Employee", "Viewer", "Board Owner"];
-const DEPTS = ["All Departments", "Technology", "Operations", "HR", "Finance", "IT", "Projects"];
+const ROLES = [
+    "All Roles",
+    "System Administrator",
+    "Organization Administrator",
+    "Department Manager",
+    "Team Leader",
+    "Employee",
+    "Intern",
+    "Volunteer",
+    "Viewer",
+];
+const DEPTS = ["All Departments", "System Admin", "Management", "Human Resources", "Monitoring & Evaluation", "Project Management", "Planning & Development", "Technology", "Marketing", "clean Energy", "Board Members"];
 const STATUSES = ["All", "Active", "Inactive", "Pending"];
 const STATUS_STYLE = {
     active: "bg-green-500/10 text-green-400 border-green-500/20",
