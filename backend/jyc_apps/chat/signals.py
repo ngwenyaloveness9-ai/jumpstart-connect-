@@ -2,7 +2,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from users.models import User
-
 from .models import Group, GroupMember
 
 
@@ -13,38 +12,33 @@ def auto_join_groups(sender, instance, created, **kwargs):
         return
 
     # -------------------------
-    # MAIN GROUP
+    # MAIN WORKSPACE
     # -------------------------
 
-    main_group, _ = Group.objects.get_or_create(
-        name="Main Group",
-        defaults={
-            "group_type": "MAIN",
-            "description": "Everyone in the organisation"
-        }
-    )
+    main_workspace = Group.objects.filter(
+        group_type="MAIN",
+        name="Main Workspace",
+    ).first()
 
-    GroupMember.objects.get_or_create(
-        group=main_group,
-        user=instance
-    )
+    if main_workspace:
+        GroupMember.objects.get_or_create(
+            group=main_workspace,
+            user=instance,
+        )
 
     # -------------------------
-    # DEPARTMENT GROUP
+    # DEPARTMENT WORKSPACE
     # -------------------------
 
     if instance.department:
 
-        department_group, _ = Group.objects.get_or_create(
-            name=instance.department,
-            defaults={
-                "group_type": "DEPARTMENT",
-                "department": instance.department,
-                "description": f"{instance.department} Department"
-            }
-        )
+        department_workspace = Group.objects.filter(
+            group_type="DEPARTMENT",
+            department=instance.department,
+        ).first()
 
-        GroupMember.objects.get_or_create(
-            group=department_group,
-            user=instance
-        )
+        if department_workspace:
+            GroupMember.objects.get_or_create(
+                group=department_workspace,
+                user=instance,
+            )

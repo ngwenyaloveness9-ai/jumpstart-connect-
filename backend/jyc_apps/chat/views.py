@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 import json
 from django.conf import settings
+from .models import GroupMessageReaction
 
 from .models import (
     Message,
@@ -13,6 +14,7 @@ from .models import (
     GroupMember,
     GroupMessage,
     GroupMessageAttachment,
+    GroupMessageReaction,
 )
 
 User = get_user_model()
@@ -283,25 +285,56 @@ class GetGroupsView(View):
                 status=404
             )
 
-        groups = (
-            Group.objects
-            .filter(members__user=user)
-            .distinct()
-            .order_by("name")
-        )
+        ADMIN_ROLES = {
+            "superadmin",
+            "system administrator",
+            "organization administrator",
+        }
+
+        role = (user.role or "").strip().lower()
+
+        if role in ADMIN_ROLES:
+            groups = Group.objects.all().order_by("name")
+        else:
+            groups = (
+                Group.objects
+                .filter(members__user=user)
+                .distinct()
+                .order_by("name")
+            )
 
         results = []
-
         for group in groups:
 
             results.append({
 
-                "id": group.id,
-                "name": group.name,
-                "description": group.description,
-                "group_type": group.group_type,
+    "id": group.id,
+    "name": group.name,
+    "description": group.description,
+    "group_type": group.group_type,
 
-            })
+    "members_count": GroupMember.objects.filter(
+        group=group
+    ).count(),
+
+    "boards_count": 0,
+
+    "admin_name": (
+        GroupMember.objects.filter(
+            group=group,
+            is_admin=True
+        )
+        .select_related("user")
+        .values_list(
+            "user__first_name",
+            flat=True
+        )
+        .first()
+    )
+
+})
+            main_group = Group.objects.get(name="Main Workspace")
+            print("MAIN:", main_group)
 
         return JsonResponse({
             "groups": results,
@@ -360,6 +393,8 @@ class GetGroupMessagesView(View):
                     "mimeType": att.content_type,
                     "url": request.build_absolute_uri(att.file.url),
                 })
+            
+            
 
             results.append({
                 "id": msg.id,
@@ -376,6 +411,44 @@ class GetGroupMessagesView(View):
             "count": len(results)
         })
 
+class GetGroupMembersView(View):
+
+    def get(self, request, group_id):
+
+        try:
+            group = Group.objects.get(id=group_id)
+        except Group.DoesNotExist:
+            return JsonResponse(
+                {"error": "Group not found"},
+                status=404,
+            )
+
+        members = (
+            GroupMember.objects
+            .filter(group=group)
+            .select_related("user")
+        )
+
+        results = []
+
+        for member in members:
+
+            user = member.user
+
+            results.append({
+                "id": user.id,
+                "name": f"{user.first_name} {user.last_name}".strip() or user.email,
+                "email": user.email,
+                "department": getattr(user, "department", ""),
+                "role": getattr(user, "role", ""),
+                "is_admin": member.is_admin,
+                "online": False,
+            })
+
+        return JsonResponse({
+            "members": results,
+            "count": len(results),
+        })
 
 @method_decorator(csrf_exempt, name="dispatch")
 class SendGroupMessageView(View):
@@ -625,3 +698,68 @@ class ContactDepartmentView(View):
             "delivered_to": delivered
 
         }, status=201) 
+
+@method_decorator(csrf_exempt, name="dispatch")
+class DeleteGroupMessageView(View):
+
+    def delete(self, request, message_id):
+
+        try:
+            message = GroupMessage.objects.get(id=message_id)
+
+        except GroupMessage.DoesNotExist:
+            return JsonResponse(
+                {"error": "Message not found"},
+                status=404,
+            )
+
+        # Delete all attachments
+        message.attachments.all().delete()
+
+        # Delete the message
+        message.delete()
+
+        return JsonResponse({
+            "status": "deleted"
+        })
+
+@method_decorator(csrf_exempt, name="dispatch")
+class GroupMessageReactionView(View):
+
+    def post(self, request):
+
+        try:
+            data = json.loads(request.body)
+
+            message = GroupMessage.objects.get(
+                id=data["message_id"]
+            )
+
+            user = User.objects.get(
+                id=data["user_id"]
+            )
+
+            emoji = data["emoji"]
+
+            reaction, created = GroupMessageReaction.objects.get_or_create(
+                message=message,
+                user=user,
+                emoji=emoji
+            )
+
+            # Toggle reaction
+            if not created:
+                reaction.delete()
+                return JsonResponse({
+                    "status": "removed"
+                })
+
+            return JsonResponse({
+                "status": "added"
+            })
+
+        except Exception as e:
+            return JsonResponse(
+                {"error": str(e)},
+                status=400
+            )

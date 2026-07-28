@@ -17,6 +17,7 @@ urlpatterns = [
     path("users/<int:pk>/", views.UserDetailView.as_view(), name="user-detail"),
     # Workspaces
     path("workspaces/", views.WorkspaceListView.as_view(), name="workspace-list"),
+    path("departments/", views.DepartmentListView.as_view(), name="department-list"),
     # Webhooks
     path("webhooks/", views.WebhookListView.as_view(), name="webhook-list"),
     # Integrations

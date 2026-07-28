@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Plus, LayoutGrid, List, Users, Layers, MoreHorizontal, Search, Settings, Eye, Trash2, Lock, Loader2, ShieldCheck } from "lucide-react";
 import { groupsApi } from "../../services/groupsApi";
+import { WorkspaceEnvironment } from "./workspace/WorkspaceEnvironment";
 const STATUS_STYLES = {
   active: "bg-green-500/10 text-green-400 border-green-500/20",
   restricted: "bg-orange-500/10 text-orange-400 border-orange-500/20",
@@ -44,7 +45,15 @@ const canCreateWorkspace =
   const [visibility, setVisibility] = useState("private");
   const [autoAssign, setAutoAssign] = useState(true);
   const [autoAdmin, setAutoAdmin] = useState(true);
+const [selectedWorkspace, setSelectedWorkspace] = useState(null);
 
+const openWorkspace = (workspace) => {
+    setSelectedWorkspace(workspace);
+};
+
+const closeWorkspace = () => {
+    setSelectedWorkspace(null);
+};
   const loadData = useCallback(async () => {
   setLoading(true);
   setError(null);
@@ -87,6 +96,19 @@ const filtered = visibleWorkspaces.filter((w) =>
   w.owner_name?.toLowerCase().includes(search.toLowerCase()) ||
   w.department_name?.toLowerCase().includes(search.toLowerCase())
 );
+
+if (selectedWorkspace) {
+    return (
+        <WorkspaceEnvironment
+            workspace={selectedWorkspace}
+            messages={selectedWorkspace.messages || []}
+            announcements={selectedWorkspace.announcements || []}
+            members={selectedWorkspace.members || []}
+            currentUser={currentUser}
+            onBack={closeWorkspace}
+        />
+    );
+}
 
   const resetCreateForm = () => {
     setNewName("");
@@ -262,22 +284,27 @@ const filtered = visibleWorkspaces.filter((w) =>
                   <div className="flex items-center gap-1"><Layers size={11} /> {ws.boards_count ?? 0} boards</div>
                 </div>
 
-                <div className="text-[#333] text-[10px] mb-3">
-                  Admin: <span className="text-[#666]">{ws.admin_name ?? "Unassigned"}</span>
-                </div>
-
                 <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => setExpanded(expanded === ws.id ? null : ws.id)}
-                    className="text-xs text-[#F5C518] hover:text-[#E6B800] transition-colors"
-                  >
-                    {expanded === ws.id ? "Hide boards ↑" : `View boards (${ws.boards_count ?? 0}) ↓`}
-                  </button>
-                  <button className="text-xs text-[#888] hover:text-white transition-colors">
-                    Open workspace →
-                  </button>
-                </div>
 
+  <button
+    onClick={() =>
+      setExpanded(expanded === ws.id ? null : ws.id)
+    }
+    className="text-xs text-[#F5C518] hover:text-[#E6B800] transition-colors"
+  >
+    {expanded === ws.id
+      ? "Hide boards ↑"
+      : `View boards (${ws.boards_count ?? 0}) ↓`}
+  </button>
+
+  <button
+    onClick={() => openWorkspace(ws)}
+    className="px-4 py-2 rounded-lg bg-[#F5C518] text-black hover:bg-[#E6B800] transition-all"
+  >
+    Open Workspace
+  </button>
+
+</div>
                 {expanded === ws.id && (
                   <div className="mt-3 space-y-1.5">
                     {(ws.boards ?? []).length === 0 && (

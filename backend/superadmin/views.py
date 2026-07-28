@@ -53,7 +53,7 @@ class CreateEmployeeView(APIView):
                 # Create Employee
                 # -----------------------------------
 
-                user = User.objects.create(
+                user = User.objects.create_user(
                     email=data["email"],
                     first_name=data["first_name"],
                     last_name=data["last_name"],
@@ -64,45 +64,7 @@ class CreateEmployeeView(APIView):
                     otp_verified=False,
                 )
 
-                # -----------------------------------
-                # MAIN GROUP
-                # -----------------------------------
-
-                main_group, created = Group.objects.get_or_create(
-                    name="Company",
-                    defaults={
-                        "description": "Company Main Group",
-                        "group_type": "MAIN",
-                        "created_by": user,
-                    }
-                )
-
-                GroupMember.objects.get_or_create(
-                    group=main_group,
-                    user=user,
-                )
-
-                # -----------------------------------
-                # DEPARTMENT GROUP
-                # -----------------------------------
-
-                if user.department:
-
-                    department_group, created = Group.objects.get_or_create(
-                        name=user.department,
-                        defaults={
-                            "description": f"{user.department} Department",
-                            "group_type": "DEPARTMENT",
-                            "department": user.department,
-                            "created_by": user,
-                        }
-                    )
-
-                    GroupMember.objects.get_or_create(
-                        group=department_group,
-                        user=user,
-                    )
-
+                
                 # -----------------------------------
                 # Generate OTP
                 # -----------------------------------
@@ -149,14 +111,15 @@ JumpStart Your Career
                 )
 
         except Exception as e:
+            import traceback
+            traceback.print_exc()
 
             return Response(
-                {
-                    "error": "Employee creation failed.",
-                    "details": str(e)
-                },
-                status=500
-            )
+               {
+            "error": str(e)
+        },
+        status=500
+    )
 
         return Response(
             {
@@ -188,12 +151,23 @@ from .serializers_user import UserSerializer
 from rest_framework import generics
 from .serializers_workspace import WorkspaceSerializer
 from .models import Workspace
-
+from jyc_apps.chat.models import Group
+from jyc_apps.chat.serializers import GroupSerializer
 
 class WorkspaceListView(generics.ListAPIView):
     queryset = Workspace.objects.all().order_by('-created_at')
     serializer_class = WorkspaceSerializer
 
+class DepartmentListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = GroupSerializer
+
+    def get_queryset(self):
+        return (
+            Group.objects
+            .exclude(name="Main Workspace")
+            .order_by("name")
+        )
 
 # Webhooks, Integrations, and Automations
 from .serializers_webhook import WebhookSerializer

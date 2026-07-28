@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search, Plus, MoreHorizontal, UserCheck, UserX, Mail, Download, Edit2, Trash2, Shield, ChevronDown, } from "lucide-react";
 import { usersApi } from "../../services/usersApi";
+import { departmentsApi } from "../../services/departmentsApi";
 const ROLES = [
     "All Roles",
     "System Administrator",
@@ -34,16 +35,32 @@ export function UsersAccess() {
     const [openMenu, setOpenMenu] = useState(null);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState("");
-    const [inviteRole, setInviteRole] = useState("Employee");
-    const [inviteDept, setInviteDept] = useState("Technology");
+    const [inviteDept, setInviteDept] = useState("");
+const [departments, setDepartments] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const loadUsers = async () => {
-  try {
-    setLoading(true);
+    const loadDepartments = async () => {
+    try {
+        const data = await departmentsApi.list();
 
+        setDepartments(data);
+
+        if (data.length > 0) {
+            setInviteDept(data[0].name);
+        }
+    } catch (err) {
+        console.error("Failed to load departments", err);
+    }
+};
+
+const loadUsers = async () => {
+    try {
+        setLoading(true);
+
+        
+    
     const data = await usersApi.list();
 
     const mapped = data.map((u) => ({
@@ -90,13 +107,12 @@ const handleCreateUser = async () => {
       first_name: firstName || "User",
       last_name: lastName || "",
       department: inviteDept,
-      role: inviteRole,
+      role: "Employee",
     });
 
     await loadUsers();
 
     setInviteEmail("");
-    setInviteRole("Employee");
     setInviteDept("Technology");
 
     setShowInviteModal(false);
@@ -114,9 +130,9 @@ const handleCreateUser = async () => {
 };
 
 useEffect(() => {
-  loadUsers();
+    loadUsers();
+    loadDepartments();
 }, []);
-
     
     const filtered = users.filter((u) => {
         const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
@@ -243,15 +259,16 @@ useEffect(() => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-[#888] block mb-1.5">Role</label>
-                  <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#F5C518]/50 transition-all">
-                    {["Employee", "Administrator", "Board Owner", "Viewer"].map((r) => <option key={r}>{r}</option>)}
-                  </select>
-                </div>
-                <div>
                   <label className="text-xs text-[#888] block mb-1.5">Department</label>
                   <select value={inviteDept} onChange={(e) => setInviteDept(e.target.value)} className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#F5C518]/50 transition-all">
-                    {["Technology", "Operations", "HR", "Finance", "IT", "Projects"].map((d) => <option key={d}>{d}</option>)}
+                    {departments.map((dept) => (
+    <option
+        key={dept.id}
+        value={dept.name}
+    >
+        {dept.name}
+    </option>
+))}
                   </select>
                 </div>
               </div>

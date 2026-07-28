@@ -266,3 +266,36 @@ class GroupMessageAttachment(models.Model):
 
     def __str__(self):
         return self.filename
+
+# =====================================================
+# GROUP MESSAGE REACTIONS
+# =====================================================
+
+class GroupMessageReaction(models.Model):
+
+    message = models.ForeignKey(
+        GroupMessage,
+        on_delete=models.CASCADE,
+        related_name="reactions"
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="group_message_reactions"
+    )
+
+    emoji = models.CharField(
+        max_length=20
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        unique_together = ("message", "user", "emoji")
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.user.email} reacted {self.emoji}"

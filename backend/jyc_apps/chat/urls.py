@@ -10,6 +10,9 @@ from .views import (
     GetGroupMessagesView,
     SendGroupMessageView,
     ContactDepartmentView,
+    GetGroupMembersView,
+    DeleteGroupMessageView,
+    GroupMessageReactionView,
 )
 
 urlpatterns = [
@@ -73,6 +76,23 @@ urlpatterns = [
     "department/contact",
     ContactDepartmentView.as_view(),
     name="department-contact"
+),
+
+    path(
+    "groups/<int:group_id>/members",
+    GetGroupMembersView.as_view(),
+    name="group-members",
+),
+
+path(
+    "group/message/<int:message_id>",
+    DeleteGroupMessageView.as_view(),
+    name="group-message-delete",
+),
+ path(
+    "group/message/reaction",
+    GroupMessageReactionView.as_view(),
+    name="group-message-reaction",
 ),
 
 ]

@@ -17,6 +17,12 @@ export const groupsApi = {
     return res.data;
   },
 
+  // Get members of a group/workspace
+getMembers: async (groupId) => {
+  const res = await api.get(`/chat/groups/${groupId}/members`);
+  return res.data.members;
+},
+
   // Create a new group/workspace
   create: async (data) => {
     const res = await api.post("/chat/groups/create", data);
@@ -49,6 +55,10 @@ export const groupsApi = {
     return res.data;
   },
 
+  deleteMessage: async (messageId) => {
+    const res = await api.delete(`/chat/group/message/${messageId}`);
+    return res.data;
+},
   // ==========================
   // DEPARTMENTS
   // ==========================
@@ -76,4 +86,13 @@ export const groupsApi = {
     const res = await api.delete(`/departments/${id}`);
     return res.data;
   },
+  reactToMessage: async (messageId, userId, emoji) => {
+    const res = await api.post("/chat/group/message/reaction", {
+        message_id: messageId,
+        user_id: userId,
+        emoji,
+    });
+
+    return res.data;
+},
 };
