@@ -374,3 +374,65 @@ class DeleteAnnouncementView(View):
 
         ann.delete()
         return JsonResponse({"status": "deleted", "id": announcement_id})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class EditAnnouncementView(View):
+
+    def patch(self, request, announcement_id):
+
+        try:
+            announcement = Announcement.objects.get(id=announcement_id)
+        except Announcement.DoesNotExist:
+            return JsonResponse(
+                {"error": "Announcement not found"},
+                status=404
+            )
+
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"error": "Invalid JSON"},
+                status=400
+            )
+
+        author_id = data.get("author_id")
+
+        if announcement.author.id != author_id:
+            return JsonResponse(
+                {
+                    "error": "Only the author can edit this announcement"
+                },
+                status=403
+            )
+
+        announcement.title = data.get(
+            "title",
+            announcement.title
+        )
+
+        announcement.body = data.get(
+            "body",
+            announcement.body
+        )
+
+        announcement.save()
+
+        return JsonResponse({
+
+            "status": "updated",
+
+            "announcement": {
+
+                "id": announcement.id,
+
+                "title": announcement.title,
+
+                "body": announcement.body,
+
+                "updated_at": announcement.updated_at.isoformat()
+
+            }
+
+        })

@@ -7,6 +7,8 @@ import { WorkspaceTabs } from "./WorkspaceTabs";
 import { GroupChat } from "./GroupChat";
 import { AnnouncementList } from "./AnnouncementList";
 import { MembersList } from "./MembersList";
+import { announcementApi } from "../../../services/announcementApi";
+import { AnnouncementModal } from "./AnnouncementModal";
 
 export function WorkspaceEnvironment({
     workspace,
@@ -18,10 +20,16 @@ export function WorkspaceEnvironment({
     const currentUser =
         JSON.parse(localStorage.getItem("currentUser")) ||
         JSON.parse(localStorage.getItem("user"));
+    const [editingAnnouncement, setEditingAnnouncement] =
+    useState(null);
 
+const [savingAnnouncement, setSavingAnnouncement] =
+    useState(false);
     const [activeTab, setActiveTab] = useState("chat");
     const [members, setMembers] = useState([]);
     const [groupMessages, setGroupMessages] = useState([]);
+    const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+const [creatingAnnouncement, setCreatingAnnouncement] = useState(false);
     const [groupAnnouncements, setGroupAnnouncements] = useState([]);
     const [loadingMembers, setLoadingMembers] = useState(true);
 
@@ -38,25 +46,22 @@ export function WorkspaceEnvironment({
 
 const formattedMessages = (messageData.messages || []).map((msg) => ({
     id: msg.id,
-
     content: msg.message,
-
     sender: {
         id: msg.sender_id,
         name: msg.sender_name,
     },
-
     attachments: msg.attachments || [],
-
     time: new Date(msg.timestamp).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
     }),
-
     read: true,
 }));
 
 setGroupMessages(formattedMessages);
+
+await loadAnnouncements();
 
         } catch (err) {
             console.error(err);
@@ -68,6 +73,53 @@ setGroupMessages(formattedMessages);
     loadWorkspace();
 
 }, [workspace.id]);
+
+
+const handleCreateAnnouncement = async (formData) => {
+    try {
+
+        setCreatingAnnouncement(true);
+
+        if (editingAnnouncement) {
+
+            await announcementApi.edit(
+                editingAnnouncement.id,
+                {
+                    author_id: currentUser.id,
+                    title: formData.get("title"),
+                    body: formData.get("body"),
+                }
+            );
+
+        } else {
+
+            await announcementApi.create(formData);
+
+        }
+
+        await loadAnnouncements();
+
+        setEditingAnnouncement(null);
+
+        setShowAnnouncementModal(false);
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Failed to save announcement.");
+
+    } finally {
+
+        setCreatingAnnouncement(false);
+
+    }
+};
+
+const handleEditAnnouncement = (announcement) => {
+    setEditingAnnouncement(announcement);
+    setShowAnnouncementModal(true);
+};
 
 const handleSendMessage = async ({ content, attachments }) => {
     try {
@@ -156,20 +208,16 @@ const handleReaction = async (messageId, emoji) => {
         const formattedMessages = (updated.messages || []).map((msg) => ({
             id: msg.id,
             content: msg.message,
-
             sender: {
                 id: msg.sender_id,
                 name: msg.sender_name,
             },
-
             attachments: msg.attachments || [],
             reactions: msg.reactions || [],
-
             time: new Date(msg.timestamp).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
             }),
-
             read: true,
         }));
 
@@ -179,6 +227,85 @@ const handleReaction = async (messageId, emoji) => {
         console.error("Reaction failed:", err);
     }
 };
+
+
+
+const loadAnnouncements = async () => {
+    try {
+
+        const data = await announcementApi.getAll();
+
+        const formattedAnnouncements =
+            (data.announcements || []).map((ann) => ({
+
+                id: ann.id,
+
+                title: ann.title,
+
+                content: ann.body,
+
+                author: {
+                    id: ann.author_id,
+                    name: ann.author_name,
+                },
+
+                createdAt: new Date(
+                    ann.timestamp
+                ).toLocaleString(),
+
+                updatedAt: ann.updated_at
+                    ? new Date(
+                          ann.updated_at
+                      ).toLocaleString()
+                    : null,
+
+                priority: ann.priority || "info",
+
+                pinned: ann.pinned || false,
+
+                attachments: ann.attachments || [],
+
+                reactions: ann.reactions || 0,
+
+                comments: ann.comments || 0,
+
+                views: ann.views || 0,
+
+            }));
+
+        setGroupAnnouncements(
+            formattedAnnouncements
+        );
+
+    } catch (err) {
+
+        console.error(
+            "Failed to load announcements",
+            err
+        );
+
+    }
+};
+
+const handleDeleteAnnouncement = async (announcementId) => {
+    const confirmed = window.confirm(
+        "Are you sure you want to delete this announcement?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+        await announcementApi.delete(announcementId);
+
+        await loadAnnouncements();
+
+    } catch (err) {
+        console.error("Failed to delete announcement:", err);
+
+        alert("Failed to delete announcement.");
+    }
+};
+
     return (
         <div className="h-full flex flex-col bg-[#0D1117] rounded-3xl overflow-hidden border border-[#222]">
 
@@ -207,8 +334,15 @@ const handleReaction = async (messageId, emoji) => {
 
                 {activeTab === "announcements" && (
                     <AnnouncementList
-                        announcements={announcements}
-                    />
+    announcements={groupAnnouncements}
+    currentUser={currentUser}
+    onCreateAnnouncement={() => {
+        setEditingAnnouncement(null);
+        setShowAnnouncementModal(true);
+    }}
+    onEditAnnouncement={handleEditAnnouncement}
+    onDeleteAnnouncement={handleDeleteAnnouncement}
+/>
                 )}
 
                 {activeTab === "members" && (
@@ -216,9 +350,21 @@ const handleReaction = async (messageId, emoji) => {
                         members={members}
                     />
                 )}
-
+             
             </div>
-
+             {showAnnouncementModal && (
+    <AnnouncementModal
+    workspace={workspace}
+    currentUser={currentUser}
+    loading={creatingAnnouncement}
+    announcement={editingAnnouncement}
+    onClose={() => {
+        setEditingAnnouncement(null);
+        setShowAnnouncementModal(false);
+    }}
+    onSubmit={handleCreateAnnouncement}
+/>
+)}
         </div>
     );
 }

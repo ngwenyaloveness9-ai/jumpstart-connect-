@@ -15,7 +15,7 @@ urlpatterns = [
     path('api/auth/', include('authentication.urls')),
     # Phase 3 APIs
     path("api/chat/", include("jyc_apps.chat.urls")),
-    path('announcements/', include('jyc_apps.announcements.urls')),
+    path('api/announcements/', include('jyc_apps.announcements.urls')),
     path('files/', include('jyc_apps.files.urls')),
     path('directory/', include('jyc_apps.directory.urls')),
 

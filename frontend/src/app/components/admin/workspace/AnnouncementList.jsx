@@ -21,10 +21,7 @@ export function AnnouncementList({
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
 
-  const canCreate =
-    currentUser?.role === "superadmin" ||
-    currentUser?.role === "owner" ||
-    currentUser?.role === "supervisor";
+  const canCreate = !!currentUser;
 
   const filteredAnnouncements = useMemo(() => {
     let results = [...announcements];
