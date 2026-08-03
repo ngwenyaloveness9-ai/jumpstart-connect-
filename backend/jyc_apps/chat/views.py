@@ -5,8 +5,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 import json
 from django.conf import settings
-from .models import GroupMessageReaction
-
 from .models import (
     Message,
     MessageAttachment,
@@ -77,7 +75,6 @@ class SendMessageView(View):
                 filename=attachment.name,
                 content_type=content_type,
                 size_bytes=getattr(attachment, 'size', 0) or 0,
-           
                 scan_status="pending",
                 is_safe=True,
                 moderation_reason="",
@@ -214,15 +211,14 @@ class ShareAttachmentView(View):
         )
 
         shared_attachment = MessageAttachment.objects.create(
-    message=new_message,
-    file=original_attachment.file,
-    filename=original_attachment.filename,
-    content_type=original_attachment.content_type,
-    size_bytes=original_attachment.size_bytes,
-
-    scan_status=original_attachment.scan_status,
-    is_safe=original_attachment.is_safe,
-    moderation_reason=original_attachment.moderation_reason,
+            message=new_message,
+            file=original_attachment.file,
+            filename=original_attachment.filename,
+            content_type=original_attachment.content_type,
+            size_bytes=original_attachment.size_bytes,
+            scan_status=original_attachment.scan_status,
+            is_safe=original_attachment.is_safe,
+            moderation_reason=original_attachment.moderation_reason,
         )
         return JsonResponse({
             "status": "shared",
@@ -269,6 +265,7 @@ class GetInboxView(View):
             })
 
         return JsonResponse({"inbox": data, "count": len(data)})
+
 # =====================================================
 # GROUP CHAT
 # =====================================================
@@ -276,14 +273,43 @@ class GetInboxView(View):
 class GetGroupsView(View):
 
     def get(self, request, user_id):
-
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return JsonResponse(
-                {"error": "User not found"},
-                status=404
+            return JsonResponse({"error": "User not found"}, status=404)
+
+        # Ensure Main Workspace exists and user is a member
+        try:
+            main_group, _ = Group.objects.get_or_create(
+                name="Main Workspace",
+                defaults={
+                    "description": "Everyone belongs here",
+                    "group_type": "MAIN",
+                },
             )
+        except Exception:
+            # If DB has unexpected NOT NULL columns (schema drift), don't try to create.
+            main_group = Group.objects.filter(name="Main Workspace").first()
+
+        if main_group:
+            GroupMember.objects.get_or_create(group=main_group, user=user)
+
+        # Ensure department group exists and user is a member
+        if getattr(user, "department", None):
+            try:
+                department_group, _ = Group.objects.get_or_create(
+                    name=user.department,
+                    defaults={
+                        "description": f"{user.department} Department",
+                        "group_type": "DEPARTMENT",
+                        "department": user.department,
+                    },
+                )
+            except Exception:
+                department_group = Group.objects.filter(name=user.department).first()
+
+            if department_group:
+                GroupMember.objects.get_or_create(group=department_group, user=user)
 
         ADMIN_ROLES = {
             "superadmin",
@@ -291,59 +317,44 @@ class GetGroupsView(View):
             "organization administrator",
         }
 
-        role = (user.role or "").strip().lower()
+        role = (getattr(user, "role", "") or "").strip().lower()
 
         if role in ADMIN_ROLES:
             groups = Group.objects.all().order_by("name")
         else:
             groups = (
-                Group.objects
-                .filter(members__user=user)
+                Group.objects.filter(members__user=user)
                 .distinct()
                 .order_by("name")
             )
 
         results = []
-        for group in groups:
+        for grp in groups:
+            admin_member = (
+                GroupMember.objects.filter(group=grp, is_admin=True)
+                .select_related("user")
+                .first()
+            )
+            admin_name = None
+            if admin_member and getattr(admin_member, "user", None):
+                admin_name = f"{admin_member.user.first_name} {admin_member.user.last_name}".strip()
 
             results.append({
-
-    "id": group.id,
-    "name": group.name,
-    "description": group.description,
-    "group_type": group.group_type,
-
-    "members_count": GroupMember.objects.filter(
-        group=group
-    ).count(),
-
-    "boards_count": 0,
-
-    "admin_name": (
-        GroupMember.objects.filter(
-            group=group,
-            is_admin=True
-        )
-        .select_related("user")
-        .values_list(
-            "user__first_name",
-            flat=True
-        )
-        .first()
-    )
-
-})
-            main_group = Group.objects.get(name="Main Workspace")
-            print("MAIN:", main_group)
+                "id": grp.id,
+                "name": grp.name,
+                "description": grp.description,
+                "group_type": grp.group_type,
+                "members_count": GroupMember.objects.filter(group=grp).count(),
+                "boards_count": 0,
+                "admin_name": admin_name,
+            })
 
         return JsonResponse({
             "groups": results,
-            "count": len(results)
+            "count": len(results),
         })
 
-
 class GetGroupMessagesView(View):
-
     def get(self, request, group_id):
 
         try:
@@ -394,8 +405,6 @@ class GetGroupMessagesView(View):
                     "url": request.build_absolute_uri(att.file.url),
                 })
             
-            
-
             results.append({
                 "id": msg.id,
                 "sender_id": msg.sender.id,

@@ -12,68 +12,85 @@ import { AnnouncementModal } from "./AnnouncementModal";
 
 export function WorkspaceEnvironment({
     workspace,
-    messages = [],
-    announcements = [],
     onBack,
 }) {
 
     const currentUser =
         JSON.parse(localStorage.getItem("currentUser")) ||
         JSON.parse(localStorage.getItem("user"));
-    const [editingAnnouncement, setEditingAnnouncement] =
-    useState(null);
-
-const [savingAnnouncement, setSavingAnnouncement] =
-    useState(false);
+    const [editingAnnouncement, setEditingAnnouncement] = useState(null);
     const [activeTab, setActiveTab] = useState("chat");
     const [members, setMembers] = useState([]);
     const [groupMessages, setGroupMessages] = useState([]);
     const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
-const [creatingAnnouncement, setCreatingAnnouncement] = useState(false);
+    const [creatingAnnouncement, setCreatingAnnouncement] = useState(false);
     const [groupAnnouncements, setGroupAnnouncements] = useState([]);
-    const [loadingMembers, setLoadingMembers] = useState(true);
+
+    const loadAnnouncements = async () => {
+        try {
+            const data = await announcementApi.getAll();
+
+            const formattedAnnouncements =
+                (data.announcements || []).map((ann) => ({
+                    id: ann.id,
+                    title: ann.title,
+                    content: ann.body,
+                    author: {
+                        id: ann.author_id,
+                        name: ann.author_name,
+                    },
+                    createdAt: new Date(ann.timestamp).toLocaleString(),
+                    updatedAt: ann.updated_at
+                        ? new Date(ann.updated_at).toLocaleString()
+                        : null,
+                    priority: ann.priority || "info",
+                    pinned: ann.pinned || false,
+                    attachments: ann.attachments || [],
+                    reactions: ann.reactions || 0,
+                    comments: ann.comments || 0,
+                    views: ann.views || 0,
+                }));
+
+            setGroupAnnouncements(formattedAnnouncements);
+        } catch (err) {
+            console.error("Failed to load announcements", err);
+        }
+    };
 
     useEffect(() => {
-    async function loadWorkspace() {
-        try {
+        async function loadWorkspace() {
+            try {
+                const members = await groupsApi.getMembers(workspace.id);
+                setMembers(members);
 
-            // Load members
-            const members = await groupsApi.getMembers(workspace.id);
-            setMembers(members);
+                const messageData = await groupsApi.messages(workspace.id);
 
-            // Load messages
-            const messageData = await groupsApi.messages(workspace.id);
+                const formattedMessages = (messageData.messages || []).map((msg) => ({
+                    id: msg.id,
+                    content: msg.message,
+                    sender: {
+                        id: msg.sender_id,
+                        name: msg.sender_name,
+                    },
+                    attachments: msg.attachments || [],
+                    time: new Date(msg.timestamp).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    }),
+                    read: true,
+                }));
 
-const formattedMessages = (messageData.messages || []).map((msg) => ({
-    id: msg.id,
-    content: msg.message,
-    sender: {
-        id: msg.sender_id,
-        name: msg.sender_name,
-    },
-    attachments: msg.attachments || [],
-    time: new Date(msg.timestamp).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-    }),
-    read: true,
-}));
-
-setGroupMessages(formattedMessages);
-
-await loadAnnouncements();
-
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoadingMembers(false);
+                setGroupMessages(formattedMessages);
+                await loadAnnouncements();
+            } catch (err) {
+                console.error(err);
+            }
         }
-    }
 
-    loadWorkspace();
-
-}, [workspace.id]);
-
+        if (workspace?.id) {
+            void loadWorkspace();
+        }
+    }, [workspace?.id]);
 
 const handleCreateAnnouncement = async (formData) => {
     try {
@@ -225,65 +242,6 @@ const handleReaction = async (messageId, emoji) => {
 
     } catch (err) {
         console.error("Reaction failed:", err);
-    }
-};
-
-
-
-const loadAnnouncements = async () => {
-    try {
-
-        const data = await announcementApi.getAll();
-
-        const formattedAnnouncements =
-            (data.announcements || []).map((ann) => ({
-
-                id: ann.id,
-
-                title: ann.title,
-
-                content: ann.body,
-
-                author: {
-                    id: ann.author_id,
-                    name: ann.author_name,
-                },
-
-                createdAt: new Date(
-                    ann.timestamp
-                ).toLocaleString(),
-
-                updatedAt: ann.updated_at
-                    ? new Date(
-                          ann.updated_at
-                      ).toLocaleString()
-                    : null,
-
-                priority: ann.priority || "info",
-
-                pinned: ann.pinned || false,
-
-                attachments: ann.attachments || [],
-
-                reactions: ann.reactions || 0,
-
-                comments: ann.comments || 0,
-
-                views: ann.views || 0,
-
-            }));
-
-        setGroupAnnouncements(
-            formattedAnnouncements
-        );
-
-    } catch (err) {
-
-        console.error(
-            "Failed to load announcements",
-            err
-        );
-
     }
 };
 

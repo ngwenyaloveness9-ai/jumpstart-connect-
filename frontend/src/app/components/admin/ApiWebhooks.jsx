@@ -47,9 +47,9 @@ export function ApiWebhooks() {
       <div className="grid grid-cols-4 gap-4">
         {[
             { label: "API Keys", value: API_KEYS.filter((k) => k.status === "active").length, color: "#F5C518" },
-            { label: "Webhooks", value: WEBHOOKS.length, color: "#60A5FA" },
-            { label: "Active Webhooks", value: WEBHOOKS.filter((w) => w.status === "active").length, color: "#4ADE80" },
-            { label: "Failing", value: WEBHOOKS.filter((w) => w.status === "failing").length, color: "#FB923C" },
+            { label: "Webhooks", value: webhooks.length, color: "#60A5FA" },
+            { label: "Active Webhooks", value: webhooks.filter((w) => w.status === "active").length, color: "#4ADE80" },
+            { label: "Failing", value: webhooks.filter((w) => w.status === "failing").length, color: "#FB923C" },
         ].map((s) => (<div key={s.label} className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-4">
             <div className="text-2xl font-bold mb-0.5" style={{ color: s.color }}>{s.value}</div>
             <div className="text-[#444] text-xs">{s.label}</div>

@@ -100,14 +100,14 @@ class MessageAttachment(models.Model):
 class Group(models.Model):
 
     GROUP_TYPES = (
-        ("MAIN", "Main Group"),
-        ("DEPARTMENT", "Department Group"),
-        ("CUSTOM", "Custom Group"),
+        ("MAIN", "Main Workspace"),
+        ("DEPARTMENT", "Department Workspace"),
+        ("CUSTOM", "Custom Workspace"),
     )
 
     name = models.CharField(
         max_length=150,
-        unique=True
+        unique=True,
     )
 
     description = models.TextField(
@@ -117,29 +117,36 @@ class Group(models.Model):
     group_type = models.CharField(
         max_length=20,
         choices=GROUP_TYPES,
-        default="CUSTOM"
+        default="CUSTOM",
     )
 
     department = models.CharField(
         max_length=100,
         blank=True,
-        null=True
+        null=True,
     )
+
+    auto_add_members = models.BooleanField(
+        default=False,
+        help_text="If true, members may be auto-added to this group when created",
+    )
+
+    
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="created_groups"
+        related_name="created_groups",
     )
 
     created_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        auto_now=True
+        auto_now=True,
     )
 
     class Meta:

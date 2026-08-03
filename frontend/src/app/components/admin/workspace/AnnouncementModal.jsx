@@ -13,7 +13,6 @@ export function AnnouncementModal({
     announcement = null,
     onClose,
     onSubmit,
-    onDeleteAnnouncement,
 }) {
   const [title, setTitle] = useState(
     announcement?.title || ""
