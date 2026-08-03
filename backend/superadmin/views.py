@@ -165,7 +165,7 @@ class DepartmentListView(generics.ListAPIView):
     def get_queryset(self):
         return (
             Group.objects
-            .exclude(name="Main Workspace")
+            .filter(group_type="DEPARTMENT")
             .order_by("name")
         )
 

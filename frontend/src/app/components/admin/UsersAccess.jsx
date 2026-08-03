@@ -39,7 +39,6 @@ export function UsersAccess() {
 const [departments, setDepartments] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     const loadDepartments = async () => {
     try {
@@ -78,7 +77,6 @@ const loadUsers = async () => {
     setUsers(mapped);
   } catch (err) {
     console.error(err);
-    setError(err.message);
   } finally {
     setLoading(false);
   }
