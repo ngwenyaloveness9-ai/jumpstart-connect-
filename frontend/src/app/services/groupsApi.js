@@ -12,16 +12,27 @@ export const groupsApi = {
   },
 
   // Get one group's messages
-  messages: async (groupId) => {
-    const res = await api.get(`/chat/group/${groupId}/messages`);
+  messages: async (groupId, userId) => {
+    const query = userId ? `?user_id=${userId}` : "";
+    const res = await api.get(`/chat/group/${groupId}/messages${query}`);
     return res.data;
   },
 
   // Get members of a group/workspace
-getMembers: async (groupId) => {
-  const res = await api.get(`/chat/groups/${groupId}/members`);
-  return res.data.members;
-},
+  getMembers: async (groupId) => {
+    const res = await api.get(`/chat/groups/${groupId}/members`);
+    return res.data.members;
+  },
+
+  // Send a message to all members of a group as direct messages
+  contactDepartment: async (formData) => {
+    const res = await api.post("/chat/department/contact", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  },
 
   // Create a new group/workspace
   create: async (data) => {

@@ -270,6 +270,13 @@ class GetInboxView(View):
 # GROUP CHAT
 # =====================================================
 
+ADMIN_ROLES = {
+    "superadmin",
+    "system administrator",
+    "organization administrator",
+}
+
+
 class GetGroupsView(View):
 
     def get(self, request, user_id):
@@ -319,19 +326,17 @@ class GetGroupsView(View):
 
         role = (getattr(user, "role", "") or "").strip().lower()
 
-        if role in ADMIN_ROLES:
-            groups = Group.objects.all().order_by("name")
-        else:
-            groups = (
-                Group.objects.filter(members__user=user)
-                .distinct()
-                .order_by("name")
-            )
+        groups = Group.objects.all().order_by("name")
 
         results = []
-        for grp in groups:
+        for group in groups:
+            is_member = GroupMember.objects.filter(
+                group=group,
+                user=user
+            ).exists()
+
             admin_member = (
-                GroupMember.objects.filter(group=grp, is_admin=True)
+                GroupMember.objects.filter(group=group, is_admin=True)
                 .select_related("user")
                 .first()
             )
@@ -340,13 +345,16 @@ class GetGroupsView(View):
                 admin_name = f"{admin_member.user.first_name} {admin_member.user.last_name}".strip()
 
             results.append({
-                "id": grp.id,
-                "name": grp.name,
-                "description": grp.description,
-                "group_type": grp.group_type,
-                "members_count": GroupMember.objects.filter(group=grp).count(),
+                "id": group.id,
+                "name": group.name,
+                "description": group.description,
+                "group_type": group.group_type,
+                "members_count": GroupMember.objects.filter(group=group).count(),
                 "boards_count": 0,
                 "admin_name": admin_name,
+                "is_member": is_member,
+                "status": "active" if is_member or role in ADMIN_ROLES else "restricted",
+                "access": "full" if is_member or role in ADMIN_ROLES else "limited",
             })
 
         return JsonResponse({
@@ -357,12 +365,39 @@ class GetGroupsView(View):
 class GetGroupMessagesView(View):
     def get(self, request, group_id):
 
+        user_id = request.GET.get("user_id")
+
+        if not user_id:
+            return JsonResponse(
+                {"error": "User id required"},
+                status=400
+            )
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse(
+                {"error": "User not found"},
+                status=404
+            )
+
         try:
             group = Group.objects.get(id=group_id)
         except Group.DoesNotExist:
             return JsonResponse(
                 {"error": "Group not found"},
                 status=404
+            )
+
+        is_member = GroupMember.objects.filter(
+            group=group,
+            user=user
+        ).exists()
+
+        if not is_member and (user.role or "").strip().lower() not in ADMIN_ROLES:
+            return JsonResponse(
+                {"error": "Access denied"},
+                status=403
             )
 
         messages = (

@@ -19,12 +19,18 @@ export function WorkspaceEnvironment({
         JSON.parse(localStorage.getItem("currentUser")) ||
         JSON.parse(localStorage.getItem("user"));
     const [editingAnnouncement, setEditingAnnouncement] = useState(null);
+    const [savingAnnouncement, setSavingAnnouncement] = useState(false);
     const [activeTab, setActiveTab] = useState("chat");
     const [members, setMembers] = useState([]);
     const [groupMessages, setGroupMessages] = useState([]);
     const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
     const [creatingAnnouncement, setCreatingAnnouncement] = useState(false);
     const [groupAnnouncements, setGroupAnnouncements] = useState([]);
+    const [loadingMembers, setLoadingMembers] = useState(true);
+    const [sendingMessage, setSendingMessage] = useState(false);
+    const [infoMessage, setInfoMessage] = useState("");
+
+    const isRestricted = workspace.access === "limited";
 
     const loadAnnouncements = async () => {
         try {
@@ -63,34 +69,44 @@ export function WorkspaceEnvironment({
                 const members = await groupsApi.getMembers(workspace.id);
                 setMembers(members);
 
-                const messageData = await groupsApi.messages(workspace.id);
+                if (!isRestricted) {
+                    const messageData = await groupsApi.messages(
+                        workspace.id,
+                        currentUser?.id
+                    );
 
-                const formattedMessages = (messageData.messages || []).map((msg) => ({
-                    id: msg.id,
-                    content: msg.message,
-                    sender: {
-                        id: msg.sender_id,
-                        name: msg.sender_name,
-                    },
-                    attachments: msg.attachments || [],
-                    time: new Date(msg.timestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    }),
-                    read: true,
-                }));
+                    const formattedMessages = (messageData.messages || []).map((msg) => ({
+                        id: msg.id,
+                        content: msg.message,
+                        sender: {
+                            id: msg.sender_id,
+                            name: msg.sender_name,
+                        },
+                        attachments: msg.attachments || [],
+                        time: new Date(msg.timestamp).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        }),
+                        read: true,
+                    }));
 
-                setGroupMessages(formattedMessages);
+                    setGroupMessages(formattedMessages);
+                } else {
+                    setGroupMessages([]);
+                }
+
                 await loadAnnouncements();
             } catch (err) {
                 console.error(err);
+            } finally {
+                setLoadingMembers(false);
             }
         }
 
         if (workspace?.id) {
             void loadWorkspace();
         }
-    }, [workspace?.id]);
+    }, [workspace.id, isRestricted, currentUser?.id]);
 
 const handleCreateAnnouncement = async (formData) => {
     try {
@@ -140,6 +156,7 @@ const handleEditAnnouncement = (announcement) => {
 
 const handleSendMessage = async ({ content, attachments }) => {
     try {
+        setSendingMessage(true);
         const formData = new FormData();
 
         formData.append("sender_id", currentUser.id);
@@ -150,33 +167,43 @@ const handleSendMessage = async ({ content, attachments }) => {
             formData.append("attachments", file);
         });
 
+        if (isRestricted) {
+            await groupsApi.contactDepartment(formData);
+            setInfoMessage(
+                "Your message has been sent to this workspace's members as direct messages."
+            );
+            setGroupMessages([]);
+            return;
+        }
+
         await groupsApi.sendMessage(formData);
 
-        const updated = await groupsApi.messages(workspace.id);
+        const updated = await groupsApi.messages(
+            workspace.id,
+            currentUser?.id
+        );
 
         const formattedMessages = (updated.messages || []).map((msg) => ({
             id: msg.id,
             content: msg.message,
-
             sender: {
                 id: msg.sender_id,
                 name: msg.sender_name,
             },
-
             attachments: msg.attachments || [],
-
             time: new Date(msg.timestamp).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
             }),
-
             read: true,
         }));
 
         setGroupMessages(formattedMessages);
-
     } catch (err) {
         console.error(err);
+        setInfoMessage("Failed to send your message. Please try again.");
+    } finally {
+        setSendingMessage(false);
     }
 };
 
@@ -279,15 +306,27 @@ const handleDeleteAnnouncement = async (announcementId) => {
 
             <div className="flex-1 overflow-hidden">
 
-                {activeTab === "chat" && (
-                    <GroupChat
-    workspace={workspace}
-    messages={groupMessages}
-    currentUser={currentUser}
-    onSendMessage={handleSendMessage}
-    onDelete={handleDeleteMessage}
-    onReaction={handleReaction}
-/>
+                    {activeTab === "chat" && (
+                    <>
+                        {isRestricted && (
+                            <div className="bg-[#1F2937] border-b border-[#27303A] px-6 py-4 text-sm text-[#D1D5DB]">
+                                You have limited access to this workspace. Chat history is hidden, but you can send a message with attachments and it will be delivered to workspace members as direct messages.
+                            </div>
+                        )}
+                        {infoMessage && (
+                            <div className="bg-[#15232C] border-b border-[#21313E] px-6 py-3 text-sm text-[#A3E635]">
+                                {infoMessage}
+                            </div>
+                        )}
+                        <GroupChat
+                            workspace={workspace}
+                            messages={groupMessages}
+                            currentUser={currentUser}
+                            onSendMessage={handleSendMessage}
+                            onDelete={isRestricted ? undefined : handleDeleteMessage}
+                            onReaction={isRestricted ? undefined : handleReaction}
+                        />
+                    </>
                 )}
 
                 {activeTab === "announcements" && (
