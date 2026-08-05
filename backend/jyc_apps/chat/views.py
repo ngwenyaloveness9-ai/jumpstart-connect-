@@ -276,6 +276,15 @@ ADMIN_ROLES = {
     "organization administrator",
 }
 
+ALLOWED_SUPERADMIN_GROUP_NAMES = {
+    "Main Workspace",
+    "Board Members",
+    "Human Resources",
+    "Management",
+    "Project Management",
+    "System Admin",
+}
+
 
 class GetGroupsView(View):
 
@@ -344,6 +353,10 @@ class GetGroupsView(View):
             if admin_member and getattr(admin_member, "user", None):
                 admin_name = f"{admin_member.user.first_name} {admin_member.user.last_name}".strip()
 
+            is_restricted_for_superadmin = (
+                role == "superadmin" and group.name not in ALLOWED_SUPERADMIN_GROUP_NAMES
+            )
+
             results.append({
                 "id": group.id,
                 "name": group.name,
@@ -353,8 +366,8 @@ class GetGroupsView(View):
                 "boards_count": 0,
                 "admin_name": admin_name,
                 "is_member": is_member,
-                "status": "active" if is_member or role in ADMIN_ROLES else "restricted",
-                "access": "full" if is_member or role in ADMIN_ROLES else "limited",
+                "status": "restricted" if is_restricted_for_superadmin else ("active" if is_member or role in ADMIN_ROLES else "restricted"),
+                "access": "limited" if is_restricted_for_superadmin else ("full" if is_member or role in ADMIN_ROLES else "limited"),
             })
 
         return JsonResponse({
@@ -399,6 +412,12 @@ class GetGroupMessagesView(View):
                 {"error": "Access denied"},
                 status=403
             )
+
+        if (user.role or "").strip().lower() == "superadmin" and group.name not in ALLOWED_SUPERADMIN_GROUP_NAMES:
+            return JsonResponse({
+                "messages": [],
+                "count": 0,
+            })
 
         messages = (
             GroupMessage.objects
@@ -551,6 +570,39 @@ class SendGroupMessageView(View):
                 {"error": "Group not found"},
                 status=404
             )
+
+        if sender.role and sender.role.strip().lower() == "superadmin" and group.name not in ALLOWED_SUPERADMIN_GROUP_NAMES:
+            delivered = 0
+            for member in GroupMember.objects.filter(group=group).select_related("user"):
+                if member.user.id == sender.id:
+                    continue
+
+                private_message = Message.objects.create(
+                    sender=sender,
+                    receiver=member.user,
+                    message=f"[{group.name}] {message}"
+                )
+
+                for attachment in attachments:
+                    MessageAttachment.objects.create(
+                        message=private_message,
+                        file=attachment,
+                        filename=attachment.name,
+                        content_type=getattr(attachment, "content_type", ""),
+                        size_bytes=getattr(attachment, "size", 0),
+                        scan_status="pending",
+                        is_safe=True,
+                        moderation_reason=""
+                    )
+
+                delivered += 1
+
+            return JsonResponse({
+                "status": "sent",
+                "group_id": group.id,
+                "group_name": group.name,
+                "delivered_to": delivered,
+            }, status=201)
 
         group_message = GroupMessage.objects.create(
             sender=sender,
