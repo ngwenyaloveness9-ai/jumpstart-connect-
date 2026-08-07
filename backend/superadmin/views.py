@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from authentication.models import OTP
 from authentication.serializers import EmployeeCreateSerializer
@@ -21,7 +21,8 @@ User = get_user_model()
 
 class CreateEmployeeView(APIView):
 
-    permission_classes = [AllowAny]
+    # Require authentication: only Superadmin or HR can onboard employees.
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
 
@@ -37,6 +38,22 @@ class CreateEmployeeView(APIView):
             )
 
         data = serializer.validated_data
+
+        # Authorization: only superadmin may create HR users, HR users may create other employees.
+        creator = getattr(request, 'user', None)
+        creator_role = (getattr(creator, 'role', '') or '').strip().lower() if creator else ''
+        creator_department = (getattr(creator, 'department', '') or '').strip().lower() if creator else ''
+        new_department = (data.get('department') or '').strip().lower()
+
+        if creator_role == 'superadmin':
+            # Superadmin may only onboard HR users
+            if new_department != 'human resources':
+                return Response({"error": "Superadmin may only onboard Human Resources users. Please set department to 'Human Resources'."}, status=403)
+        elif creator_department == 'human resources':
+            # HR creators are allowed to onboard employees across departments
+            pass
+        else:
+            return Response({"error": "Only Superadmin or Human Resources staff can onboard employees."}, status=403)
 
         if User.objects.filter(email=data["email"]).exists():
             return Response(
