@@ -1,13 +1,21 @@
 from rest_framework import serializers
 
 
-# -----------------------------
-# Employee Onboarding
-# -----------------------------
+# ============================================================
+# EMPLOYEE / HR ONBOARDING
+# ============================================================
+
 class EmployeeCreateSerializer(serializers.Serializer):
+
     email = serializers.EmailField()
-    first_name = serializers.CharField(max_length=100)
-    last_name = serializers.CharField(max_length=100)
+
+    first_name = serializers.CharField(
+        max_length=100
+    )
+
+    last_name = serializers.CharField(
+        max_length=100
+    )
 
     department = serializers.CharField(
         max_length=100,
@@ -16,7 +24,7 @@ class EmployeeCreateSerializer(serializers.Serializer):
     )
 
     role = serializers.CharField(
-        max_length=100,
+        max_length=50,
         required=False,
         allow_blank=True
     )
@@ -27,19 +35,97 @@ class EmployeeCreateSerializer(serializers.Serializer):
         allow_blank=True
     )
 
+    def validate_email(self, value):
 
-# -----------------------------
-# OTP Verification
-# -----------------------------
+        return value.strip().lower()
+
+    def validate_role(self, value):
+
+        value = value.strip().lower()
+
+        allowed_roles = {
+            "hr",
+            "employee",
+        }
+
+        if value not in allowed_roles:
+
+            raise serializers.ValidationError(
+                "Role must be either 'hr' or 'employee'."
+            )
+
+        return value
+
+    def validate_department(self, value):
+
+        return value.strip()
+
+    def validate(self, attrs):
+
+        role = attrs.get("role", "").strip().lower()
+
+        department = (
+            attrs.get("department", "")
+            .strip()
+            .lower()
+        )
+
+        # ----------------------------------------------------
+        # HR VALIDATION
+        # ----------------------------------------------------
+
+        if role == "hr":
+
+            if department != "human resources":
+
+                raise serializers.ValidationError(
+                    {
+                        "department": (
+                            "HR users must belong to "
+                            "Human Resources."
+                        )
+                    }
+                )
+
+        # ----------------------------------------------------
+        # EMPLOYEE VALIDATION
+        # ----------------------------------------------------
+
+        elif role == "employee":
+
+            if not department:
+
+                raise serializers.ValidationError(
+                    {
+                        "department": (
+                            "Department is required "
+                            "for employees."
+                        )
+                    }
+                )
+
+        return attrs
+
+
+# ============================================================
+# OTP VERIFICATION
+# ============================================================
+
 class OTPVerifySerializer(serializers.Serializer):
+
     email = serializers.EmailField()
-    otp = serializers.CharField(max_length=6)
+
+    otp = serializers.CharField(
+        max_length=6
+    )
 
 
-# -----------------------------
-# First Password Creation
-# -----------------------------
+# ============================================================
+# FIRST PASSWORD CREATION
+# ============================================================
+
 class CreatePasswordSerializer(serializers.Serializer):
+
     email = serializers.EmailField()
 
     password = serializers.CharField(
@@ -53,10 +139,12 @@ class CreatePasswordSerializer(serializers.Serializer):
     )
 
 
-# -----------------------------
-# Normal Login
-# -----------------------------
+# ============================================================
+# NORMAL LOGIN
+# ============================================================
+
 class LoginSerializer(serializers.Serializer):
+
     email = serializers.EmailField()
 
     password = serializers.CharField(
@@ -64,10 +152,12 @@ class LoginSerializer(serializers.Serializer):
     )
 
 
-# -----------------------------
-# Change Expired Password
-# -----------------------------
+# ============================================================
+# CHANGE EXPIRED PASSWORD
+# ============================================================
+
 class ChangePasswordSerializer(serializers.Serializer):
+
     email = serializers.EmailField()
 
     old_password = serializers.CharField(

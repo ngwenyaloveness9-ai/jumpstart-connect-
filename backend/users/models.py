@@ -52,11 +52,20 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
 
+    # --------------------------------------------------
+    # USER ROLES
+    # --------------------------------------------------
+
     ROLE_CHOICES = (
-        ("superadmin", "Super Admin"),
-        ("manager", "Manager"),
-        ("employee", "Employee"),
-    )
+    ("superadmin", "Super Admin"),
+    ("hr", "Human Resources"),
+    ("manager", "Manager"),
+    ("employee", "Employee"),
+   )
+
+    # --------------------------------------------------
+    # BASIC INFORMATION
+    # --------------------------------------------------
 
     email = models.EmailField(
         unique=True
@@ -88,7 +97,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True
     )
 
-    # Django permissions
+    # --------------------------------------------------
+    # DJANGO PERMISSIONS
+    # --------------------------------------------------
 
     is_active = models.BooleanField(
         default=True
@@ -98,7 +109,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=False
     )
 
-    # Authentication flow
+    # --------------------------------------------------
+    # AUTHENTICATION FLOW
+    # --------------------------------------------------
 
     is_first_login = models.BooleanField(
         default=True
@@ -113,6 +126,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True
     )
 
+    # --------------------------------------------------
+    # TIMESTAMPS
+    # --------------------------------------------------
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )
@@ -121,7 +138,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         auto_now=True
     )
 
+    # --------------------------------------------------
+    # MANAGER
+    # --------------------------------------------------
+
     objects = UserManager()
+
+    # --------------------------------------------------
+    # LOGIN CONFIGURATION
+    # --------------------------------------------------
 
     USERNAME_FIELD = "email"
 
@@ -129,6 +154,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         "first_name",
         "last_name"
     ]
+
+    # --------------------------------------------------
+    # PASSWORD EXPIRATION
+    # --------------------------------------------------
 
     def password_expired(self):
 
@@ -139,6 +168,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.password_changed_at +
             timedelta(days=90)
         )
+
+    # --------------------------------------------------
+    # STRING REPRESENTATION
+    # --------------------------------------------------
 
     def __str__(self):
         return self.email

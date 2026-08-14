@@ -152,6 +152,163 @@ JumpStart Your Career
             },
             status=201
         )
+# ============================================================
+# SUPERADMIN - HR MANAGEMENT
+# ============================================================
+
+class HRListView(APIView):
+    """
+    Superadmin can view all Human Resources users.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        # Only Superadmin
+        if request.user.role != "superadmin":
+            return Response(
+                {
+                    "error": "Only the Superadmin can manage Human Resources users."
+                },
+                status=403
+            )
+
+        hr_users = User.objects.filter(
+            role="hr"
+        ).order_by("-created_at")
+
+        data = []
+
+        for hr in hr_users:
+            data.append({
+                "id": hr.id,
+                "email": hr.email,
+                "first_name": hr.first_name,
+                "last_name": hr.last_name,
+                "department": hr.department,
+                "role": hr.role,
+                "phone": hr.phone,
+                "is_active": hr.is_active,
+                "created_at": hr.created_at,
+            })
+
+        return Response(
+            {
+                "count": len(data),
+                "hr_users": data
+            },
+            status=200
+        )
+
+
+class HRUpdateView(APIView):
+    """
+    Superadmin can update an HR user's details.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+
+        # Only Superadmin
+        if request.user.role != "superadmin":
+            return Response(
+                {
+                    "error": "Only the Superadmin can manage Human Resources users."
+                },
+                status=403
+            )
+
+        try:
+            hr = User.objects.get(
+                pk=pk,
+                role="hr"
+            )
+        except User.DoesNotExist:
+            return Response(
+                {
+                    "error": "HR user not found."
+                },
+                status=404
+            )
+
+        # Prevent changing the HR into another role
+        allowed_fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "department",
+            "is_active",
+        ]
+
+        for field in allowed_fields:
+            if field in request.data:
+                setattr(hr, field, request.data[field])
+
+        # Always keep this user as HR
+        hr.role = "hr"
+        hr.save()
+
+        return Response(
+            {
+                "message": "HR user updated successfully.",
+                "hr": {
+                    "id": hr.id,
+                    "email": hr.email,
+                    "first_name": hr.first_name,
+                    "last_name": hr.last_name,
+                    "department": hr.department,
+                    "role": hr.role,
+                    "phone": hr.phone,
+                    "is_active": hr.is_active,
+                }
+            },
+            status=200
+        )
+
+
+class HRDeleteView(APIView):
+    """
+    Superadmin can delete an HR user.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+
+        # Only Superadmin
+        if request.user.role != "superadmin":
+            return Response(
+                {
+                    "error": "Only the Superadmin can manage Human Resources users."
+                },
+                status=403
+            )
+
+        try:
+            hr = User.objects.get(
+                pk=pk,
+                role="hr"
+            )
+        except User.DoesNotExist:
+            return Response(
+                {
+                    "error": "HR user not found."
+                },
+                status=404
+            )
+
+        # Delete HR
+        hr.delete()
+
+        return Response(
+            {
+                "message": "HR user deleted successfully."
+            },
+            status=200
+        )
 
 
 # Message API Views

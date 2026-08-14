@@ -4,6 +4,24 @@ from . import views
 urlpatterns = [
     # Existing endpoints
     path("employees/create/", views.CreateEmployeeView.as_view()),
+    # HR Management - Superadmin only
+path(
+    "hr/",
+    views.HRListView.as_view(),
+    name="hr-list"
+),
+
+path(
+    "hr/<int:pk>/",
+    views.HRUpdateView.as_view(),
+    name="hr-update"
+),
+
+path(
+    "hr/<int:pk>/delete/",
+    views.HRDeleteView.as_view(),
+    name="hr-delete"
+),
     
     # Message endpoints
     path("messages/threads/", views.MessageThreadListView.as_view(), name="message-thread-list"),
