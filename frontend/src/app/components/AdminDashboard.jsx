@@ -1,7 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { LayoutDashboard, Users, Briefcase, Settings, Shield, Bell, Search, Zap, LogOut, Menu, X, Globe, Key, FileText, ChevronDown, Moon, Sun, MessageSquare, } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, Settings, Shield, Bell, Search, Zap, LogOut, Menu, X, Globe, Key, FileText, ChevronDown, Moon, Sun, MessageSquare, CalendarDays } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { DashboardHome } from "./admin/DashboardHome";
 import { UsersAccess } from "./admin/UsersAccess";
@@ -13,6 +12,7 @@ import { AuditLogs } from "./admin/AuditLogs";
 import { ApiWebhooks } from "./admin/ApiWebhooks";
 import { AdminSettings } from "./admin/AdminSettings";
 import { Messages } from "./admin/Messages";
+import { LeavePage } from "./LeavePage";
 import logo from "../../assets/images/jumpstart-logo.webp";
 
 const SIDEBAR_ITEMS = [
@@ -25,6 +25,7 @@ const SIDEBAR_ITEMS = [
     { icon: FileText, label: "Audit Logs", component: "AuditLogs" },
     { icon: Key, label: "API & Webhooks", component: "ApiWebhooks" },
     { icon: MessageSquare, label: "Messages", component: "Messages" },
+    { icon: CalendarDays, label: "Leave", component: "Leave" },
     { icon: Settings, label: "Settings", component: "Settings" },
 ];
 
@@ -39,6 +40,7 @@ function renderSection(section) {
         case "AuditLogs": return <AuditLogs />;
         case "ApiWebhooks": return <ApiWebhooks />;
         case "Messages": return <Messages />;
+        case "Leave": return <LeavePage />;
         case "Settings": return <AdminSettings />;
         default: return <DashboardHome />;
     }
@@ -59,7 +61,7 @@ export function AdminDashboard() {
         navigate("/login", { replace: true });
     };
 
-    return (<div className="min-h-screen bg-background text-foreground flex" style={{ fontFamily: "system-ui, sans-serif" }}>
+    return (<div className="theme-adaptive min-h-screen bg-background text-foreground flex" style={{ fontFamily: "system-ui, sans-serif" }}>
       {/* Mobile overlay */}
       {sidebarOpen && (<div className="fixed inset-0 bg-black/70 z-40 lg:hidden" onClick={() => setSidebarOpen(false)}/>)}
 

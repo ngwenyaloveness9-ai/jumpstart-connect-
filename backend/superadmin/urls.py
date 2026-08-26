@@ -33,6 +33,7 @@ path(
     # Users
     path("users/", views.UserListView.as_view(), name="user-list"),
     path("users/<int:pk>/", views.UserDetailView.as_view(), name="user-detail"),
+    path("users/<int:pk>/reset-link/", views.UserResetLinkView.as_view(), name="user-reset-link"),
     # Workspaces
     path("workspaces/", views.WorkspaceListView.as_view(), name="workspace-list"),
     path("departments/", views.DepartmentListView.as_view(), name="department-list"),

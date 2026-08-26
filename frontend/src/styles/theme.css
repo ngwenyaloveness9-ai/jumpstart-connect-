@@ -60,6 +60,7 @@
   --destructive-foreground: #ffffff;
   --border: #2A2A2A;
   --input: #2A2A2A;
+  --input-background: #2A2A2A;
   --ring: #F5C518;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
@@ -177,5 +178,34 @@
     font-size: var(--text-base);
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
+  }
+}
+
+/* Keep legacy admin surfaces aligned with the shared theme tokens. */
+@layer utilities {
+  .theme-adaptive .text-white,
+  .theme-adaptive .text-black {
+    color: var(--foreground);
+  }
+
+  .theme-adaptive .text-\[\#333\],
+  .theme-adaptive .text-\[\#444\],
+  .theme-adaptive .text-\[\#555\],
+  .theme-adaptive .text-\[\#666\],
+  .theme-adaptive .text-\[\#777\],
+  .theme-adaptive .text-\[\#888\],
+  .theme-adaptive .text-\[\#CCCCCC\],
+  .theme-adaptive .text-gray-400,
+  .theme-adaptive .text-gray-500,
+  .theme-adaptive .text-gray-600,
+  .theme-adaptive .text-gray-300 {
+    color: var(--muted-foreground);
+  }
+
+  .theme-adaptive .bg-yellow-400.text-black,
+  .theme-adaptive .bg-yellow-500.text-black,
+  .theme-adaptive [class*="bg-[#F5C518]"].text-black,
+  .theme-adaptive [class*="bg-[#F7C948]"].text-black {
+    color: var(--primary-foreground);
   }
 }

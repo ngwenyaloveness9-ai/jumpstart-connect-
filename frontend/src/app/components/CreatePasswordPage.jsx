@@ -107,11 +107,9 @@ export function CreatePasswordPage() {
     try {
       setLoading(true);
 
-      const response = await authApi.createPassword({
-        email,
-        password,
-        confirm_password: confirm,
-      });
+      const response = isReset
+        ? await authApi.resetPassword({ uid: state.uid, token: state.token, password, confirm_password: confirm })
+        : await authApi.createPassword({ email, password, confirm_password: confirm });
 
       console.log(response);
 

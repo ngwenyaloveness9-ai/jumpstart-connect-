@@ -9,9 +9,11 @@ import { PasswordExpiredPage } from "./components/PasswordExpiredPage";
 import { ForgotPasswordPage } from "./components/ForgotPasswordPage";
 import { ResetPasswordPage } from "./components/ResetPasswordPage";
 import { UserDashboard } from "./components/UserDashboard";
+import { ProfilePage } from "./components/ProfilePage";
 
 export const router = createBrowserRouter([
   { index: true, Component: LandingPage },
+
   { path: "login", Component: LoginPage },
   { path: "verify-otp", Component: VerifyOtpPage },
   { path: "first-login", Component: FirstLoginPage },
@@ -19,6 +21,11 @@ export const router = createBrowserRouter([
   { path: "password-expired", Component: PasswordExpiredPage },
   { path: "forgot-password", Component: ForgotPasswordPage },
   { path: "reset-password", Component: ResetPasswordPage },
-  { path: "admin", Component: AdminDashboard },
+
+  // Existing dashboards
   { path: "dashboard", Component: UserDashboard },
+  { path: "profile", Component: ProfilePage },
+  { path: "admin", Component: AdminDashboard },
+
+  
 ]);

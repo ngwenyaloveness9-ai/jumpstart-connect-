@@ -21,6 +21,7 @@ export function MembersList({
   const [filter, setFilter] = useState("all");
 
   const canInvite =
+    currentUser?.isWorkspaceAdmin ||
     currentUser?.role === "superadmin" ||
     currentUser?.role === "owner" ||
     currentUser?.role === "supervisor";

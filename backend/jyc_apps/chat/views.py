@@ -272,6 +272,8 @@ class GetInboxView(View):
 
 ADMIN_ROLES = {
     "superadmin",
+    "hr",
+    "human resources",
     "system administrator",
     "organization administrator",
 }
@@ -325,10 +327,24 @@ class GetGroupsView(View):
                 department_group = Group.objects.filter(name=user.department).first()
 
             if department_group:
-                GroupMember.objects.get_or_create(group=department_group, user=user)
+                department_leadership_roles = {
+                    "manager", "department manager", "head of department",
+                    "supervisor", "head of technology",
+                }
+                is_department_admin = (
+                    (getattr(user, "role", "") or "").strip().lower()
+                    in department_leadership_roles
+                )
+                GroupMember.objects.update_or_create(
+                    group=department_group,
+                    user=user,
+                    defaults={"is_admin": is_department_admin},
+                )
 
         ADMIN_ROLES = {
             "superadmin",
+            "hr",
+            "human resources",
             "system administrator",
             "organization administrator",
         }
@@ -361,6 +377,7 @@ class GetGroupsView(View):
                 "id": group.id,
                 "name": group.name,
                 "description": group.description,
+                "department": group.department,
                 "group_type": group.group_type,
                 "members_count": GroupMember.objects.filter(group=group).count(),
                 "boards_count": 0,
@@ -368,12 +385,121 @@ class GetGroupsView(View):
                 "is_member": is_member,
                 "status": "restricted" if is_restricted_for_superadmin else ("active" if is_member or role in ADMIN_ROLES else "restricted"),
                 "access": "limited" if is_restricted_for_superadmin else ("full" if is_member or role in ADMIN_ROLES else "limited"),
+                "is_admin": GroupMember.objects.filter(group=group, user=user, is_admin=True).exists(),
             })
 
         return JsonResponse({
             "groups": results,
             "count": len(results),
         })
+
+
+def _workspace_manager(request, data=None):
+    data = data or {}
+    user_id = data.get("user_id") or request.GET.get("user_id")
+    try:
+        user = User.objects.get(id=user_id)
+    except (User.DoesNotExist, TypeError, ValueError):
+        return None
+
+    role = (getattr(user, "role", "") or "").strip().lower()
+    if role not in {
+        "hr", "human resources", "superadmin", "system administrator", "organization administrator",
+        "manager", "department manager", "head of department", "supervisor", "head of technology",
+    }:
+        return None
+    requested_department = (data.get("department") or "").strip().lower()
+    if role in {"manager", "department manager", "head of department", "supervisor", "head of technology"} and requested_department and requested_department != (user.department or "").strip().lower():
+        return None
+    return user
+
+
+def _can_manage_group(manager, group):
+    role = (getattr(manager, "role", "") or "").strip().lower()
+    if role in {"hr", "human resources", "superadmin", "system administrator", "organization administrator"}:
+        return True
+    return (
+        role in {"manager", "department manager", "head of department", "supervisor", "head of technology"}
+        and (group.department or "").strip().lower() == (manager.department or "").strip().lower()
+    )
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class WorkspaceManagementView(View):
+    def _json(self, request):
+        try:
+            return json.loads(request.body or "{}")
+        except json.JSONDecodeError:
+            return None
+
+    def post(self, request):
+        data = self._json(request)
+        if data is None:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        manager = _workspace_manager(request, data)
+        if not manager:
+            return JsonResponse({"error": "Only HR or an administrator can manage workspaces"}, status=403)
+
+        name = (data.get("name") or "").strip()
+        if not name:
+            return JsonResponse({"error": "Workspace name is required"}, status=400)
+        if Group.objects.filter(name__iexact=name).exists():
+            return JsonResponse({"error": "A workspace with this name already exists"}, status=400)
+
+        type_map = {"Department": "DEPARTMENT", "Program": "CUSTOM", "Restricted": "CUSTOM", "Temporary": "CUSTOM"}
+        group = Group.objects.create(
+            name=name,
+            description=(data.get("description") or "").strip(),
+            group_type=type_map.get(data.get("type"), data.get("type", "CUSTOM")),
+            department=(data.get("department") or getattr(manager, "department", None) or "").strip() or None,
+            auto_add_members=bool(data.get("auto_assign", False)),
+            created_by=manager,
+        )
+        GroupMember.objects.get_or_create(group=group, user=manager, defaults={"is_admin": True})
+        return JsonResponse({"id": group.id, "name": group.name}, status=201)
+
+    def put(self, request, group_id):
+        data = self._json(request)
+        if data is None:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        manager = _workspace_manager(request, data)
+        if not manager:
+            return JsonResponse({"error": "Only HR or an administrator can manage workspaces"}, status=403)
+        try:
+            group = Group.objects.get(id=group_id)
+        except Group.DoesNotExist:
+            return JsonResponse({"error": "Workspace not found"}, status=404)
+        if not _can_manage_group(manager, group):
+            return JsonResponse({"error": "You can only manage your department workspace"}, status=403)
+
+        name = (data.get("name") or group.name).strip()
+        if not name:
+            return JsonResponse({"error": "Workspace name is required"}, status=400)
+        if Group.objects.filter(name__iexact=name).exclude(id=group.id).exists():
+            return JsonResponse({"error": "A workspace with this name already exists"}, status=400)
+        group.name = name
+        if "description" in data:
+            group.description = (data.get("description") or "").strip()
+        if "auto_assign" in data:
+            group.auto_add_members = bool(data["auto_assign"])
+        group.save()
+        return JsonResponse({"id": group.id, "name": group.name})
+
+    def delete(self, request, group_id):
+        data = self._json(request) or {}
+        manager = _workspace_manager(request, data)
+        if not manager:
+            return JsonResponse({"error": "Only HR or an administrator can manage workspaces"}, status=403)
+        try:
+            group = Group.objects.get(id=group_id)
+        except Group.DoesNotExist:
+            return JsonResponse({"error": "Workspace not found"}, status=404)
+        if not _can_manage_group(manager, group):
+            return JsonResponse({"error": "You can only manage your department workspace"}, status=403)
+        if group.name == "Main Workspace":
+            return JsonResponse({"error": "The Main Workspace cannot be deleted"}, status=400)
+        group.delete()
+        return JsonResponse({"message": "Workspace deleted"})
 
 class GetGroupMessagesView(View):
     def get(self, request, group_id):
@@ -505,6 +631,8 @@ class GetGroupMembersView(View):
                 "department": getattr(user, "department", ""),
                 "role": getattr(user, "role", ""),
                 "is_admin": member.is_admin,
+                "is_active": user.is_active,
+                "last_login": user.last_login.isoformat() if user.last_login else None,
                 "online": False,
             })
 

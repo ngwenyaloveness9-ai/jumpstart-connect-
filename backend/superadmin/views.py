@@ -3,13 +3,17 @@ import random
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import transaction
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import status
 
 from authentication.models import OTP
 from authentication.serializers import EmployeeCreateSerializer
@@ -45,15 +49,33 @@ class CreateEmployeeView(APIView):
         creator_department = (getattr(creator, 'department', '') or '').strip().lower() if creator else ''
         new_department = (data.get('department') or '').strip().lower()
 
-        if creator_role == 'superadmin':
-            # Superadmin may only onboard HR users
-            if new_department != 'human resources':
-                return Response({"error": "Superadmin may only onboard Human Resources users. Please set department to 'Human Resources'."}, status=403)
-        elif creator_department == 'human resources':
-            # HR creators are allowed to onboard employees across departments
+        if creator_role == "superadmin":
+           # Superadmin may only onboard HR users
+           if new_department != "human resources":
+              return Response(
+                 {
+                    "error": (
+                        "Superadmin may only onboard Human Resources users. "
+                         "Please set department to 'Human Resources'."
+                )
+            },
+            status=403,
+        )
+
+        elif creator_role == "hr":
+            # HR may onboard employees across departments
             pass
+
         else:
-            return Response({"error": "Only Superadmin or Human Resources staff can onboard employees."}, status=403)
+            return Response(
+        {
+            "error": (
+                "Only Superadmin or Human Resources staff "
+                "can onboard employees."
+            )
+        },
+        status=403,
+    )
 
         if User.objects.filter(email=data["email"]).exists():
             return Response(
@@ -499,11 +521,135 @@ class MessageThreadMarkReadView(APIView):
 
 
 class UserListView(generics.ListAPIView):
-    queryset = User.objects.all().order_by('-created_at')
+    """
+    HR and Superadmin can view users.
+    """
+    permission_classes = [IsAuthenticated]
+
+    queryset = User.objects.all().order_by("-created_at")
     serializer_class = UserSerializer
 
+    def get(self, request, *args, **kwargs):
 
-class UserDetailView(generics.RetrieveAPIView):
+        if request.user.role not in ["hr", "superadmin"]:
+            return Response(
+                {
+                    "error": "Only Human Resources or Superadmin can view users."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().get(request, *args, **kwargs)
+
+
+class UserResetLinkView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role not in ["hr", "superadmin"]:
+            return Response(
+                {"error": "Only Human Resources or Superadmin can send reset links."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        user = get_object_or_404(User, pk=pk)
+        if request.user.role == "hr" and (user.role or "").lower() != "employee":
+            return Response(
+                {"error": "HR can only manage employee accounts."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        reset_url = f"http://localhost:5173/reset-password?uid={uid}&token={token}&email={user.email}"
+
+        send_mail(
+            subject="Reset your JumpStart Connect password",
+            message=f"Hello {user.first_name},\n\nReset your password here: {reset_url}\n\nThis link expires when your account credentials change.",
+            from_email=None,
+            recipient_list=[user.email],
+        )
+
+        return Response({"message": "Password reset link sent successfully."})
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    HR and Superadmin can view and manage users.
+
+    HR:
+        - Can view employees
+        - Can edit employees
+        - Can delete employees
+        - Cannot modify Superadmin users
+        - Cannot modify HR users
+
+    Superadmin:
+        - Can manage users through this endpoint
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        user = super().get_object()
+
+        if self.request.user.role == "hr":
+            if (user.role or "").lower() != "employee":
+                from rest_framework.exceptions import PermissionDenied
+
+                raise PermissionDenied(
+                    "HR can only manage employee accounts."
+                )
+
+        return user
+
+    def get(self, request, *args, **kwargs):
+
+        if request.user.role not in ["hr", "superadmin"]:
+            return Response(
+                {
+                    "error": "Only Human Resources or Superadmin can manage users."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().get(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+
+        if request.user.role not in ["hr", "superadmin"]:
+            return Response(
+                {
+                    "error": "Only Human Resources or Superadmin can edit users."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if request.user.role == "hr" and str(request.data.get("role", "employee")).lower() not in ["employee", "manager"]:
+            return Response(
+                {"error": "HR can only assign Employee or Manager roles."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        return super().partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+
+        if request.user.role not in ["hr", "superadmin"]:
+            return Response(
+                {
+                    "error": "Only Human Resources or Superadmin can delete users."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().destroy(request, *args, **kwargs)
+
+
+class UserProfileDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

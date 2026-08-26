@@ -18,5 +18,6 @@ urlpatterns = [
     path('api/announcements/', include('jyc_apps.announcements.urls')),
     path('files/', include('jyc_apps.files.urls')),
     path('directory/', include('jyc_apps.directory.urls')),
+    path('api/', include('organization.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

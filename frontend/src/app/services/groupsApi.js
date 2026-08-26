@@ -42,13 +42,13 @@ export const groupsApi = {
 
   // Update a group
   update: async (groupId, data) => {
-    const res = await api.put(`/chat/groups/${groupId}`, data);
+    const res = await api.put(`/chat/workspaces/${groupId}`, data);
     return res.data;
   },
 
   // Delete a group
-  remove: async (groupId) => {
-    const res = await api.delete(`/chat/groups/${groupId}`);
+  remove: async (groupId, userId) => {
+    const res = await api.delete(`/chat/workspaces/${groupId}`, { data: { user_id: userId } });
     return res.data;
   },
 

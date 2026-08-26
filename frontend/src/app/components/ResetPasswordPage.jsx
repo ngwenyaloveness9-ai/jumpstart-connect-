@@ -7,7 +7,10 @@ export function ResetPasswordPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const email = location.state?.email ?? "";
+  const params = new URLSearchParams(location.search);
+  const email = location.state?.email ?? params.get("email") ?? "";
+  const uid = params.get("uid") ?? "";
+  const token = params.get("token") ?? "";
 
   useEffect(() => {
     navigate(
@@ -15,12 +18,14 @@ export function ResetPasswordPage() {
       {
         state: {
           email,
+          uid,
+          token,
           isReset: true,
         },
         replace: true,
       }
     );
-  }, [navigate, email]);
+  }, [navigate, email, uid, token]);
 
   return null;
 }

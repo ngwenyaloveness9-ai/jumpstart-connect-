@@ -48,6 +48,7 @@ export function MemberCard({
   const RoleIcon = role.icon;
 
   const canManage =
+    currentUser?.isWorkspaceAdmin ||
     currentUser?.role === "superadmin" ||
     currentUser?.role === "owner" ||
     currentUser?.role === "supervisor";
@@ -74,14 +75,7 @@ export function MemberCard({
               className="w-16 h-16 rounded-full object-cover border-2 border-[#30363D]"
             />
 
-            <span
-              className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-[#161B22]
-                ${
-                  member.online
-                    ? "bg-green-500"
-                    : "bg-gray-500"
-                }`}
-            />
+            <span className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-[#161B22] ${member.is_active ? "bg-green-500" : "bg-gray-500"}`} />
 
           </div>
 
@@ -193,9 +187,7 @@ export function MemberCard({
 
           <span className="text-gray-300">
 
-            {member.online
-              ? "Online"
-              : "Offline"}
+            {member.is_active ? "Active" : "Inactive"}
 
           </span>
 

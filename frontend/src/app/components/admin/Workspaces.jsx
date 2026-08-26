@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, LayoutGrid, List, Users, Layers, MoreHorizontal, Search, Settings, Eye, Trash2, Lock, Loader2, ShieldCheck } from "lucide-react";
+import { Plus, LayoutGrid, List, Users, Layers, MoreHorizontal, Search, Settings, Eye, Trash2, Lock, Loader2, ShieldCheck, X } from "lucide-react";
 import { groupsApi } from "../../services/groupsApi";
 import { WorkspaceEnvironment } from "./workspace/WorkspaceEnvironment";
 const STATUS_STYLES = {
@@ -19,13 +19,11 @@ export function Workspaces() {
   JSON.parse(localStorage.getItem("currentUser")) ||
   JSON.parse(localStorage.getItem("user"));
 
-const userRole = currentUser?.role || "";
-const userDepartment = currentUser?.department || "";
+const userRole = (currentUser?.role || currentUser?.role_name || "").trim().toLowerCase();
+const isHr = userRole === "hr" || userRole === "human resources";
 
 const canCreateWorkspace =
-  userRole === "SuperAdmin" ||
-  userRole === "System Administrator" ||
-  userRole === "Organization Administrator";
+  ["hr", "human resources", "superadmin", "system administrator", "organization administrator"].includes(userRole);
     
   const [view, setView] = useState("grid");
   const [search, setSearch] = useState("");
@@ -38,6 +36,7 @@ const canCreateWorkspace =
   const [error, setError] = useState(null);
 
   const [showCreate, setShowCreate] = useState(false);
+  const [editingWorkspace, setEditingWorkspace] = useState(null);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState("Department");
@@ -124,9 +123,10 @@ if (selectedWorkspace) {
     setCreating(true);
     try {
       await groupsApi.create({
+        user_id: currentUser.id,
         name: newName.trim(),
         type: newType,
-        department: newDepartment || null,
+        department: newDepartment || (isHr ? (currentUser.department || "Human Resources") : null),
         visibility,
         auto_assign: autoAssign,
         auto_admin: autoAdmin,
@@ -142,10 +142,43 @@ if (selectedWorkspace) {
     }
   };
 
+  const handleEdit = (workspace) => {
+    setOpenMenu(null);
+    setEditingWorkspace(workspace);
+    setNewName(workspace.name || "");
+    setNewType(workspace.group_type === "DEPARTMENT" ? "Department" : "Program");
+    setNewDepartment(workspace.department || "");
+    setVisibility(workspace.visibility || "private");
+    setAutoAssign(Boolean(workspace.auto_add_members));
+    setAutoAdmin(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!newName.trim()) return;
+    setCreating(true);
+    try {
+      await groupsApi.update(editingWorkspace.id, {
+        user_id: currentUser.id,
+        name: newName.trim(),
+        description: editingWorkspace.description || "",
+        auto_assign: autoAssign,
+      });
+      setEditingWorkspace(null);
+      resetCreateForm();
+      await loadData();
+    } catch (err) {
+      console.error("Failed to update workspace:", err);
+      setError(err?.message || "Couldn't update the workspace. Please try again.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const handleDelete = async (id) => {
     setOpenMenu(null);
+    if (!window.confirm("Delete this workspace? This cannot be undone.")) return;
     try {
-      await groupsApi.remove(id);
+      await groupsApi.remove(id, currentUser.id);
       setWorkspaces((prev) => prev.filter((w) => w.id !== id));
     } catch (err) {
       console.error("Failed to delete workspace:", err);
@@ -153,9 +186,9 @@ if (selectedWorkspace) {
     }
   };
 
-  const totalBoards = workspaces.reduce((a, w) => a + (w.boards_count ?? 0), 0);
-  const totalMembers = workspaces.reduce((a, w) => a + (w.members_count ?? 0), 0);
-  const restrictedCount = workspaces.filter((w) => w.status === "restricted").length;
+  const totalBoards = visibleWorkspaces.reduce((a, w) => a + (w.boards_count ?? 0), 0);
+  const totalMembers = visibleWorkspaces.reduce((a, w) => a + (w.members_count ?? 0), 0);
+  const restrictedCount = visibleWorkspaces.filter((w) => w.status === "restricted").length;
 
   if (loading) {
     return (
@@ -178,7 +211,7 @@ if (selectedWorkspace) {
     className="flex items-center gap-2 bg-[#F5C518] text-black px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#E6B800] transition-all"
   >
     <Plus size={15} />
-    New Workspace
+    Add Workspace
   </button>
 )}
       </div>
@@ -255,10 +288,10 @@ if (selectedWorkspace) {
                     </button>
                     {openMenu === ws.id && (
                       <div className="absolute right-0 top-6 z-20 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-1 w-40 shadow-xl">
-                        <button onClick={() => setOpenMenu(null)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all text-white">
+                        <button onClick={() => openWorkspace(ws)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all text-white">
                           <Eye size={13} /> View Workspace
                         </button>
-                        <button onClick={() => setOpenMenu(null)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all text-white">
+                        <button onClick={() => handleEdit(ws)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all text-white">
                           <Settings size={13} /> Settings
                         </button>
                         <button onClick={() => handleDelete(ws.id)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all text-red-400">
@@ -377,10 +410,13 @@ if (selectedWorkspace) {
       )}
 
       {/* Create modal */}
-     {canCreateWorkspace && showCreate && (
+    {canCreateWorkspace && (showCreate || editingWorkspace) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
-            <h2 className="text-white font-semibold text-base mb-1">Create Workspace</h2>
+            <div className="flex items-start justify-between mb-1">
+              <h2 className="text-white font-semibold text-base">{editingWorkspace ? "Edit Workspace" : "Create Workspace"}</h2>
+              <button onClick={() => { setShowCreate(false); setEditingWorkspace(null); }} className="text-[#666] hover:text-white" aria-label="Close workspace dialog"><X size={17} /></button>
+            </div>
             <p className="text-[#444] text-xs mb-5">Workspaces organise boards by department, program, or business unit.</p>
 
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
@@ -447,12 +483,18 @@ if (selectedWorkspace) {
 
             <div className="flex gap-3 mt-6">
               <button
-  onClick={handleCreate}
+                onClick={() => { setShowCreate(false); setEditingWorkspace(null); resetCreateForm(); }}
+                className="flex-1 border border-[#2A2A2A] text-[#888] py-2.5 rounded-xl text-sm hover:text-white hover:border-[#444] transition-all"
+              >
+                Cancel
+              </button>
+              <button
+  onClick={editingWorkspace ? handleSaveEdit : handleCreate}
   disabled={creating || !newName.trim()}
   className="flex-1 bg-[#F5C518] text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-[#E6B800] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 >
   {creating && <Loader2 size={14} className="animate-spin" />}
-  {creating ? "Creating…" : "Create"}
+  {creating ? (editingWorkspace ? "Saving…" : "Creating…") : (editingWorkspace ? "Save changes" : "Create")}
 </button>
             </div>
           </div>

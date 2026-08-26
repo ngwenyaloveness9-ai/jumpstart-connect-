@@ -1,4 +1,8 @@
 from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
 
 from rest_framework.views import APIView
@@ -172,6 +176,7 @@ class LoginView(APIView):
         "id": user.id,
         "email": user.email,
         "role": user.role,
+        "department": user.department,
         "first_name": user.first_name,
         "last_name": user.last_name
     }
@@ -222,6 +227,59 @@ class ChangePasswordView(APIView):
         })
 
 
+class ForgotPasswordView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        email = str(request.data.get("email", "")).strip().lower()
+        if not email:
+            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email__iexact=email, is_active=True).first()
+        if user:
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            reset_url = f"http://localhost:5173/reset-password?uid={uid}&token={token}&email={user.email}"
+            send_mail(
+                "Reset your JumpStart Connect password",
+                f"Hello {user.first_name},\n\nReset your password here:\n{reset_url}\n\nIf you did not request this, you can ignore this email.",
+                None,
+                [user.email],
+            )
+
+        return Response({"message": "If an account exists for that email, a reset link has been sent."})
+
+
+class ResetPasswordView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        uid = request.data.get("uid")
+        token = request.data.get("token")
+        password = request.data.get("password")
+        confirm_password = request.data.get("confirm_password")
+        if not uid or not token or not password or not confirm_password:
+            return Response({"error": "The reset link and both password fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+        if password != confirm_password:
+            return Response({"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(pk=force_str(urlsafe_base64_decode(uid)))
+        except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+            return Response({"error": "This reset link is invalid or expired."}, status=status.HTTP_400_BAD_REQUEST)
+        if not default_token_generator.check_token(user, token):
+            return Response({"error": "This reset link is invalid or expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(password)
+        user.is_first_login = False
+        user.password_changed_at = timezone.now()
+        user.save(update_fields=["password", "is_first_login", "password_changed_at"])
+        Token.objects.filter(user=user).delete()
+        return Response({"message": "Password reset successfully."})
+
+
 # =====================================================
 # ME (CURRENT USER)
 # =====================================================
@@ -239,6 +297,27 @@ class MeView(APIView):
     "last_name": user.last_name,
     "role": user.role
 })
+
+    def patch(self, request):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        allowed_fields = ["first_name", "last_name", "email", "phone", "department", "role"]
+        for field in allowed_fields:
+            if field in request.data:
+                setattr(user, field, request.data[field])
+        user.save()
+
+        return Response({
+            "id": user.id,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone": user.phone,
+            "department": user.department,
+            "role": user.role,
+        })
 
 # =====================================================
 # LOGOUT

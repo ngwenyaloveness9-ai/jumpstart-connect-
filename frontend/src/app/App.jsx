@@ -3,6 +3,8 @@ import { router } from "./routes";
 import { ThemeProvider } from "./components/ThemeProvider";
 export default function App() {
     return (<ThemeProvider>
-      <RouterProvider router={router}/>
+      <div className="theme-adaptive min-h-screen">
+        <RouterProvider router={router}/>
+      </div>
     </ThemeProvider>);
 }

@@ -13,6 +13,7 @@ from .views import (
     GetGroupMembersView,
     DeleteGroupMessageView,
     GroupMessageReactionView,
+    WorkspaceManagementView,
 )
 
 urlpatterns = [
@@ -60,6 +61,9 @@ urlpatterns = [
         GetGroupsView.as_view(),
         name="chat-groups"
     ),
+
+    path("groups/create", WorkspaceManagementView.as_view(), name="workspace-create"),
+    path("workspaces/<int:group_id>", WorkspaceManagementView.as_view(), name="workspace-manage"),
 
     path(
         "group/<int:group_id>/messages",

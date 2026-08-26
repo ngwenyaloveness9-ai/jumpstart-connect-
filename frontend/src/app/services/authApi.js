@@ -32,6 +32,11 @@ export const authApi = {
     return res.data;
   },
 
+  updateProfile: async (payload) => {
+    const res = await api.patch("/auth/me/", payload);
+    return res.data;
+  },
+
   logout: async () => {
     const res = await api.post("/auth/logout/");
     return res.data;

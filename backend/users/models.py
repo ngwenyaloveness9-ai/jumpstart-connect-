@@ -18,13 +18,16 @@ class UserManager(BaseUserManager):
 
         email = self.normalize_email(email)
 
+        extra_fields.setdefault("is_archived", False)
+        extra_fields.setdefault("status", "active")
+
         user = self.model(
-            email=email,
-            **extra_fields
+          email=email,
+          **extra_fields
         )
 
         if password:
-            user.set_password(password)
+           user.set_password(password)
 
         user.save(using=self._db)
 
@@ -91,6 +94,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         default="employee"
     )
 
+    status = models.CharField(
+    max_length=50,
+    default="active"
+)
+    
     phone = models.CharField(
         max_length=20,
         blank=True,
@@ -101,13 +109,25 @@ class User(AbstractBaseUser, PermissionsMixin):
     # DJANGO PERMISSIONS
     # --------------------------------------------------
 
+    is_staff = models.BooleanField(
+        default=False
+    )
+
+    # --------------------------------------------------
+    # DJANGO PERMISSIONS
+    # --------------------------------------------------
+
     is_active = models.BooleanField(
         default=True
     )
 
-    is_staff = models.BooleanField(
+    is_archived = models.BooleanField(
         default=False
     )
+
+    is_staff = models.BooleanField(
+       default=False
+   )
 
     # --------------------------------------------------
     # AUTHENTICATION FLOW

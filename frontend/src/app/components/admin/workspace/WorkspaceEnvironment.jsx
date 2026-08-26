@@ -345,6 +345,10 @@ const handleDeleteAnnouncement = async (announcementId) => {
                 {activeTab === "members" && (
                     <MembersList
                         members={members}
+                        currentUser={{
+                            ...currentUser,
+                            isWorkspaceAdmin: members.some((member) => member.id === currentUser?.id && member.is_admin),
+                        }}
                     />
                 )}
              

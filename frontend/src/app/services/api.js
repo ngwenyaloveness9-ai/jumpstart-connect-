@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import axios from "axios";
 
 const DEFAULT_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
@@ -33,9 +34,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use((response) => response, (error) => {
   // Propagate a clear error message
   if (error.response) {
-    const err = new Error(error.response.data?.detail || error.response.statusText || 'API error');
+    const message = error.response.data?.detail || error.response.data?.error || error.response.statusText || 'API error';
+    const err = new Error(message);
     err.status = error.response.status;
     err.payload = error.response.data;
+    err.response = error.response;
     return Promise.reject(err);
   }
   return Promise.reject(new Error(error.message || 'Network error'));

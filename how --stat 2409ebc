@@ -1,0 +1,5 @@
+[33m2409ebc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/group-chat-ui[m[33m, [m[1;31morigin/feature/group-chat-ui[m[33m)[m superadmin-HR-employees
+[33m8862276[m Onboarding: restrict Superadmin to create only HR users; allow HR to onboard others
+[33m9644ab3[m Restrict superadmin group chat access while preserving visibility and broadcast send behavior
+[33mb680015[m Merge origin/main into feature/group-chat-ui and resolve conflicts
+[33m215ee8b[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m restricted workspaces

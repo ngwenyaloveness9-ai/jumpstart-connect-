@@ -9,6 +9,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
+import { authApi } from "../services/authApi";
 
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ export function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -28,12 +29,15 @@ export function ForgotPasswordPage() {
       return;
     }
 
-    setLoading(true);
-
-    setTimeout(() => {
+    try {
+      setLoading(true);
+      await authApi.forgotPassword({ email });
       setLoading(false);
       setSent(true);
-    }, 1200);
+    } catch (err) {
+      setLoading(false);
+      setError(err.message || "Unable to send reset link.");
+    }
   };
 
   return (
@@ -162,11 +166,7 @@ export function ForgotPasswordPage() {
             </div>
 
             <button
-              onClick={() =>
-                navigate("/reset-password", {
-                  state: { email },
-                })
-              }
+              onClick={() => navigate(`/reset-password?email=${encodeURIComponent(email)}`)}
               className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/15 mb-3"
             >
               Continue to reset password

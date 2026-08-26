@@ -39,6 +39,9 @@ export function UsersAccess() {
 const [departments, setDepartments] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [editingUser, setEditingUser] = useState(null);
+    const [editForm, setEditForm] = useState({ first_name: "", last_name: "", email: "", department: "", role: "employee" });
+    const [actionLoading, setActionLoading] = useState(false);
 
     const loadDepartments = async () => {
     try {
@@ -70,7 +73,7 @@ const loadUsers = async () => {
       dept: u.department || "",
       status: u.is_active ? "active" : "inactive",
       joined: new Date(u.created_at).toLocaleDateString(),
-      last: "-",
+      last: u.last_login ? new Date(u.last_login).toLocaleString() : "Never",
       twofa: false,
     }));
 
@@ -131,6 +134,43 @@ useEffect(() => {
     loadUsers();
     loadDepartments();
 }, []);
+
+    const runUserAction = async (action, successMessage) => {
+      try {
+        setActionLoading(true);
+        await action();
+        await loadUsers();
+        alert(successMessage);
+        return true;
+      } catch (err) {
+        alert(err?.response?.data?.error || err.message || "Unable to complete this action.");
+        return false;
+      } finally {
+        setActionLoading(false);
+        setOpenMenu(null);
+      }
+    };
+
+    const openEditUser = (user) => {
+      setEditingUser(user);
+      setEditForm({
+        first_name: user.name.split(" ")[0] || "",
+        last_name: user.name.split(" ").slice(1).join(" "),
+        email: user.email,
+        department: user.dept,
+        role: user.role.toLowerCase(),
+      });
+      setOpenMenu(null);
+    };
+
+    const saveUser = async (event) => {
+      event.preventDefault();
+      const updated = await runUserAction(
+        () => usersApi.update(editingUser.id, editForm),
+        "User updated successfully."
+      );
+      if (updated) setEditingUser(null);
+    };
     
     const filtered = users.filter((u) => {
         const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
@@ -228,11 +268,11 @@ useEffect(() => {
                       </button>
                       {openMenu === user.id && (<div className="absolute right-0 top-7 z-20 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-1 w-44 shadow-xl">
                           {[
-                    { icon: Edit2, label: "Edit User", color: "text-white" },
-                    { icon: Mail, label: "Send Reset Link", color: "text-white" },
-                    { icon: user.status === "active" ? UserX : UserCheck, label: user.status === "active" ? "Deactivate" : "Activate", color: user.status === "active" ? "text-orange-400" : "text-green-400" },
-                    { icon: Trash2, label: "Remove User", color: "text-red-400" },
-                ].map((action) => (<button key={action.label} onClick={() => setOpenMenu(null)} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all ${action.color}`}>
+                    { icon: Edit2, label: "Edit User", color: "text-white", onClick: () => openEditUser(user) },
+                    { icon: Mail, label: "Send Reset Link", color: "text-white", onClick: () => runUserAction(() => usersApi.sendResetLink(user.id), "Password reset link sent.") },
+                    { icon: user.status === "active" ? UserX : UserCheck, label: user.status === "active" ? "Deactivate" : "Activate", color: user.status === "active" ? "text-orange-400" : "text-green-400", onClick: () => runUserAction(() => usersApi.update(user.id, { is_active: user.status !== "active" }), `User ${user.status === "active" ? "deactivated" : "activated"}.`) },
+                    { icon: Trash2, label: "Remove User", color: "text-red-400", onClick: () => { if (window.confirm(`Remove ${user.name}? This cannot be undone.`)) runUserAction(() => usersApi.remove(user.id), "User removed successfully."); } },
+                ].map((action) => (<button key={action.label} disabled={actionLoading} onClick={action.onClick} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all disabled:opacity-50 ${action.color}`}>
                               <action.icon size={13}/> {action.label}
                             </button>))}
                         </div>)}
@@ -281,5 +321,33 @@ useEffect(() => {
             </div>
           </div>
         </div>)}
+      {editingUser && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <form onSubmit={saveUser} className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+          <h2 className="text-white font-semibold text-base mb-5">Edit User</h2>
+          <div className="space-y-4">
+            {[{ key: "first_name", label: "First Name" }, { key: "last_name", label: "Last Name" }, { key: "email", label: "Email Address" }].map((field) => (<div key={field.key}>
+              <label className="text-xs text-[#888] block mb-1.5">{field.label}</label>
+              <input required value={editForm[field.key]} onChange={(event) => setEditForm({ ...editForm, [field.key]: event.target.value })} type={field.key === "email" ? "email" : "text"} className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#F5C518]/50" />
+            </div>))}
+            <div>
+              <label className="text-xs text-[#888] block mb-1.5">Role</label>
+              <select value={editForm.role} onChange={(event) => setEditForm({ ...editForm, role: event.target.value })} className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#F5C518]/50">
+                <option value="employee">Employee</option>
+                <option value="manager">Manager</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-[#888] block mb-1.5">Department</label>
+              <select value={editForm.department} onChange={(event) => setEditForm({ ...editForm, department: event.target.value })} className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#F5C518]/50">
+                {departments.map((department) => <option key={department.id} value={department.name}>{department.name}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button type="button" onClick={() => setEditingUser(null)} className="flex-1 border border-[#2A2A2A] text-[#888] py-2.5 rounded-xl text-sm">Cancel</button>
+            <button type="submit" disabled={actionLoading} className="flex-1 bg-[#F5C518] text-black py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50">Save Changes</button>
+          </div>
+        </form>
+      </div>)}
     </div>);
 }
