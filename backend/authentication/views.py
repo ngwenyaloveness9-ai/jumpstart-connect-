@@ -41,15 +41,16 @@ class VerifyOTPView(APIView):
             print("SERIALIZER ERRORS:", serializer.errors)
             return Response(serializer.errors, status=400)
 
-        email = serializer.validated_data["email"]
-        otp_code = serializer.validated_data["otp"]
+        # Normalize email and OTP
+        email = serializer.validated_data["email"].strip().lower()
+        otp_code = serializer.validated_data["otp"].strip()
 
         print("EMAIL:", repr(email))
         print("OTP:", repr(otp_code))
 
         try:
             otp = OTP.objects.filter(
-                email=email,
+                email__iexact=email,
                 code=otp_code
             ).latest("created_at")
 
@@ -74,7 +75,7 @@ class VerifyOTPView(APIView):
             )
 
         otp.is_used = True
-        otp.save()
+        otp.save(update_fields=["is_used"])
 
         print("OTP VERIFIED SUCCESS")
 
@@ -95,7 +96,7 @@ class CreatePasswordView(APIView):
         serializer = CreatePasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data["email"]
+        email = serializer.validated_data["email"].strip().lower()
         password = serializer.validated_data["password"]
         confirm_password = serializer.validated_data["confirm_password"]
 
@@ -106,7 +107,7 @@ class CreatePasswordView(APIView):
             )
 
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email__iexact=email)
 
         except User.DoesNotExist:
             return Response(
@@ -122,7 +123,6 @@ class CreatePasswordView(APIView):
         return Response({
             "message": "Password created successfully"
         })
-
 
 # =====================================================
 # NORMAL LOGIN
@@ -140,7 +140,7 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data["email"]
+        email = serializer.validated_data["email"].strip().lower()
         password = serializer.validated_data["password"]
 
         print("================================")
@@ -148,18 +148,31 @@ class LoginView(APIView):
         print("PASSWORD RECEIVED:", repr(password))
         print("================================")
 
-        user = authenticate(
-            username=email,
-            password=password
-        )
-
-        print("AUTH RESULT:", user)
+        # Find the actual user using case-insensitive email
+        user = User.objects.filter(
+            email__iexact=email
+        ).first()
 
         if not user:
+            print("USER NOT FOUND")
             return Response(
                 {"error": "Invalid credentials"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+
+        print("USER FOUND:", user.email)
+        print("USER ACTIVE:", user.is_active)
+        print("PASSWORD VALID:", user.check_password(password))
+
+        # Verify password directly
+        if not user.check_password(password):
+            print("PASSWORD INVALID")
+            return Response(
+                {"error": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        print("AUTHENTICATION SUCCESS:", user)
 
         if user.password_expired():
             return Response({
@@ -170,17 +183,17 @@ class LoginView(APIView):
         token, _ = Token.objects.get_or_create(user=user)
 
         return Response({
-    "message": "Login successful",
-    "token": token.key,
-    "user": {
-        "id": user.id,
-        "email": user.email,
-        "role": user.role,
-        "department": user.department,
-        "first_name": user.first_name,
-        "last_name": user.last_name
-    }
-})
+            "message": "Login successful",
+            "token": token.key,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "role": user.role,
+                "department": user.department,
+                "first_name": user.first_name,
+                "last_name": user.last_name
+            }
+        })
 
 # =====================================================
 # CHANGE PASSWORD
