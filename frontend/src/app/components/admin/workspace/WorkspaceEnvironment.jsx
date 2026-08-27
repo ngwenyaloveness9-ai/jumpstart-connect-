@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { groupsApi } from "../../../services/groupsApi";
 
@@ -31,10 +31,43 @@ export function WorkspaceEnvironment({
     const [infoMessage, setInfoMessage] = useState("");
 
     const isRestricted = workspace.access === "limited";
+    const mountedRef = useRef(true);
+
+    const formatMessages = (messageData) => {
+        return (messageData.messages || []).map((msg) => ({
+            id: msg.id,
+            content: msg.message,
+            sender: {
+                id: msg.sender_id,
+                name: msg.sender_name,
+            },
+            attachments: msg.attachments || [],
+            time: new Date(msg.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+            }),
+            read: true,
+        }));
+    };
+
+    const loadGroupMessages = async () => {
+        if (isRestricted || !workspace?.id || !currentUser?.id) return;
+        try {
+            const messageData = await groupsApi.messages(
+                workspace.id,
+                currentUser.id
+            );
+            if (mountedRef.current) {
+                setGroupMessages(formatMessages(messageData));
+            }
+        } catch (err) {
+            console.error("Failed to load group messages", err);
+        }
+    };
 
     const loadAnnouncements = async () => {
         try {
-            const data = await announcementApi.getAll();
+            const data = await announcementApi.getAll(currentUser?.id, workspace.id);
 
             const formattedAnnouncements =
                 (data.announcements || []).map((ann) => ({
@@ -64,36 +97,19 @@ export function WorkspaceEnvironment({
     };
 
     useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
+    useEffect(() => {
         async function loadWorkspace() {
             try {
                 const members = await groupsApi.getMembers(workspace.id);
                 setMembers(members);
 
-                if (!isRestricted) {
-                    const messageData = await groupsApi.messages(
-                        workspace.id,
-                        currentUser?.id
-                    );
-
-                    const formattedMessages = (messageData.messages || []).map((msg) => ({
-                        id: msg.id,
-                        content: msg.message,
-                        sender: {
-                            id: msg.sender_id,
-                            name: msg.sender_name,
-                        },
-                        attachments: msg.attachments || [],
-                        time: new Date(msg.timestamp).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        }),
-                        read: true,
-                    }));
-
-                    setGroupMessages(formattedMessages);
-                } else {
-                    setGroupMessages([]);
-                }
+                await loadGroupMessages();
 
                 await loadAnnouncements();
             } catch (err) {
@@ -107,6 +123,18 @@ export function WorkspaceEnvironment({
             void loadWorkspace();
         }
     }, [workspace.id, isRestricted, currentUser?.id]);
+
+    useEffect(() => {
+        if (!workspace?.id || isRestricted || activeTab !== "chat") {
+            return;
+        }
+
+        const intervalId = setInterval(() => {
+            void loadGroupMessages();
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+    }, [workspace?.id, isRestricted, activeTab, currentUser?.id]);
 
 const handleCreateAnnouncement = async (formData) => {
     try {
@@ -178,27 +206,7 @@ const handleSendMessage = async ({ content, attachments }) => {
 
         await groupsApi.sendMessage(formData);
 
-        const updated = await groupsApi.messages(
-            workspace.id,
-            currentUser?.id
-        );
-
-        const formattedMessages = (updated.messages || []).map((msg) => ({
-            id: msg.id,
-            content: msg.message,
-            sender: {
-                id: msg.sender_id,
-                name: msg.sender_name,
-            },
-            attachments: msg.attachments || [],
-            time: new Date(msg.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-            }),
-            read: true,
-        }));
-
-        setGroupMessages(formattedMessages);
+        await loadGroupMessages();
     } catch (err) {
         console.error(err);
         setInfoMessage("Failed to send your message. Please try again.");
@@ -211,28 +219,7 @@ const handleDeleteMessage = async (messageId) => {
     try {
         await groupsApi.deleteMessage(messageId);
 
-        const updated = await groupsApi.messages(workspace.id);
-
-        const formattedMessages = (updated.messages || []).map((msg) => ({
-            id: msg.id,
-            content: msg.message,
-
-            sender: {
-                id: msg.sender_id,
-                name: msg.sender_name,
-            },
-
-            attachments: msg.attachments || [],
-
-            time: new Date(msg.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-            }),
-
-            read: true,
-        }));
-
-        setGroupMessages(formattedMessages);
+        await loadGroupMessages();
 
     } catch (error) {
         console.error("Failed to delete message:", error);
@@ -247,25 +234,7 @@ const handleReaction = async (messageId, emoji) => {
             emoji
         );
 
-        const updated = await groupsApi.messages(workspace.id);
-
-        const formattedMessages = (updated.messages || []).map((msg) => ({
-            id: msg.id,
-            content: msg.message,
-            sender: {
-                id: msg.sender_id,
-                name: msg.sender_name,
-            },
-            attachments: msg.attachments || [],
-            reactions: msg.reactions || [],
-            time: new Date(msg.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-            }),
-            read: true,
-        }));
-
-        setGroupMessages(formattedMessages);
+        await loadGroupMessages();
 
     } catch (err) {
         console.error("Reaction failed:", err);
@@ -292,7 +261,7 @@ const handleDeleteAnnouncement = async (announcementId) => {
 };
 
     return (
-        <div className="h-full flex flex-col bg-[#0D1117] rounded-3xl overflow-hidden border border-[#222]">
+        <div className="h-full flex flex-col bg-background rounded-3xl overflow-hidden border border-border">
 
             <WorkspaceHeader
                 workspace={workspace}
@@ -309,12 +278,12 @@ const handleDeleteAnnouncement = async (announcementId) => {
                     {activeTab === "chat" && (
                     <>
                         {isRestricted && (
-                            <div className="bg-[#1F2937] border-b border-[#27303A] px-6 py-4 text-sm text-[#D1D5DB]">
+                            <div className="bg-muted border-b border-border px-6 py-4 text-sm text-foreground">
                                 You have limited access to this workspace. Chat history is hidden, but you can send a message with attachments and it will be delivered to workspace members as direct messages.
                             </div>
                         )}
                         {infoMessage && (
-                            <div className="bg-[#15232C] border-b border-[#21313E] px-6 py-3 text-sm text-[#A3E635]">
+                            <div className="bg-primary/10 border-b border-primary/20 px-6 py-3 text-sm text-primary">
                                 {infoMessage}
                             </div>
                         )}
@@ -351,7 +320,7 @@ const handleDeleteAnnouncement = async (announcementId) => {
                         }}
                     />
                 )}
-             
+           
             </div>
              {showAnnouncementModal && (
     <AnnouncementModal

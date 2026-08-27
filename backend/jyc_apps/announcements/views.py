@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 import json
 
 from .models import Announcement, AnnouncementAttachment
-from jyc_apps.chat.models import Group
+from jyc_apps.chat.models import Group, GroupMember
 
 User = get_user_model()
 
@@ -274,12 +274,63 @@ class GetAllAnnouncementsView(View):
 
     def get(self, request):
 
+        user_id = request.GET.get("user_id")
+
+        group_id = request.GET.get("group_id")
+
+        user = None
+
+        if user_id:
+
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                user = None
+
         announcements = (
             Announcement.objects
             .select_related("author", "group")
             .prefetch_related("attachments")
             .order_by("-timestamp")
         )
+
+        if group_id:
+
+            filtered = []
+
+            user_dept = getattr(user, "department", None) or ""
+
+            for ann in announcements:
+
+                if ann.target_type == "everyone":
+                    filtered.append(ann)
+                elif ann.target_type == "group" and ann.group_id == int(group_id):
+                    filtered.append(ann)
+                elif ann.target_type == "department" and ann.department and ann.department.strip().lower() == user_dept.strip().lower():
+                    filtered.append(ann)
+
+            announcements = filtered
+
+        elif user:
+
+            user_groups = GroupMember.objects.filter(
+                user=user
+            ).values_list("group_id", flat=True)
+
+            user_dept = getattr(user, "department", None) or ""
+
+            filtered = []
+
+            for ann in announcements:
+
+                if ann.target_type == "everyone":
+                    filtered.append(ann)
+                elif ann.target_type == "group" and ann.group_id in user_groups:
+                    filtered.append(ann)
+                elif ann.target_type == "department" and ann.department and ann.department.strip().lower() == user_dept.strip().lower():
+                    filtered.append(ann)
+
+            announcements = filtered
 
         results = []
 

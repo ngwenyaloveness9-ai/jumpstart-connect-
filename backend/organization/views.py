@@ -5,7 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-from .models import LeaveRequest
+from .models import LeaveRequest, Notification
+from users.models import User
 
 REVIEW_ROLES = {"manager", "department manager", "head of department", "supervisor", "head of technology"}
 
@@ -22,6 +23,22 @@ def is_campus_manager(user):
 	return role_of(user) in {"campus manager", "campus director"}
 
 
+def create_notification(recipient, title, message, notification_type, related_object_id=None):
+	Notification.objects.create(
+		recipient=recipient,
+		title=title,
+		message=message,
+		notification_type=notification_type,
+		related_object_id=related_object_id,
+	)
+
+
+def notify_hr_users(title, message, related_object_id=None):
+	for hr_user in User.objects.filter(is_active=True):
+		if is_hr(hr_user):
+			create_notification(hr_user, title, message, "leave_approved" if "approved" in title.lower() else "leave_declined" if "declined" in title.lower() else "leave_escalated", related_object_id)
+
+
 def advance_overdue_stage(item):
 	if item.status != "Pending" or timezone.now() - item.stage_changed_at < timedelta(days=2):
 		return item
@@ -33,6 +50,11 @@ def advance_overdue_stage(item):
 		return item
 	item.stage_changed_at = timezone.now()
 	item.save(update_fields=["approval_stage", "stage_changed_at"])
+	notify_hr_users(
+		f"Leave request escalated to HR",
+		f"A leave request from {item.employee.first_name} {item.employee.last_name} has been escalated to HR due to no response within 2 days.",
+		item.id,
+	)
 	return item
 
 
@@ -129,4 +151,59 @@ class LeaveRequestDetailView(APIView):
 		item.reviewed_by = request.user
 		item.reviewed_at = timezone.now()
 		item.save(update_fields=["status", "decline_reason", "reviewed_by", "reviewed_at"])
+
+		if new_status == "Approved":
+			create_notification(
+				item.employee,
+				"Leave request approved",
+				f"Your leave request from {item.start_date} to {item.end_date} has been approved by {request.user.first_name} {request.user.last_name}.",
+				"leave_approved",
+				item.id,
+			)
+		else:
+			create_notification(
+				item.employee,
+				"Leave request declined",
+				f"Your leave request from {item.start_date} to {item.end_date} has been declined. Reason: {decline_reason}",
+				"leave_declined",
+				item.id,
+			)
+
+		notify_hr_users(
+			f"Leave request {new_status.lower()}",
+			f"A leave request from {item.employee.first_name} {item.employee.last_name} ({item.department}) has been {new_status.lower()} by {request.user.first_name} {request.user.last_name}.",
+			item.id,
+		)
+
 		return Response(serialize_leave(item, request))
+
+
+class NotificationListView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request):
+		notifications = Notification.objects.filter(recipient=request.user).order_by("-created_at")[:50]
+		data = []
+		for n in notifications:
+			data.append({
+				"id": n.id,
+				"title": n.title,
+				"message": n.message,
+				"notificationType": n.notification_type,
+				"relatedObjectId": n.related_object_id,
+				"isRead": n.is_read,
+				"createdAt": n.created_at.isoformat(),
+			})
+		return Response({"notifications": data, "unreadCount": Notification.objects.filter(recipient=request.user, is_read=False).count()})
+
+	def patch(self, request):
+		notification_id = request.data.get("notificationId")
+		if not notification_id:
+			return Response({"error": "notificationId is required."}, status=400)
+		try:
+			notification = Notification.objects.get(id=notification_id, recipient=request.user)
+		except Notification.DoesNotExist:
+			return Response({"error": "Notification not found."}, status=404)
+		notification.is_read = True
+		notification.save(update_fields=["is_read"])
+		return Response({"status": "read"})

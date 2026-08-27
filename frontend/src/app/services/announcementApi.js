@@ -4,8 +4,11 @@ export const announcementApi = {
     // ---------------------------------------
     // Get all announcements
     // ---------------------------------------
-    getAll: async () => {
-        const res = await api.get("/announcements/all");
+    getAll: async (userId, groupId) => {
+        const params = {};
+        if (userId) params.user_id = userId;
+        if (groupId) params.group_id = groupId;
+        const res = await api.get("/announcements/all", { params });
         return res.data;
     },
 

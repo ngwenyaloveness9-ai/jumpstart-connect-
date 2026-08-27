@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import LeaveRequestListView, LeaveRequestDetailView
+from .views import LeaveRequestListView, LeaveRequestDetailView, NotificationListView
 
 urlpatterns = [
     path("leave/", LeaveRequestListView.as_view(), name="leave-list"),
     path("leave/<int:pk>/", LeaveRequestDetailView.as_view(), name="leave-detail"),
+    path("notifications/", NotificationListView.as_view(), name="notification-list"),
 ]
