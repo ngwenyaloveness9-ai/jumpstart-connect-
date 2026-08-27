@@ -95,18 +95,9 @@ const employees = [
 ];
 
 const statusStyles = {
-  Pending: {
-    background: "#fff7ed",
-    color: "#c2410c",
-  },
-  Approved: {
-    background: "#ecfdf5",
-    color: "#047857",
-  },
-  Rejected: {
-    background: "#fef2f2",
-    color: "#b91c1c",
-  },
+  Pending: "bg-orange-500/10 text-orange-300 border-orange-500/20",
+  Approved: "bg-green-500/10 text-green-300 border-green-500/20",
+  Rejected: "bg-red-500/10 text-red-300 border-red-500/20",
 };
 
 function formatDate(date) {
@@ -119,61 +110,21 @@ function formatDate(date) {
 
 function StatCard({ title, value, subtitle, icon }) {
   return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1px solid #e5e7eb",
-        borderRadius: 16,
-        padding: 20,
-        display: "flex",
-        alignItems: "center",
-        gap: 16,
-        boxShadow: "0 4px 15px rgba(15, 23, 42, 0.05)",
-      }}
-    >
-      <div
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 12,
-          background: "#eef2ff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 23,
-        }}
-      >
+    <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
         {icon}
       </div>
 
       <div>
-        <div
-          style={{
-            fontSize: 13,
-            color: "#64748b",
-            marginBottom: 5,
-          }}
-        >
+        <div className="text-sm text-muted-foreground mb-1">
           {title}
         </div>
 
-        <div
-          style={{
-            fontSize: 25,
-            fontWeight: 700,
-            color: "#0f172a",
-          }}
-        >
+        <div className="text-3xl font-bold text-foreground">
           {value}
         </div>
 
-        <div
-          style={{
-            fontSize: 12,
-            color: "#94a3b8",
-            marginTop: 3,
-          }}
-        >
+        <div className="text-xs text-muted-foreground mt-1">
           {subtitle}
         </div>
       </div>
@@ -225,83 +176,33 @@ export function HRLeave() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f8fafc",
-        padding: "28px",
-        color: "#0f172a",
-      }}
-    >
+    <div className="min-h-screen bg-background text-foreground p-7">
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: 20,
-          marginBottom: 28,
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-7">
         <div>
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#6366f1",
-              marginBottom: 6,
-            }}
-          >
+          <div className="text-sm font-semibold text-primary mb-1.5">
             HUMAN RESOURCES
           </div>
 
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 30,
-              fontWeight: 750,
-            }}
-          >
+          <h1 className="text-4xl font-bold m-0">
             Leave Management
           </h1>
 
-          <p
-            style={{
-              margin: "8px 0 0",
-              color: "#64748b",
-              fontSize: 14,
-            }}
-          >
+          <p className="mt-2 mb-0 text-sm text-muted-foreground">
             Manage employee leave requests, approvals and leave balances.
           </p>
         </div>
 
         <button
           onClick={() => setActiveTab("balances")}
-          style={{
-            border: "none",
-            background: "#4f46e5",
-            color: "#ffffff",
-            padding: "12px 18px",
-            borderRadius: 10,
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
+          className="bg-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold hover:bg-primary/80 transition-all border-none cursor-pointer"
         >
           View Leave Balances
         </button>
       </div>
 
       {/* Statistics */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
-          gap: 16,
-          marginBottom: 28,
-        }}
-      >
+      <div className="grid gap-4 mb-7" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))" }}>
         <StatCard
           title="Total Requests"
           value={statistics.total}
@@ -332,41 +233,17 @@ export function HRLeave() {
       </div>
 
       {/* Tabs */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          marginBottom: 18,
-        }}
-      >
+      <div className="flex gap-2 mb-4">
         <button
           onClick={() => setActiveTab("requests")}
-          style={{
-            border: "none",
-            background:
-              activeTab === "requests" ? "#4f46e5" : "#e2e8f0",
-            color: activeTab === "requests" ? "#fff" : "#334155",
-            padding: "10px 16px",
-            borderRadius: 9,
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
+          className={`px-4 py-2.5 rounded-lg font-semibold border-none cursor-pointer transition-all ${activeTab === "requests" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}
         >
           Leave Requests
         </button>
 
         <button
           onClick={() => setActiveTab("balances")}
-          style={{
-            border: "none",
-            background:
-              activeTab === "balances" ? "#4f46e5" : "#e2e8f0",
-            color: activeTab === "balances" ? "#fff" : "#334155",
-            padding: "10px 16px",
-            borderRadius: 9,
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
+          className={`px-4 py-2.5 rounded-lg font-semibold border-none cursor-pointer transition-all ${activeTab === "balances" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}
         >
           Employee Balances
         </button>
@@ -374,48 +251,20 @@ export function HRLeave() {
 
       {/* Requests */}
       {activeTab === "requests" && (
-        <div
-          style={{
-            background: "#ffffff",
-            border: "1px solid #e5e7eb",
-            borderRadius: 16,
-            overflow: "hidden",
-            boxShadow: "0 4px 15px rgba(15, 23, 42, 0.04)",
-          }}
-        >
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
           {/* Filters */}
-          <div
-            style={{
-              padding: 18,
-              borderBottom: "1px solid #e5e7eb",
-              display: "flex",
-              gap: 12,
-              flexWrap: "wrap",
-            }}
-          >
+          <div className="p-[18px] border-b border-border flex flex-wrap gap-3">
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search employee or department..."
-              style={{
-                flex: 1,
-                minWidth: 220,
-                padding: "11px 13px",
-                border: "1px solid #cbd5e1",
-                borderRadius: 9,
-                outline: "none",
-              }}
+              className="flex-1 min-w-[220px] px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:border-primary bg-background text-foreground"
             />
 
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              style={{
-                padding: "11px 13px",
-                border: "1px solid #cbd5e1",
-                borderRadius: 9,
-                background: "#fff",
-              }}
+              className="px-3 py-2.5 border border-border rounded-lg bg-background text-foreground"
             >
               <option value="All">All Statuses</option>
               <option value="Pending">Pending</option>
@@ -426,12 +275,7 @@ export function HRLeave() {
             <select
               value={typeFilter}
               onChange={(event) => setTypeFilter(event.target.value)}
-              style={{
-                padding: "11px 13px",
-                border: "1px solid #cbd5e1",
-                borderRadius: 9,
-                background: "#fff",
-              }}
+              className="px-3 py-2.5 border border-border rounded-lg bg-background text-foreground"
             >
               <option value="All">All Leave Types</option>
               <option value="Annual Leave">Annual Leave</option>
@@ -443,21 +287,10 @@ export function HRLeave() {
           </div>
 
           {/* Table */}
-          <div style={{ overflowX: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                minWidth: 900,
-              }}
-            >
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse min-w-[900px]">
               <thead>
-                <tr
-                  style={{
-                    background: "#f8fafc",
-                    textAlign: "left",
-                  }}
-                >
+                <tr className="bg-muted text-left">
                   {[
                     "Employee",
                     "Leave Type",
@@ -469,13 +302,7 @@ export function HRLeave() {
                   ].map((heading) => (
                     <th
                       key={heading}
-                      style={{
-                        padding: "14px 18px",
-                        fontSize: 12,
-                        color: "#64748b",
-                        fontWeight: 700,
-                        borderBottom: "1px solid #e5e7eb",
-                      }}
+                      className="px-4 py-3 text-xs font-medium text-muted-foreground border-b border-border"
                     >
                       {heading}
                     </th>
@@ -485,107 +312,51 @@ export function HRLeave() {
 
               <tbody>
                 {filteredRequests.map((request) => (
-                  <tr key={request.id}>
-                    <td
-                      style={{
-                        padding: "16px 18px",
-                        borderBottom: "1px solid #f1f5f9",
-                      }}
-                    >
-                      <div style={{ fontWeight: 650 }}>
+                  <tr key={request.id} className="border-b border-border last:border-0 hover:bg-muted/40">
+                    <td className="px-4 py-3">
+                      <div className="font-semibold">
                         {request.employee}
                       </div>
 
                       <div
-                        style={{
-                          fontSize: 12,
-                          color: "#94a3b8",
-                          marginTop: 3,
-                        }}
+                        className="text-xs text-muted-foreground mt-1"
                       >
                         {request.department}
                       </div>
                     </td>
 
-                    <td
-                      style={{
-                        padding: "16px 18px",
-                        borderBottom: "1px solid #f1f5f9",
-                      }}
-                    >
+                    <td className="px-4 py-3 text-sm">
                       {request.type}
                     </td>
 
-                    <td
-                      style={{
-                        padding: "16px 18px",
-                        borderBottom: "1px solid #f1f5f9",
-                        fontSize: 13,
-                      }}
-                    >
+                    <td className="px-4 py-3 text-sm">
                       {formatDate(request.startDate)}
                       <br />
-                      <span style={{ color: "#94a3b8" }}>to</span>
+                      <span className="text-muted-foreground text-xs">to</span>
                       <br />
                       {formatDate(request.endDate)}
                     </td>
 
-                    <td
-                      style={{
-                        padding: "16px 18px",
-                        borderBottom: "1px solid #f1f5f9",
-                        fontWeight: 650,
-                      }}
-                    >
+                    <td className="px-4 py-3 text-sm font-semibold">
                       {request.days}
                     </td>
 
-                    <td
-                      style={{
-                        padding: "16px 18px",
-                        borderBottom: "1px solid #f1f5f9",
-                        fontSize: 13,
-                      }}
-                    >
+                    <td className="px-4 py-3 text-sm">
                       {formatDate(request.submitted)}
                     </td>
 
-                    <td
-                      style={{
-                        padding: "16px 18px",
-                        borderBottom: "1px solid #f1f5f9",
-                      }}
-                    >
+                    <td className="px-4 py-3">
                       <span
-                        style={{
-                          ...statusStyles[request.status],
-                          padding: "6px 10px",
-                          borderRadius: 999,
-                          fontSize: 12,
-                          fontWeight: 700,
-                        }}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${statusStyles[request.status]}`}
                       >
                         {request.status}
                       </span>
                     </td>
 
-                    <td
-                      style={{
-                        padding: "16px 18px",
-                        borderBottom: "1px solid #f1f5f9",
-                      }}
-                    >
+                    <td className="px-4 py-3">
                       <button
                         onClick={() => setSelectedRequest(request)}
-                        style={{
-                          border: "1px solid #cbd5e1",
-                          background: "#fff",
-                          color: "#334155",
-                          padding: "8px 12px",
-                          borderRadius: 8,
-                          cursor: "pointer",
-                          fontWeight: 600,
-                        }}
+                        className="px-3 py-2 rounded-lg border border-border bg-card text-foreground font-semibold hover:bg-muted transition-all cursor-pointer"
                       >
                         View
                       </button>
@@ -597,11 +368,7 @@ export function HRLeave() {
                   <tr>
                     <td
                       colSpan="7"
-                      style={{
-                        padding: 40,
-                        textAlign: "center",
-                        color: "#64748b",
-                      }}
+                      className="px-4 py-12 text-center text-muted-foreground"
                     >
                       No leave requests match your filters.
                     </td>
@@ -616,11 +383,8 @@ export function HRLeave() {
       {/* Balances */}
       {activeTab === "balances" && (
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: 18,
-          }}
+          className="grid gap-4"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
         >
           {employees.map((employee) => {
             const percentage =
@@ -631,41 +395,19 @@ export function HRLeave() {
             return (
               <div
                 key={employee.name}
-                style={{
-                  background: "#fff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 16,
-                  padding: 20,
-                }}
+                className="bg-card border border-border rounded-2xl p-5 shadow-sm"
               >
-                <div
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 16,
-                  }}
-                >
+                <div className="text-lg font-bold mb-1">
                   {employee.name}
                 </div>
 
                 <div
-                  style={{
-                    color: "#64748b",
-                    fontSize: 13,
-                    marginTop: 4,
-                  }}
+                  className="text-sm text-muted-foreground mt-1"
                 >
                   {employee.department}
                 </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: 22,
-                    marginBottom: 8,
-                    fontSize: 13,
-                  }}
-                >
+                <div className="flex justify-between mt-5 mb-2 text-sm">
                   <span>Leave remaining</span>
                   <strong>
                     {employee.remaining} / {employee.annual} days
@@ -673,29 +415,16 @@ export function HRLeave() {
                 </div>
 
                 <div
-                  style={{
-                    height: 8,
-                    background: "#e2e8f0",
-                    borderRadius: 99,
-                    overflow: "hidden",
-                  }}
+                  className="h-2 bg-muted rounded-full overflow-hidden"
                 >
                   <div
-                    style={{
-                      width: `${percentage}%`,
-                      height: "100%",
-                      background: "#4f46e5",
-                      borderRadius: 99,
-                    }}
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${percentage}%` }}
                   />
                 </div>
 
                 <div
-                  style={{
-                    marginTop: 12,
-                    fontSize: 12,
-                    color: "#64748b",
-                  }}
+                  className="mt-3 text-xs text-muted-foreground"
                 >
                   {employee.used} days used this year
                 </div>
@@ -709,61 +438,27 @@ export function HRLeave() {
       {selectedRequest && (
         <div
           onClick={() => setSelectedRequest(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(15, 23, 42, 0.45)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 20,
-            zIndex: 1000,
-          }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
+          style={{ zIndex: 1000 }}
         >
           <div
             onClick={(event) => event.stopPropagation()}
-            style={{
-              width: "100%",
-              maxWidth: 520,
-              background: "#fff",
-              borderRadius: 18,
-              padding: 26,
-              boxShadow: "0 25px 60px rgba(0,0,0,0.2)",
-            }}
+            className="w-full max-w-[520px] bg-card border border-border rounded-2xl p-7 shadow-2xl"
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: 22,
-                }}
-              >
+            <div className="flex justify-between items-center">
+              <h2 className="m-0 text-2xl">
                 Leave Request
               </h2>
 
               <button
                 onClick={() => setSelectedRequest(null)}
-                style={{
-                  border: "none",
-                  background: "#f1f5f9",
-                  width: 34,
-                  height: 34,
-                  borderRadius: 50,
-                  cursor: "pointer",
-                  fontSize: 18,
-                }}
+                className="border-none bg-muted w-8 h-8 rounded-full cursor-pointer text-lg flex items-center justify-center hover:bg-muted/80"
               >
                 ×
               </button>
             </div>
 
-            <div style={{ marginTop: 24 }}>
+            <div className="mt-6">
               <DetailRow label="Employee" value={selectedRequest.employee} />
               <DetailRow
                 label="Department"
@@ -787,27 +482,12 @@ export function HRLeave() {
             </div>
 
             {selectedRequest.status === "Pending" && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  marginTop: 24,
-                }}
-              >
+              <div className="flex gap-3 mt-6">
                 <button
                   onClick={() =>
                     updateRequestStatus(selectedRequest.id, "Approved")
                   }
-                  style={{
-                    flex: 1,
-                    border: "none",
-                    background: "#059669",
-                    color: "#fff",
-                    padding: 12,
-                    borderRadius: 9,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
+                  className="flex-1 border-none bg-green-500 text-white py-3 rounded-lg font-bold cursor-pointer hover:bg-green-600 transition-all"
                 >
                   Approve
                 </button>
@@ -816,16 +496,7 @@ export function HRLeave() {
                   onClick={() =>
                     updateRequestStatus(selectedRequest.id, "Rejected")
                   }
-                  style={{
-                    flex: 1,
-                    border: "none",
-                    background: "#dc2626",
-                    color: "#fff",
-                    padding: 12,
-                    borderRadius: 9,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
+                  className="flex-1 border-none bg-red-500 text-white py-3 rounded-lg font-bold cursor-pointer hover:bg-red-600 transition-all"
                 >
                   Reject
                 </button>
@@ -841,28 +512,14 @@ export function HRLeave() {
 function DetailRow({ label, value }) {
   return (
     <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "140px 1fr",
-        gap: 12,
-        padding: "10px 0",
-        borderBottom: "1px solid #f1f5f9",
-      }}
+      className="grid gap-3 py-2.5 border-b border-border"
+      style={{ gridTemplateColumns: "140px 1fr" }}
     >
-      <span
-        style={{
-          color: "#64748b",
-          fontSize: 13,
-        }}
-      >
+      <span className="text-sm text-muted-foreground">
         {label}
       </span>
 
-      <strong
-        style={{
-          fontSize: 14,
-        }}
-      >
+      <strong className="text-base">
         {value}
       </strong>
     </div>

@@ -5,7 +5,7 @@ import { WorkspaceEnvironment } from "./workspace/WorkspaceEnvironment";
 const STATUS_STYLES = {
   active: "bg-green-500/10 text-green-400 border-green-500/20",
   restricted: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  archived: "bg-[#2A2A2A] text-[#777] border-[#333]",
+  archived: "bg-muted text-muted-foreground border-border",
 };
 
 const DEPT_COLORS = ["#60A5FA", "#F5C518", "#F472B6", "#4ADE80", "#A78BFA", "#FB923C"];
@@ -192,7 +192,7 @@ if (selectedWorkspace) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-[#555]">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         <Loader2 size={20} className="animate-spin mr-2" /> Loading workspaces…
       </div>
     );
@@ -202,13 +202,13 @@ if (selectedWorkspace) {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Workspaces</h1>
-          <p className="text-[#444] text-xs mt-0.5">Departmental and program-level containers for all work</p>
+          <h1 className="text-xl font-bold text-foreground">Workspaces</h1>
+          <p className="text-muted-foreground text-xs mt-0.5">Departmental and program-level containers for all work</p>
         </div>
         {canCreateWorkspace && (
   <button
     onClick={() => setShowCreate(true)}
-    className="flex items-center gap-2 bg-[#F5C518] text-black px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#E6B800] transition-all"
+    className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary/80 transition-all"
   >
     <Plus size={15} />
     Add Workspace
@@ -226,14 +226,14 @@ if (selectedWorkspace) {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Total Workspaces", value: filtered.length, color: "#F5C518" },
-          { label: "Total Boards", value: totalBoards, color: "#60A5FA" },
-          { label: "Total Members", value: totalMembers, color: "#4ADE80" },
-          { label: "Restricted", value: restrictedCount, color: "#FB923C" },
+          { label: "Total Workspaces", value: filtered.length, color: "text-primary" },
+          { label: "Total Boards", value: totalBoards, color: "text-blue-400" },
+          { label: "Total Members", value: totalMembers, color: "text-green-400" },
+          { label: "Restricted", value: restrictedCount, color: "text-orange-400" },
         ].map((s) => (
-          <div key={s.label} className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-4">
-            <div className="text-2xl font-bold mb-0.5" style={{ color: s.color }}>{s.value}</div>
-            <div className="text-[#444] text-xs">{s.label}</div>
+          <div key={s.label} className="bg-card border border-border rounded-2xl p-4">
+            <div className={`text-2xl font-bold mb-0.5 ${s.color}`}>{s.value}</div>
+            <div className="text-muted-foreground text-xs">{s.label}</div>
           </div>
         ))}
       </div>
@@ -241,26 +241,26 @@ if (selectedWorkspace) {
       {/* Toolbar */}
       <div className="flex gap-3 items-center">
         <div className="relative flex-1 max-w-sm">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#444]" />
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search workspaces..."
-            className="w-full bg-[#111111] border border-[#1E1E1E] text-white pl-9 pr-4 py-2 rounded-xl text-xs placeholder-[#333] focus:outline-none focus:border-[#F5C518]/40 transition-all"
+            className="w-full bg-input-background border border-border text-foreground pl-9 pr-4 py-2 rounded-xl text-xs placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 transition-all"
           />
         </div>
-        <div className="flex items-center bg-[#111111] border border-[#1E1E1E] rounded-xl overflow-hidden">
-          <button onClick={() => setView("grid")} className={`p-2 transition-all ${view === "grid" ? "bg-[#F5C518]/10 text-[#F5C518]" : "text-[#444] hover:text-white"}`}>
+        <div className="flex items-center bg-input-background border border-border rounded-xl overflow-hidden">
+          <button onClick={() => setView("grid")} className={`p-2 transition-all ${view === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
             <LayoutGrid size={15} />
           </button>
-          <button onClick={() => setView("list")} className={`p-2 transition-all ${view === "list" ? "bg-[#F5C518]/10 text-[#F5C518]" : "text-[#444] hover:text-white"}`}>
+          <button onClick={() => setView("list")} className={`p-2 transition-all ${view === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
             <List size={15} />
           </button>
         </div>
       </div>
 
       {!filtered.length && (
-        <div className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-10 text-center text-[#444] text-sm">
+        <div className="bg-card border border-border rounded-2xl p-10 text-center text-muted-foreground text-sm">
           No workspaces match your search.
         </div>
       )}
@@ -271,30 +271,30 @@ if (selectedWorkspace) {
           {filtered.map((ws) => {
             const color = colorForDept(ws.department_id ?? ws.id ?? 0);
             return (
-              <div key={ws.id} className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-5 hover:border-[#2A2A2A] transition-all group">
+              <div key={ws.id} className="bg-card border border-border rounded-2xl p-5 hover:border-primary/30 transition-all group">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${color}20` }}>
                       <Layers size={16} style={{ color }} />
                     </div>
                     <div>
-                      <div className="text-white text-sm font-semibold">{ws.name}</div>
-                      <div className="text-[#444] text-[10px]">{ws.group_type}{ws.description ? ` · ${ws.description}` : ""}</div>
+                      <div className="text-foreground text-sm font-semibold">{ws.name}</div>
+                      <div className="text-muted-foreground text-[10px]">{ws.group_type}{ws.description ? ` · ${ws.description}` : ""}</div>
                     </div>
                   </div>
                   <div className="relative">
-                    <button onClick={() => setOpenMenu(openMenu === ws.id ? null : ws.id)} className="opacity-0 group-hover:opacity-100 text-[#444] hover:text-white transition-all">
+                    <button onClick={() => setOpenMenu(openMenu === ws.id ? null : ws.id)} className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-all">
                       <MoreHorizontal size={15} />
                     </button>
                     {openMenu === ws.id && (
-                      <div className="absolute right-0 top-6 z-20 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-1 w-40 shadow-xl">
-                        <button onClick={() => openWorkspace(ws)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all text-white">
+                      <div className="absolute right-0 top-6 z-20 bg-popover border border-border rounded-xl p-1 w-40 shadow-xl">
+                        <button onClick={() => openWorkspace(ws)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-muted transition-all text-foreground">
                           <Eye size={13} /> View Workspace
                         </button>
-                        <button onClick={() => handleEdit(ws)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all text-white">
+                        <button onClick={() => handleEdit(ws)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-muted transition-all text-foreground">
                           <Settings size={13} /> Settings
                         </button>
-                        <button onClick={() => handleDelete(ws.id)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all text-red-400">
+                        <button onClick={() => handleDelete(ws.id)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-muted transition-all text-destructive">
                           <Trash2 size={13} /> Delete
                         </button>
                       </div>
@@ -306,13 +306,13 @@ if (selectedWorkspace) {
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] border ${STATUS_STYLES[ws.status] ?? STATUS_STYLES.active}`}>
                     {ws.status ?? "active"}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[10px] text-[#666]">
+                  <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
                     {ws.visibility === "private" ? <Lock size={10} /> : <ShieldCheck size={10} />}
                     {ws.visibility === "private" ? "Private" : "Public"}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-4 mb-3 text-xs text-[#555]">
+                <div className="flex items-center gap-4 mb-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1"><Users size={11} /> {ws.members_count ?? 0} members</div>
                   <div className="flex items-center gap-1"><Layers size={11} /> {ws.boards_count ?? 0} boards</div>
                 </div>
@@ -323,7 +323,7 @@ if (selectedWorkspace) {
     onClick={() =>
       setExpanded(expanded === ws.id ? null : ws.id)
     }
-    className="text-xs text-[#F5C518] hover:text-[#E6B800] transition-colors"
+    className="text-xs text-primary hover:text-primary/80 transition-colors"
   >
     {expanded === ws.id
       ? "Hide boards ↑"
@@ -332,7 +332,7 @@ if (selectedWorkspace) {
 
   <button
     onClick={() => openWorkspace(ws)}
-    className="px-4 py-2 rounded-lg bg-[#F5C518] text-black hover:bg-[#E6B800] transition-all"
+    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/80 transition-all"
   >
     Open Workspace
   </button>
@@ -341,10 +341,10 @@ if (selectedWorkspace) {
                 {expanded === ws.id && (
                   <div className="mt-3 space-y-1.5">
                     {(ws.boards ?? []).length === 0 && (
-                      <div className="text-[10px] text-[#333]">No boards yet.</div>
+                      <div className="text-[10px] text-muted-foreground">No boards yet.</div>
                     )}
                     {(ws.boards ?? []).map((b) => (
-                      <div key={b.id ?? b} className="flex items-center gap-2 text-xs text-[#888] bg-[#0D0D0D] rounded-lg px-3 py-1.5 border border-[#1A1A1A]">
+                      <div key={b.id ?? b} className="flex items-center gap-2 text-xs text-muted-foreground bg-input-background rounded-lg px-3 py-1.5 border border-border">
                         <div className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
                         {b.name ?? b}
                       </div>
@@ -359,12 +359,12 @@ if (selectedWorkspace) {
 
       {/* List view */}
       {view === "list" && filtered.length > 0 && (
-        <div className="bg-[#111111] border border-[#1E1E1E] rounded-2xl overflow-hidden">
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#1A1A1A]">
+              <tr className="border-b border-border">
                 {["Workspace", "Department", "Admin", "Members", "Boards", "Visibility", "Status", ""].map((h) => (
-                  <th key={h} className="text-left text-[#444] font-medium px-4 py-3">{h}</th>
+                  <th key={h} className="text-left text-muted-foreground font-medium px-4 py-3">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -372,22 +372,22 @@ if (selectedWorkspace) {
               {filtered.map((ws) => {
                 const color = colorForDept(ws.department_id ?? ws.id ?? 0);
                 return (
-                  <tr key={ws.id} className="border-b border-[#0D0D0D] hover:bg-[#141414] transition-all group">
+                  <tr key={ws.id} className="border-b border-border hover:bg-muted/40 transition-all group">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: `${color}20` }}>
                           <Layers size={12} style={{ color }} />
                         </div>
-                        <span className="text-white font-medium">{ws.name}</span>
+                        <span className="text-foreground font-medium">{ws.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-[#888]">
+                    <td className="px-4 py-3 text-muted-foreground">
   {ws.description ?? "—"}
 </td>
-                    <td className="px-4 py-3 text-[#888]">{ws.admin_name ?? "Unassigned"}</td>
-                    <td className="px-4 py-3 text-[#888]">{ws.members_count ?? 0}</td>
-                    <td className="px-4 py-3 text-[#888]">{ws.boards_count ?? 0}</td>
-                    <td className="px-4 py-3 text-[#888] capitalize">{ws.visibility ?? "private"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{ws.admin_name ?? "Unassigned"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{ws.members_count ?? 0}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{ws.boards_count ?? 0}</td>
+                    <td className="px-4 py-3 text-muted-foreground capitalize">{ws.visibility ?? "private"}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs border ${STATUS_STYLES[ws.status] ?? STATUS_STYLES.active}`}>
                         {ws.status ?? "active"}
@@ -396,7 +396,7 @@ if (selectedWorkspace) {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleDelete(ws.id)}
-                        className="opacity-0 group-hover:opacity-100 text-[#444] hover:text-red-400 transition-all"
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
                       >
                         <MoreHorizontal size={14} />
                       </button>
@@ -412,41 +412,41 @@ if (selectedWorkspace) {
       {/* Create modal */}
     {canCreateWorkspace && (showCreate || editingWorkspace) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+          <div className="bg-background border border-border rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
             <div className="flex items-start justify-between mb-1">
-              <h2 className="text-white font-semibold text-base">{editingWorkspace ? "Edit Workspace" : "Create Workspace"}</h2>
-              <button onClick={() => { setShowCreate(false); setEditingWorkspace(null); }} className="text-[#666] hover:text-white" aria-label="Close workspace dialog"><X size={17} /></button>
+              <h2 className="text-foreground font-semibold text-base">{editingWorkspace ? "Edit Workspace" : "Create Workspace"}</h2>
+              <button onClick={() => { setShowCreate(false); setEditingWorkspace(null); }} className="text-muted-foreground hover:text-foreground" aria-label="Close workspace dialog"><X size={17} /></button>
             </div>
-            <p className="text-[#444] text-xs mb-5">Workspaces organise boards by department, program, or business unit.</p>
+            <p className="text-muted-foreground text-xs mb-5">Workspaces organise boards by department, program, or business unit.</p>
 
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
               <div>
-                <label className="text-xs text-[#888] block mb-1.5">Workspace Name</label>
+                <label className="text-xs text-muted-foreground block mb-1.5">Workspace Name</label>
                 <input
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="e.g. Marketing"
-                  className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white px-4 py-2.5 rounded-xl text-sm placeholder-[#333] focus:outline-none focus:border-[#F5C518]/50 transition-all"
+                  className="w-full bg-input-background border border-border text-foreground px-4 py-2.5 rounded-xl text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-all"
                 />
               </div>
      
               <div>
-                <label className="text-xs text-[#888] block mb-1.5">Workspace Type</label>
+                <label className="text-xs text-muted-foreground block mb-1.5">Workspace Type</label>
                 <select
                   value={newType}
                   onChange={(e) => setNewType(e.target.value)}
-                  className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#F5C518]/50 transition-all"
+                  className="w-full bg-input-background border border-border text-foreground px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary/50 transition-all"
                 >
                   {["Department", "Program", "Restricted", "Temporary"].map((t) => <option key={t}>{t}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="text-xs text-[#888] block mb-1.5">Department</label>
+                <label className="text-xs text-muted-foreground block mb-1.5">Department</label>
                 <select
                   value={newDepartment}
                   onChange={(e) => setNewDepartment(e.target.value)}
-                  className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-[#F5C518]/50 transition-all"
+                  className="w-full bg-input-background border border-border text-foreground px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:border-primary/50 transition-all"
                 >
                   {departments.length === 0 && <option value="">No departments found</option>}
                   {departments.map((d) => (
@@ -456,13 +456,13 @@ if (selectedWorkspace) {
               </div>
 
               <div>
-                <label className="text-xs text-[#888] block mb-1.5">Visibility</label>
-                <div className="flex bg-[#0D0D0D] border border-[#2A2A2A] rounded-xl overflow-hidden">
+                <label className="text-xs text-muted-foreground block mb-1.5">Visibility</label>
+                <div className="flex bg-input-background border border-border rounded-xl overflow-hidden">
                   {["private", "public"].map((v) => (
                     <button
                       key={v}
                       onClick={() => setVisibility(v)}
-                      className={`flex-1 py-2 text-xs capitalize transition-all ${visibility === v ? "bg-[#F5C518]/10 text-[#F5C518]" : "text-[#666] hover:text-white"}`}
+                      className={`flex-1 py-2 text-xs capitalize transition-all ${visibility === v ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
                     >
                       {v}
                     </button>
@@ -470,13 +470,13 @@ if (selectedWorkspace) {
                 </div>
               </div>
 
-              <label className="flex items-center gap-2.5 text-xs text-[#888] cursor-pointer">
-                <input type="checkbox" checked={autoAssign} onChange={(e) => setAutoAssign(e.target.checked)} className="accent-[#F5C518]" />
+              <label className="flex items-center gap-2.5 text-xs text-muted-foreground cursor-pointer">
+                <input type="checkbox" checked={autoAssign} onChange={(e) => setAutoAssign(e.target.checked)} className="accent-primary" />
                 Automatically add department members
               </label>
 
-              <label className="flex items-center gap-2.5 text-xs text-[#888] cursor-pointer">
-                <input type="checkbox" checked={autoAdmin} onChange={(e) => setAutoAdmin(e.target.checked)} className="accent-[#F5C518]" />
+              <label className="flex items-center gap-2.5 text-xs text-muted-foreground cursor-pointer">
+                <input type="checkbox" checked={autoAdmin} onChange={(e) => setAutoAdmin(e.target.checked)} className="accent-primary" />
                 Make Head of Department workspace admin
               </label>
             </div>
@@ -484,14 +484,14 @@ if (selectedWorkspace) {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => { setShowCreate(false); setEditingWorkspace(null); resetCreateForm(); }}
-                className="flex-1 border border-[#2A2A2A] text-[#888] py-2.5 rounded-xl text-sm hover:text-white hover:border-[#444] transition-all"
+                className="flex-1 border border-border text-muted-foreground py-2.5 rounded-xl text-sm hover:text-foreground hover:border-primary/30 transition-all"
               >
                 Cancel
               </button>
               <button
   onClick={editingWorkspace ? handleSaveEdit : handleCreate}
   disabled={creating || !newName.trim()}
-  className="flex-1 bg-[#F5C518] text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-[#E6B800] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+  className="flex-1 bg-primary text-primary-foreground py-2.5 rounded-xl text-sm font-semibold hover:bg-primary/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 >
   {creating && <Loader2 size={14} className="animate-spin" />}
   {creating ? (editingWorkspace ? "Saving…" : "Creating…") : (editingWorkspace ? "Save changes" : "Create")}

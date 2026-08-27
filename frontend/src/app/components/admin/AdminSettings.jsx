@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Save, CheckCircle, Building, Globe, Bell, Palette, Database, AlertTriangle } from "lucide-react";
 function Toggle({ enabled, onChange }) {
-    return (<button onClick={onChange} className={`relative rounded-full transition-all flex-shrink-0`} style={{ width: "36px", height: "20px", background: enabled ? "#F5C518" : "#2A2A2A" }}>
+    return (<button onClick={onChange} className={`relative rounded-full transition-all flex-shrink-0`} style={{ width: "36px", height: "20px", background: enabled ? "#F5C518" : "var(--toggle-off)" }}>
       <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-4" : "translate-x-0"}`}/>
     </button>);
 }

@@ -7,7 +7,7 @@ import { statsApi } from "../../services/statsApi";
 function StatusBadge({ status }) {
     const colors = {
         active: "bg-green-500/10 text-green-400 border-green-500/20",
-        inactive: "bg-[#333]/40 text-[#666] border-[#2A2A2A]",
+        inactive: "bg-muted text-muted-foreground border-border",
     };
     return (<span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs border ${colors[status] || colors.inactive}`}>
       {status}
@@ -27,10 +27,10 @@ function AuditIcon({ type }) {
 const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length)
         return null;
-    return (<div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-3 py-2 text-xs">
-      <p className="text-[#888] mb-1">{label}</p>
+    return (<div className="bg-card border border-border rounded-lg px-3 py-2 text-xs">
+      <p className="text-muted-foreground mb-1">{label}</p>
       {payload.map((p) => (<p key={p.name} style={{ color: p.color }}>
-          {p.name}: <span className="text-white font-medium">{p.value}</span>
+          {p.name}: <span className="text-foreground font-medium">{p.value}</span>
         </p>))}
     </div>);
 };
@@ -75,8 +75,8 @@ export function DashboardHome() {
     return (<div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-black">System Dashboard</h1>
-          <p className="text-[#F5C518] text-xs mt-0.5">JYC Platform — Overview</p>
+          <h1 className="text-xl font-bold text-foreground">System Dashboard</h1>
+          <p className="text-primary text-xs mt-0.5">JYC Platform — Overview</p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-lg">
           <CircleCheck size={12}/> All Systems Operational
@@ -85,7 +85,7 @@ export function DashboardHome() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {STAT_CARDS.map((card) => (<div key={card.label} className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-4 hover:border-[#2A2A2A] transition-all">
+        {STAT_CARDS.map((card) => (<div key={card.label} className="bg-card border border-border rounded-2xl p-4 hover:border-primary/30 transition-all">
             <div className="flex items-start justify-between mb-3">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${card.color}15` }}>
                 <card.icon size={17} style={{ color: card.color }}/>
@@ -95,18 +95,18 @@ export function DashboardHome() {
                 {card.change}
               </div>
             </div>
-            <div className="text-2xl font-bold text-white mb-0.5">{card.value}</div>
-            <div className="text-[#444] text-xs">{card.label}</div>
+            <div className="text-2xl font-bold text-foreground mb-0.5">{card.value}</div>
+            <div className="text-muted-foreground text-xs">{card.label}</div>
           </div>))}
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-[#111111] border border-[#1E1E1E] rounded-2xl p-5">
+        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-white text-sm font-semibold">Platform Activity</h3>
-              <p className="text-[#444] text-xs">Tasks and user growth over time</p>
+              <h3 className="text-foreground text-sm font-semibold">Platform Activity</h3>
+              <p className="text-muted-foreground text-xs">Tasks and user growth over time</p>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={180}>
@@ -121,25 +121,25 @@ export function DashboardHome() {
                   <stop offset="95%" stopColor="#60A5FA" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E1E1E" vertical={false}/>
-              <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#444" }} axisLine={false} tickLine={false}/>
-              <YAxis tick={{ fontSize: 10, fill: "#444" }} axisLine={false} tickLine={false}/>
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false}/>
+              <XAxis dataKey="month" tick={{ fontSize: 10, fill: "currentColor" }} axisLine={false} tickLine={false} className="text-muted-foreground"/>
+              <YAxis tick={{ fontSize: 10, fill: "currentColor" }} axisLine={false} tickLine={false} className="text-muted-foreground"/>
               <Tooltip content={<CustomTooltip />}/>
               <Area type="monotone" dataKey="tasks" name="Tasks" stroke="#F5C518" strokeWidth={2} fill="url(#taskGrad)" dot={false}/>
               <Area type="monotone" dataKey="users" name="Users" stroke="#60A5FA" strokeWidth={2} fill="url(#userGrad)" dot={false}/>
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <div className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <div className="mb-5">
-            <h3 className="text-white text-sm font-semibold">Boards by Dept.</h3>
-            <p className="text-[#444] text-xs">Active boards per workspace</p>
+            <h3 className="text-foreground text-sm font-semibold">Boards by Dept.</h3>
+            <p className="text-muted-foreground text-xs">Active boards per workspace</p>
           </div>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={WORKSPACE_DATA} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E1E1E" vertical={false}/>
-              <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#444" }} axisLine={false} tickLine={false}/>
-              <YAxis tick={{ fontSize: 9, fill: "#444" }} axisLine={false} tickLine={false}/>
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false}/>
+              <XAxis dataKey="name" tick={{ fontSize: 9, fill: "currentColor" }} axisLine={false} tickLine={false} className="text-muted-foreground"/>
+              <YAxis tick={{ fontSize: 9, fill: "currentColor" }} axisLine={false} tickLine={false} className="text-muted-foreground"/>
               <Tooltip content={<CustomTooltip />}/>
               <Bar dataKey="boards" name="Boards" fill="#F5C518" radius={[4, 4, 0, 0]} fillOpacity={0.85}/>
             </BarChart>
@@ -149,39 +149,39 @@ export function DashboardHome() {
 
       {/* Users + Audit */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white text-sm font-semibold">Recent Users</h3>
+            <h3 className="text-foreground text-sm font-semibold">Recent Users</h3>
           </div>
           <div className="space-y-1">
-            {RECENT_USERS.map((user) => (<div key={user.name} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#1A1A1A] transition-all group">
-                <div className="w-7 h-7 rounded-full bg-[#F5C518]/15 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[#F5C518] text-[10px] font-bold">{user.name.split(" ").map((n) => n[0]).join("")}</span>
+            {RECENT_USERS.map((user) => (<div key={user.name} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all group">
+                <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary text-[10px] font-bold">{user.name.split(" ").map((n) => n[0]).join("")}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-white text-xs font-medium">{user.name}</div>
-                  <div className="text-[#444] text-[10px]">{user.dept} · {user.role}</div>
+                  <div className="text-foreground text-xs font-medium">{user.name}</div>
+                  <div className="text-muted-foreground text-[10px]">{user.dept} · {user.role}</div>
                 </div>
                 <StatusBadge status={user.status}/>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity text-[#444] hover:text-white">
+                <button className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
                   <MoreHorizontal size={14}/>
                 </button>
               </div>))}
           </div>
         </div>
-        <div className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white text-sm font-semibold">Audit Log</h3>
+            <h3 className="text-foreground text-sm font-semibold">Audit Log</h3>
           </div>
           <div className="space-y-1">
-            {AUDIT_LOGS.map((log, i) => (<div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-[#1A1A1A] transition-all">
+            {AUDIT_LOGS.map((log, i) => (<div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all">
                 <div className="mt-0.5 flex-shrink-0"><AuditIcon type={log.type}/></div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs">
-                    <span className="text-white font-medium">{log.user}</span>{" "}
-                    <span className="text-[#555]">{log.action}</span>
+                    <span className="text-foreground font-medium">{log.user}</span>{" "}
+                    <span className="text-muted-foreground">{log.action}</span>
                   </div>
-                  <div className="text-[#333] text-[10px] mt-0.5">{log.time}</div>
+                  <div className="text-muted-foreground/60 text-[10px] mt-0.5">{log.time}</div>
                 </div>
               </div>))}
           </div>
@@ -189,23 +189,23 @@ export function DashboardHome() {
       </div>
 
       {/* System health */}
-      <div className="bg-[#111111] border border-[#1E1E1E] rounded-2xl p-5">
-        <h3 className="text-white text-sm font-semibold mb-4">System Health</h3>
+      <div className="bg-card border border-border rounded-2xl p-5">
+        <h3 className="text-foreground text-sm font-semibold mb-4">System Health</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: "Auth Service", status: "operational", uptime: "99.98%" },
             { label: "API Gateway", status: "operational", uptime: "99.95%" },
             { label: "WebSocket", status: "operational", uptime: "99.91%" },
             { label: "Database", status: "degraded", uptime: "98.70%" },
-        ].map((svc) => (<div key={svc.label} className="bg-[#0D0D0D] rounded-xl p-3 border border-[#1A1A1A]">
+          ].map((svc) => (<div key={svc.label} className="bg-input-background rounded-xl p-3 border border-border">
               <div className="flex items-center gap-2 mb-2">
                 {svc.status === "operational" ? (<CircleCheck size={13} className="text-green-400"/>) : (<CircleX size={13} className="text-orange-400"/>)}
-                <span className="text-xs text-white">{svc.label}</span>
+                <span className="text-xs text-foreground">{svc.label}</span>
               </div>
               <div className={`text-xs font-medium ${svc.status === "operational" ? "text-green-400" : "text-orange-400"}`}>
                 {svc.uptime} uptime
               </div>
-              <div className="mt-2 h-1 rounded-full bg-[#1E1E1E]">
+              <div className="mt-2 h-1 rounded-full bg-border">
                 <div className={`h-full rounded-full ${svc.status === "operational" ? "bg-green-500" : "bg-orange-500"}`} style={{ width: svc.uptime }}/>
               </div>
             </div>))}

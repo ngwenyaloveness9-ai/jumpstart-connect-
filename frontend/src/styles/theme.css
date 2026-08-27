@@ -22,6 +22,7 @@
   --input: transparent;
   --input-background: #f5f5f5;
   --switch-background: #e5e5e5;
+  --toggle-off: #e5e5e5;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --ring: #F5C518;
@@ -64,6 +65,7 @@
   --ring: #F5C518;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
+  --toggle-off: #2A2A2A;
   --chart-1: #F5C518;
   --chart-2: #E6B800;
   --chart-3: #FFD700;
@@ -208,4 +210,56 @@
   .theme-adaptive [class*="bg-[#F7C948]"].text-black {
     color: var(--primary-foreground);
   }
+}
+
+/*
+ * Light mode: remap the hardcoded dark "canvas" colors to the shared light
+ * theme tokens so every page uses a light background (instead of the dark,
+ * image-like surfaces) with black text. These only take effect under `.light`.
+ */
+.light .theme-adaptive [class*="bg-[#0B0B0B]"],
+.light .theme-adaptive [class*="bg-[#0D0D0D]"],
+.light .theme-adaptive [class*="bg-[#0D1117]"],
+.light .theme-adaptive [class*="bg-[#111]"],
+.light .theme-adaptive [class*="bg-[#111111]"],
+.light .theme-adaptive [class*="bg-[#141414]"],
+.light .theme-adaptive [class*="bg-[#15232C]"],
+.light .theme-adaptive [class*="bg-[#161B22]"],
+.light .theme-adaptive [class*="bg-[#1A1A1A]"],
+.light .theme-adaptive [class*="bg-[#1B222C]"],
+.light .theme-adaptive [class*="bg-[#1E1E1E]"],
+.light .theme-adaptive [class*="bg-[#1F2937]"],
+.light .theme-adaptive [class*="bg-[#21262D]"],
+.light .theme-adaptive [class*="bg-[#2A2A2A]"],
+.light .theme-adaptive [class*="bg-[#2B3137]"],
+.light .theme-adaptive [class*="bg-[#2C2213]"],
+.light .theme-adaptive [class*="bg-[#30363D]"],
+.light .theme-adaptive [class*="bg-[#333]"],
+.light .theme-adaptive [class*="bg-[#444]"],
+.light .theme-adaptive [class*="bg-gray-600"],
+.light .theme-adaptive [class*="bg-gray-700"],
+.light .theme-adaptive [class*="bg-gray-800"],
+.light .theme-adaptive [class*="bg-gray-900"] {
+  background-color: var(--card) !important;
+}
+
+.light .theme-adaptive [class*="border-[#0D0D0D]"],
+.light .theme-adaptive [class*="border-[#161B22]"],
+.light .theme-adaptive [class*="border-[#1A1A1A]"],
+.light .theme-adaptive [class*="border-[#1E1E1E]"],
+.light .theme-adaptive [class*="border-[#21313E]"],
+.light .theme-adaptive [class*="border-[#222]"],
+.light .theme-adaptive [class*="border-[#27303A]"],
+.light .theme-adaptive [class*="border-[#2A2A2A]"],
+.light .theme-adaptive [class*="border-[#2B3137]"],
+.light .theme-adaptive [class*="border-[#30363D]"],
+.light .theme-adaptive [class*="border-[#333]"],
+.light .theme-adaptive [class*="border-[#444]"],
+.light .theme-adaptive [class*="border-[#4B3A16]"] {
+  border-color: var(--border) !important;
+}
+
+.light .theme-adaptive [class*="placeholder-[#333]"],
+.light .theme-adaptive [class*="placeholder-[#444]"] {
+  color: var(--muted-foreground) !important;
 }

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Shield, Key, Lock, Wifi, AlertTriangle, CheckCircle, XCircle, RefreshCw, Eye, EyeOff, Save } from "lucide-react";
 function Toggle({ enabled, onChange }) {
-    return (<button onClick={onChange} className={`relative w-10 h-5 rounded-full transition-all ${enabled ? "bg-[#F5C518]" : "bg-[#2A2A2A]"}`}>
-      <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-5" : "translate-x-0"}`}/>
+    return (<button onClick={onChange} className={`relative w-10 h-5 rounded-full transition-all ${enabled ? "bg-primary" : "bg-muted"}`}>
+      <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-background shadow transition-transform ${enabled ? "translate-x-5" : "translate-x-0"}`}/>
     </button>);
 }
 const SECURITY_EVENTS = [

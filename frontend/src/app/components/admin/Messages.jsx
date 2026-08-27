@@ -43,7 +43,7 @@ function AttachmentCard({ att, onShare }) {
 
   if (isImage) {
     return (
-      <div className="mt-2 rounded-xl overflow-hidden border border-[#2A2A2A] max-w-xs bg-[#111]">
+      <div className="mt-2 rounded-xl overflow-hidden border border-border max-w-xs bg-card">
         <a
           href={att.url}
           target="_blank"
@@ -58,21 +58,21 @@ function AttachmentCard({ att, onShare }) {
               e.currentTarget.style.display = "none";
             }}
           />
-          <div className="absolute inset-0 flex items-center justify-center text-white/80">
+          <div className="absolute inset-0 flex items-center justify-center text-foreground/80">
             <ImageIcon size={32} className={s.color} />
           </div>
         </a>
-        <div className="flex items-center justify-between bg-[#1A1A1A] px-3 py-2">
+        <div className="flex items-center justify-between bg-muted px-3 py-2">
           <div className="flex items-center gap-2 min-w-0">
             <ImageIcon size={12} className={s.color} />
-            <span className="text-xs text-[#888] truncate">{att.name}</span>
+            <span className="text-xs text-muted-foreground truncate">{att.name}</span>
           </div>
           <div className="flex items-center gap-2">
             <a
               href={att.url}
               target="_blank"
               rel="noreferrer noopener"
-              className="text-[#444] hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               title="Open attachment"
             >
               <Download size={13} />
@@ -80,7 +80,7 @@ function AttachmentCard({ att, onShare }) {
             <button
               type="button"
               onClick={() => onShare?.(att)}
-              className="text-[#444] hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               title="Share attachment"
             >
               <CornerUpRight size={13} />
@@ -92,29 +92,29 @@ function AttachmentCard({ att, onShare }) {
   }
 
   return (
-    <div className="mt-2 rounded-xl overflow-hidden border border-[#2A2A2A] max-w-xs bg-[#111]">
+    <div className="mt-2 rounded-xl overflow-hidden border border-border max-w-xs bg-card">
       <a
         href={att.url}
         target="_blank"
         rel="noreferrer noopener"
-        className="flex items-center gap-3 px-3 py-2.5 group/att hover:border-[#444] transition-colors"
+        className="flex items-center gap-3 px-3 py-2.5 group/att hover:border-muted-foreground transition-colors"
       >
         <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center flex-shrink-0`}>
           <FileText size={14} className={s.color} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-white truncate">{att.name}</p>
-          <p className="text-[10px] text-[#444]">{att.size} · {att.type.toUpperCase()}</p>
+          <p className="text-xs text-foreground truncate">{att.name}</p>
+          <p className="text-[10px] text-muted-foreground">{att.size} · {att.type.toUpperCase()}</p>
         </div>
       </a>
-      <div className="flex items-center justify-between bg-[#1A1A1A] px-3 py-2">
-        <div className="text-[10px] text-[#444] truncate">{att.type.toUpperCase()}</div>
+      <div className="flex items-center justify-between bg-muted px-3 py-2">
+        <div className="text-[10px] text-muted-foreground truncate">{att.type.toUpperCase()}</div>
         <div className="flex items-center gap-2">
           <a
             href={att.url}
             target="_blank"
             rel="noreferrer noopener"
-            className="text-[#444] hover:text-white transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
             title="Open attachment"
           >
             <Download size={13} />
@@ -122,7 +122,7 @@ function AttachmentCard({ att, onShare }) {
           <button
             type="button"
             onClick={() => onShare?.(att)}
-            className="text-[#444] hover:text-white transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
             title="Share attachment"
           >
             <CornerUpRight size={13} />
@@ -146,33 +146,33 @@ function ShareAttachmentModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-3xl border border-[#2A2A2A] bg-[#0B0B0B] shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E1E1E]">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-background shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div>
-            <h3 className="text-sm font-semibold text-white">Share attachment</h3>
-            <p className="text-[11px] text-[#777]">Choose a recipient and add an optional note.</p>
+            <h3 className="text-sm font-semibold text-foreground">Share attachment</h3>
+            <p className="text-[11px] text-muted-foreground">Choose a recipient and add an optional note.</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-[#888] hover:text-white transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <X size={16} />
           </button>
         </div>
 
         <div className="p-5 space-y-4">
-          <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-3">
-            <p className="text-xs text-[#888]">Attachment</p>
-            <p className="mt-1 text-sm text-white truncate">{attachment?.name}</p>
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <p className="text-xs text-muted-foreground">Attachment</p>
+            <p className="mt-1 text-sm text-foreground truncate">{attachment?.name}</p>
           </div>
 
           <div>
-            <label className="text-[11px] text-[#888] uppercase tracking-[0.2em]">Recipient</label>
+            <label className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">Recipient</label>
             <select
               value={selectedTargetId || ""}
               onChange={(e) => onSelectTarget(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
+              className="mt-2 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary"
             >
               <option value="" disabled>
                 Select a user
@@ -186,11 +186,11 @@ function ShareAttachmentModal({
           </div>
 
           <div>
-            <label className="text-[11px] text-[#888] uppercase tracking-[0.2em]">Note</label>
+            <label className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">Note</label>
             <textarea
               value={note}
               onChange={(e) => onNoteChange(e.target.value)}
-              className="mt-2 h-24 w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-3 py-2 text-sm text-white focus:outline-none focus:border-primary resize-none"
+              className="mt-2 h-24 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none"
               placeholder="Add a note or context..."
             />
           </div>
@@ -199,7 +199,7 @@ function ShareAttachmentModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-[#2A2A2A] px-4 py-2 text-sm text-[#888] hover:border-white hover:text-white transition-colors"
+              className="rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground hover:border-foreground hover:text-foreground transition-colors"
             >
               Cancel
             </button>
@@ -225,7 +225,7 @@ function ReactionPill({ emoji, count, mine, onToggle }) {
       className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border transition-all ${
         mine
           ? "bg-primary/15 border-primary/30 text-primary"
-          : "bg-[#1E1E1E] border-[#2A2A2A] text-[#666] hover:border-[#444] hover:text-white"
+          : "bg-muted border-border text-muted-foreground hover:border-muted-foreground hover:text-foreground"
       }`}
     >
       <span>{emoji}</span>
@@ -237,9 +237,9 @@ function ReactionPill({ emoji, count, mine, onToggle }) {
 function SystemMessage({ text }) {
   return (
     <div className="flex items-center gap-3 py-1">
-      <div className="flex-1 h-px bg-[#1E1E1E]" />
-      <span className="text-[10px] text-[#444] whitespace-nowrap">{text}</span>
-      <div className="flex-1 h-px bg-[#1E1E1E]" />
+      <div className="flex-1 h-px bg-border" />
+      <span className="text-[10px] text-muted-foreground whitespace-nowrap">{text}</span>
+      <div className="flex-1 h-px bg-border" />
     </div>
   );
 }
@@ -251,7 +251,7 @@ function MessageRow({ msg, onReact, onShare }) {
 
   return (
     <div
-      className={`group/msg flex gap-3 px-4 py-2 rounded-xl transition-all relative ${hovered ? "bg-[#1A1A1A]" : ""}`}
+      className={`group/msg flex gap-3 px-4 py-2 rounded-xl transition-all relative ${hovered ? "bg-muted" : ""}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -266,11 +266,11 @@ function MessageRow({ msg, onReact, onShare }) {
       {/* Body */}
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 mb-0.5 flex-wrap">
-          <span className="text-xs font-semibold text-white">{msg.author}</span>
-          {msg.dept && <span className="text-[10px] text-[#555]">{msg.dept}</span>}
-          <span className="text-[10px] text-[#444]">{msg.time}</span>
+          <span className="text-xs font-semibold text-foreground">{msg.author}</span>
+          {msg.dept && <span className="text-[10px] text-muted-foreground">{msg.dept}</span>}
+          <span className="text-[10px] text-muted-foreground">{msg.time}</span>
         </div>
-        <p className="text-sm text-[#CCCCCC] leading-relaxed">{msg.text}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed">{msg.text}</p>
         {msg.attachments?.length > 0 && (
           <div className="mt-2 space-y-2">
             {msg.attachments.map((att, idx) => (
@@ -285,7 +285,7 @@ function MessageRow({ msg, onReact, onShare }) {
             {msg.reactions.map((r) => (
               <ReactionPill key={r.emoji} {...r} onToggle={() => onReact(msg.id, r.emoji)} />
             ))}
-            <button className="flex items-center justify-center w-7 h-5 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] text-[#444] hover:text-white hover:border-[#444] transition-all text-xs">
+            <button className="flex items-center justify-center w-7 h-5 rounded-full bg-muted border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground transition-all text-xs">
               <Plus size={10} />
             </button>
           </div>
@@ -302,21 +302,21 @@ function MessageRow({ msg, onReact, onShare }) {
 
       {/* Hover toolbar */}
       {hovered && (
-        <div className="absolute right-4 top-1 flex items-center gap-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-1.5 py-1 shadow-xl">
+        <div className="absolute right-4 top-1 flex items-center gap-1 bg-muted border border-border rounded-lg px-1.5 py-1 shadow-xl">
           {["👍", "❤️", "😄"].map((e) => (
             <button
               key={e}
               onClick={() => onReact(msg.id, e)}
-              className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2A2A2A] text-sm transition-all"
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-border text-sm transition-all"
             >
               {e}
             </button>
           ))}
-          <div className="w-px h-4 bg-[#2A2A2A] mx-0.5" />
-          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2A2A2A] text-[#666] hover:text-white transition-all">
+          <div className="w-px h-4 bg-border mx-0.5" />
+          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-border text-muted-foreground hover:text-foreground transition-all">
             <Reply size={12} />
           </button>
-          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2A2A2A] text-[#666] hover:text-white transition-all">
+          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-border text-muted-foreground hover:text-foreground transition-all">
             <MoreHorizontal size={12} />
           </button>
         </div>
@@ -333,20 +333,20 @@ function DMItem({ dm, isActive, onSelect }) {
       className={`w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-all ${
         isActive
           ? "bg-primary/15 text-primary font-semibold"
-          : "text-[#888] hover:text-white hover:bg-[#1A1A1A]"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted"
       }`}
     >
       <div className="relative flex-shrink-0">
         <div
           className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold"
-          style={{ background: "#2A2A2A", color: "#888" }}
+          style={{ background: "var(--toggle-off)", color: "var(--muted-foreground)" }}
         >
           {dm.name?.charAt(0) || "?"}
         </div>
         {dm.online && (
           <Circle
             size={6}
-            className="absolute -bottom-0.5 -right-0.5 fill-green-400 text-green-400 ring-2 ring-[#111111] rounded-full"
+            className="absolute -bottom-0.5 -right-0.5 fill-green-400 text-green-400 ring-2 ring-card rounded-full"
           />
         )}
       </div>
@@ -708,12 +708,12 @@ export function Messages({
 
   if (loadingInbox && directMessages.length === 0) {
     return (
-      <div className="flex h-[calc(100vh-9rem)] bg-[#0D0D0D] rounded-2xl border border-[#1E1E1E] overflow-hidden items-center justify-center">
+      <div className="flex h-[calc(100vh-9rem)] bg-background rounded-2xl border border-border overflow-hidden items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center px-8">
-          <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-[#222] flex items-center justify-center">
-            <MessageSquare size={22} className="text-[#333]" />
+          <div className="w-12 h-12 rounded-2xl bg-muted border border-border flex items-center justify-center">
+            <MessageSquare size={22} className="text-muted-foreground" />
           </div>
-          <p className="text-sm text-white font-medium">Loading conversations...</p>
+          <p className="text-sm text-foreground font-medium">Loading conversations...</p>
         </div>
       </div>
     );
@@ -721,13 +721,13 @@ export function Messages({
 
   if (!selectedChannel) {
     return (
-      <div className="flex h-[calc(100vh-9rem)] bg-[#0D0D0D] rounded-2xl border border-[#1E1E1E] overflow-hidden items-center justify-center">
+      <div className="flex h-[calc(100vh-9rem)] bg-background rounded-2xl border border-border overflow-hidden items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center px-8">
-          <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-[#222] flex items-center justify-center">
-            <MessageSquare size={22} className="text-[#333]" />
+          <div className="w-12 h-12 rounded-2xl bg-muted border border-border flex items-center justify-center">
+            <MessageSquare size={22} className="text-muted-foreground" />
           </div>
-          <p className="text-sm text-white font-medium">No conversations available</p>
-          <p className="text-xs text-[#444]">
+          <p className="text-sm text-foreground font-medium">No conversations available</p>
+          <p className="text-xs text-muted-foreground">
             {error ? error : "There are currently no messages to display."}
           </p>
         </div>
@@ -740,25 +740,25 @@ export function Messages({
       {/* Breadcrumb bar */}
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-1.5 text-sm">
-          <span className="text-[#555]">{orgName}</span>
-          <ChevronRight size={13} className="text-[#444]" />
-          <span className="text-white font-semibold">{pageLabel}</span>
+          <span className="text-muted-foreground">{orgName}</span>
+          <ChevronRight size={13} className="text-muted-foreground" />
+          <span className="text-foreground font-semibold">{pageLabel}</span>
         </div>
       </div>
 
-      <div className="flex flex-1 bg-[#0D0D0D] rounded-2xl border border-[#1E1E1E] overflow-hidden">
+      <div className="flex flex-1 bg-background rounded-2xl border border-border overflow-hidden">
         {/* ── Left panel ── */}
-        <div className="w-60 flex-shrink-0 border-r border-[#1E1E1E] flex flex-col bg-[#111111]">
+        <div className="w-60 flex-shrink-0 border-r border-border flex flex-col bg-card">
           {/* Search */}
-          <div className="p-3 border-b border-[#1A1A1A]">
+          <div className="p-3 border-b border-border">
             <div className="relative">
-              <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#444]" />
+              <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 value={channelSearch}
                 onChange={(e) => setChannelSearch(e.target.value)}
                 placeholder="Find conversations..."
-                className="w-full bg-[#1A1A1A] border border-[#222] text-white pl-7 pr-3 py-1.5 rounded-lg text-xs focus:outline-none focus:border-[#F5C518]/30 transition-all"
+                className="w-full bg-muted border border-border text-foreground pl-7 pr-3 py-1.5 rounded-lg text-xs focus:outline-none focus:border-[#F5C518]/30 transition-all"
               />
             </div>
           </div>
@@ -767,7 +767,7 @@ export function Messages({
             {/* Direct messages */}
             <button
               onClick={() => setDmsExpanded(!dmsExpanded)}
-              className="w-full flex items-center gap-1.5 px-1 py-1 text-[10px] font-semibold text-[#444] uppercase tracking-wider hover:text-[#666] transition-colors"
+              className="w-full flex items-center gap-1.5 px-1 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider hover:text-muted-foreground transition-colors"
             >
               {dmsExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
               Direct Messages
@@ -776,7 +776,7 @@ export function Messages({
               <div className="space-y-0.5 mt-1">
                 {filteredDMs.length > 0 && (
                   <>
-                    <div className="px-1 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#444]">
+                    <div className="px-1 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       Conversations
                     </div>
                     {filteredDMs.map((dm) => (
@@ -792,7 +792,7 @@ export function Messages({
 
                 {filteredContacts.length > 0 && (
                   <>
-                    <div className="px-1 py-1 mt-2 text-[10px] font-semibold uppercase tracking-wider text-[#444]">
+                    <div className="px-1 py-1 mt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       Available people
                     </div>
                     {filteredContacts.map((contact) => (
@@ -813,40 +813,40 @@ export function Messages({
         {/* ── Main area ── */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Channel header */}
-          <div className="h-12 border-b border-[#1E1E1E] flex items-center justify-between px-4 flex-shrink-0 bg-[#111111]">
+          <div className="h-12 border-b border-border flex items-center justify-between px-4 flex-shrink-0 bg-card">
             <div className="flex items-center gap-2 min-w-0">
-              <Hash size={15} className="text-[#666] flex-shrink-0" />
-              <span className="text-sm font-semibold text-white truncate">{selectedChannel.name}</span>
+              <Hash size={15} className="text-muted-foreground flex-shrink-0" />
+              <span className="text-sm font-semibold text-foreground truncate">{selectedChannel.name}</span>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
-              <button className="w-7 h-7 rounded-lg flex items-center justify-center text-[#444] hover:text-white hover:bg-[#1A1A1A] transition-all">
+              <button className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
                 <Phone size={14} />
               </button>
-              <button className="w-7 h-7 rounded-lg flex items-center justify-center text-[#444] hover:text-white hover:bg-[#1A1A1A] transition-all">
+              <button className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
                 <Video size={14} />
               </button>
-              <button className="w-7 h-7 rounded-lg flex items-center justify-center text-[#444] hover:text-white hover:bg-[#1A1A1A] transition-all">
+              <button className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
                 <Info size={14} />
               </button>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto py-2 space-y-0.5 bg-[#0D0D0D]">
+          <div className="flex-1 overflow-y-auto py-2 space-y-0.5 bg-background">
             {loadingConversation && conversationMessages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-8">
-                <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-[#222] flex items-center justify-center">
-                  <MessageSquare size={22} className="text-[#333]" />
+                <div className="w-12 h-12 rounded-2xl bg-muted border border-border flex items-center justify-center">
+                  <MessageSquare size={22} className="text-muted-foreground" />
                 </div>
-                <p className="text-sm text-white font-medium">Loading messages...</p>
+                <p className="text-sm text-foreground font-medium">Loading messages...</p>
               </div>
             ) : conversationMessages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-8">
-                <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-[#222] flex items-center justify-center">
-                  <MessageSquare size={22} className="text-[#333]" />
+                <div className="w-12 h-12 rounded-2xl bg-muted border border-border flex items-center justify-center">
+                  <MessageSquare size={22} className="text-muted-foreground" />
                 </div>
-                <p className="text-sm text-white font-medium">No messages yet</p>
-                <p className="text-xs text-[#444]">Start the conversation with {selectedChannel.name}</p>
+                <p className="text-sm text-foreground font-medium">No messages yet</p>
+                <p className="text-xs text-muted-foreground">Start the conversation with {selectedChannel.name}</p>
               </div>
             ) : (
               conversationMessages.map((msg) => (
@@ -856,27 +856,27 @@ export function Messages({
 
             {isTyping && (
               <div className="flex items-center gap-3 px-4 py-1">
-                <div className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center text-[10px] text-[#888]">
+                <div className="w-8 h-8 rounded-full bg-border flex items-center justify-center text-[10px] text-muted-foreground">
                   {selectedChannel.name?.charAt(0) || "?"}
                 </div>
-                <div className="flex items-center gap-1 bg-[#1A1A1A] rounded-xl px-3 py-2">
+                <div className="flex items-center gap-1 bg-muted rounded-xl px-3 py-2">
                   {[0, 1, 2].map((i) => (
                     <span
                       key={i}
-                      className="w-1.5 h-1.5 rounded-full bg-[#444] animate-bounce"
+                      className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce"
                       style={{ animationDelay: `${i * 0.15}s` }}
                     />
                   ))}
                 </div>
-                <span className="text-[10px] text-[#333]">typing...</span>
+                <span className="text-[10px] text-muted-foreground">typing...</span>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-[#1E1E1E] flex-shrink-0 bg-[#111111]">
-            <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl overflow-hidden focus-within:border-[#F5C518]/30 transition-all">
+          <div className="p-3 border-t border-border flex-shrink-0 bg-card">
+            <div className="bg-muted border border-border rounded-xl overflow-hidden focus-within:border-[#F5C518]/30 transition-all">
               <textarea
                 ref={inputRef}
                 value={draft}
@@ -884,7 +884,7 @@ export function Messages({
                 onKeyDown={handleKeyDown}
                 placeholder={`Message ${selectedChannel.name}...`}
                 rows={1}
-                className="w-full bg-transparent px-4 pt-3 pb-1 text-sm text-white placeholder-[#444] focus:outline-none resize-none"
+                className="w-full bg-transparent px-4 pt-3 pb-1 text-sm text-foreground placeholder-muted-foreground focus:outline-none resize-none"
                 style={{ minHeight: "44px", maxHeight: "120px" }}
               />
 
@@ -897,16 +897,16 @@ export function Messages({
                     const attType = typeMap[ext] || "pdf";
                     const s = ATTACH_ICONS[attType] || ATTACH_ICONS.pdf;
                     return (
-                      <div key={file.name} className="flex items-center justify-between gap-3 bg-[#111] border border-[#2A2A2A] rounded-lg px-3 py-2">
+                      <div key={file.name} className="flex items-center justify-between gap-3 bg-card border border-border rounded-lg px-3 py-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <FileText size={14} className={s.color} />
-                          <span className="text-xs text-[#888] truncate">{file.name}</span>
-                          <span className="text-[10px] text-[#444]">({(file.size / 1024).toFixed(1)} KB)</span>
+                          <span className="text-xs text-muted-foreground truncate">{file.name}</span>
+                          <span className="text-[10px] text-muted-foreground">({(file.size / 1024).toFixed(1)} KB)</span>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleRemoveAttachment(file.name)}
-                          className="text-[#444] hover:text-white transition-colors flex-shrink-0"
+                          className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
                         >
                           <X size={14} />
                         </button>
@@ -929,7 +929,7 @@ export function Messages({
                         key={label}
                         htmlFor="chat-file-input"
                         title={label}
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-[#444] hover:text-white hover:bg-[#2A2A2A] transition-all cursor-pointer"
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-all cursor-pointer"
                       >
                         <Icon size={14} />
                       </label>
@@ -938,7 +938,7 @@ export function Messages({
                         key={label}
                         title={label}
                         type="button"
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-[#444] hover:text-white hover:bg-[#2A2A2A] transition-all"
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-all"
                       >
                         <Icon size={14} />
                       </button>
@@ -962,9 +962,9 @@ export function Messages({
                 </button>
               </div>
             </div>
-            <p className="text-[10px] text-[#333] mt-1.5 px-1">
-              Press <kbd className="bg-[#1A1A1A] border border-[#2A2A2A] px-1 py-0.5 rounded text-[9px]">Enter</kbd> to send ·{" "}
-              <kbd className="bg-[#1A1A1A] border border-[#2A2A2A] px-1 py-0.5 rounded text-[9px]">Shift+Enter</kbd> for new line
+            <p className="text-[10px] text-muted-foreground mt-1.5 px-1">
+              Press <kbd className="bg-muted border border-border px-1 py-0.5 rounded text-[9px]">Enter</kbd> to send ·{" "}
+              <kbd className="bg-muted border border-border px-1 py-0.5 rounded text-[9px]">Shift+Enter</kbd> for new line
             </p>
           </div>
         </div>
