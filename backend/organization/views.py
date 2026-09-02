@@ -119,9 +119,11 @@ class LeaveRequestListView(APIView):
 			return Response({"error": "Your department is missing."}, status=400)
 		initial_stage = "campus" if role_of(request.user) in REVIEW_ROLES else "head"
 		attachment = request.FILES.get("attachment")
-		if request.data["type"] in ["Study Leave", "Sick Leave"] and not attachment:
+		leave_type = request.data["type"]
+		# Emergency Leave does not require attachment
+		if leave_type in ["Study Leave", "Sick Leave"] and not attachment:
 			return Response({"error": "A supporting document is required for Study Leave and Sick Leave."}, status=400)
-		item = LeaveRequest.objects.create(employee=request.user, department=department, leave_type=request.data["type"], start_date=start, end_date=end, days=days, reason=request.data["reason"].strip(), attachment=attachment, approval_stage=initial_stage)
+		item = LeaveRequest.objects.create(employee=request.user, department=department, leave_type=leave_type, start_date=start, end_date=end, days=days, reason=request.data["reason"].strip(), attachment=attachment, approval_stage=initial_stage)
 		return Response(serialize_leave(item, request), status=201)
 
 
