@@ -113,37 +113,70 @@ class CreateEmployeeView(APIView):
                 OTP.objects.create(
                     email=user.email,
                     code=otp_code,
-                    expires_at=timezone.now() + timedelta(minutes=10)
+                    expires_at=None,
                 )
 
                 # -----------------------------------
                 # Send Email
                 # -----------------------------------
 
+                html_message = f"""
+<!DOCTYPE html>
+<html lang="en">
+  <body style="margin:0; padding:0; background-color:#f5f5f5; font-family: Arial, Helvetica, sans-serif; color:#0D0D0D;">
+    <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e5e5e5;">
+      <div style="background:#F5C518; padding:24px 32px; text-align:center;">
+        <div style="display:inline-block; background:#0D0D0D; color:#F5C518; border-radius:999px; padding:10px 18px; font-weight:700; letter-spacing:1px; font-size:12px; text-transform:uppercase;">
+          Jumpstart Connect
+        </div>
+        <h1 style="margin:16px 0 0; font-size:28px; line-height:1.2; color:#0D0D0D;">Welcome to JumpStart!</h1>
+      </div>
+
+      <div style="padding:32px;">
+        <p style="margin:0 0 16px; font-size:16px; color:#0D0D0D;">
+          Hello <strong>{user.first_name}</strong>,
+        </p>
+
+        <p style="margin:0 0 18px; font-size:15px; line-height:1.7; color:#0D0D0D;">
+          Your employee account has been created successfully. Use the one-time PIN below to complete your first sign in using your work email.
+        </p>
+
+        <div style="background:#FFF9E6; border:1px solid #F5C518; border-radius:12px; padding:20px; text-align:center; margin:24px 0;">
+          <div style="font-size:12px; font-weight:700; letter-spacing:1.5px; color:#666666; text-transform:uppercase; margin-bottom:12px;">
+            Your One-Time PIN
+          </div>
+          <div style="font-size:34px; font-weight:700; letter-spacing:8px; color:#0D0D0D;">{otp_code}</div>
+        </div>
+
+        <p style="margin:0 0 16px; font-size:15px; line-height:1.7; color:#0D0D0D;">
+          This PIN does not expire and can be used only once. After the first sign in, you will be redirected to create your own password.
+        </p>
+
+        <p style="margin:0; font-size:15px; line-height:1.7; color:#0D0D0D;">
+          Regards,<br>
+          <strong>JumpStart Your Career</strong>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+"""
                 send_mail(
                     subject="Welcome to JumpStart Your Career",
                     message=f"""
 Hello {user.first_name},
 
-Welcome to JumpStart Your Career!
-
 Your employee account has been created successfully.
 
-----------------------------------------
-Your One-Time Password (OTP)
-
+Your One-Time PIN:
 {otp_code}
 
-----------------------------------------
-
-This OTP expires in 10 minutes.
-
-Use your work email together with this OTP to complete your first login.
+This PIN does not expire and can be used only once.
 
 Regards,
-
 JumpStart Your Career
 """,
+                    html_message=html_message,
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
                     fail_silently=False,

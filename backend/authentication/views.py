@@ -141,38 +141,67 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data["email"].strip().lower()
-        password = serializer.validated_data["password"]
+        password = (serializer.validated_data.get("password") or "").strip()
+        otp_code = (serializer.validated_data.get("otp") or "").strip()
 
-        print("================================")
-        print("EMAIL RECEIVED:", repr(email))
-        print("PASSWORD RECEIVED:", repr(password))
-        print("================================")
-
-        # Find the actual user using case-insensitive email
         user = User.objects.filter(
             email__iexact=email
         ).first()
 
         if not user:
-            print("USER NOT FOUND")
             return Response(
                 {"error": "Invalid credentials"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        print("USER FOUND:", user.email)
-        print("USER ACTIVE:", user.is_active)
-        print("PASSWORD VALID:", user.check_password(password))
+        if otp_code:
+            if not user.is_first_login:
+                return Response(
+                    {"error": "One-time PIN login is only available for first-time setup."},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
 
-        # Verify password directly
+            otp = OTP.objects.filter(
+                email__iexact=email,
+                code=otp_code
+            ).order_by("-created_at").first()
+
+            if not otp or not otp.is_valid():
+                return Response(
+                    {"error": "Invalid or already used one-time PIN."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            otp.is_used = True
+            otp.save(update_fields=["is_used"])
+            user.otp_verified = True
+            user.save(update_fields=["otp_verified"])
+
+            return Response({
+                "message": "One-time PIN verified successfully.",
+                "first_login": True,
+                "email": user.email,
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "role": user.role,
+                    "department": user.department,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                }
+            })
+
+        if not password:
+            return Response(
+                {"error": "Password is required for regular sign in."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         if not user.check_password(password):
-            print("PASSWORD INVALID")
             return Response(
                 {"error": "Invalid credentials"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-
-        print("AUTHENTICATION SUCCESS:", user)
 
         if user.password_expired():
             return Response({
