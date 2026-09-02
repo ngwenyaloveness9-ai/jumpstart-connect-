@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Check, Clock3, FileText, Send, X } from "lucide-react";
 import { leaveApi } from "../services/leaveApi";
 
-const LEAVE_TYPES = ["Annual Leave", "Sick Leave", "Family Responsibility", "Study Leave", "Other"];
+const LEAVE_TYPES = ["Annual Leave", "Sick Leave", "Family Responsibility", "Study Leave", "Emergency Leave", "Other"];
 
 function daysBetween(start, end) {
   if (!start || !end) return 0;
@@ -91,6 +91,7 @@ export function LeavePage() {
       setNotice("A supporting document is required for Study Leave and Sick Leave.");
       return;
     }
+    // Emergency Leave does not require attachment
     try {
       const payload = new FormData();
       payload.append("type", form.type);
@@ -149,7 +150,12 @@ export function LeavePage() {
             <label className="text-xs text-muted-foreground">End date<input required type="date" value={form.endDate} min={form.startDate} onChange={(event) => setForm({ ...form, endDate: event.target.value })} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground" /></label>
           </div>
           <label className="block text-xs text-muted-foreground">Reason<textarea required rows="4" value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} placeholder="Tell your Head of Department why you need leave..." className="mt-1.5 w-full resize-none rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary" /></label>
-          <label className="block text-xs text-muted-foreground">Supporting document{["Study Leave", "Sick Leave"].includes(form.type) && <span className="text-red-400"> *</span>}<input type="file" required={["Study Leave", "Sick Leave"].includes(form.type)} onChange={(event) => setForm({ ...form, attachment: event.target.files?.[0] || null })} className="mt-1.5 block w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-primary-foreground" /></label>
+          {["Study Leave", "Sick Leave"].includes(form.type) && (
+            <label className="block text-xs text-muted-foreground">Supporting document<span className="text-red-400"> *</span><input type="file" required onChange={(event) => setForm({ ...form, attachment: event.target.files?.[0] || null })} className="mt-1.5 block w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-primary-foreground" /></label>
+          )}
+          {!["Study Leave", "Sick Leave"].includes(form.type) && (
+            <label className="block text-xs text-muted-foreground">Supporting document (optional)<input type="file" onChange={(event) => setForm({ ...form, attachment: event.target.files?.[0] || null })} className="mt-1.5 block w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-primary-foreground" /></label>
+          )}
           <button type="submit" className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"><Send size={15} /> Submit leave request</button>
         </form>
       )}
