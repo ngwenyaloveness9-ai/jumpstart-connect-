@@ -47,9 +47,8 @@ function AttachmentCard({ att, onShare }) {
     return (
       <div className="mt-2 rounded-xl overflow-hidden border border-border max-w-xs bg-card">
         <a
-          href={att.url}
-          target="_blank"
-          rel="noreferrer noopener"
+          href={att.download_url || att.url}
+          download={att.name}
           className={`block h-32 ${s.bg} overflow-hidden`}
         >
           <img
@@ -71,11 +70,10 @@ function AttachmentCard({ att, onShare }) {
           </div>
           <div className="flex items-center gap-2">
             <a
-              href={att.url}
-              target="_blank"
-              rel="noreferrer noopener"
+              href={att.download_url || att.url}
+              download={att.name}
               className="text-muted-foreground hover:text-foreground transition-colors"
-              title="Open attachment"
+              title="Download attachment"
             >
               <Download size={13} />
             </a>
@@ -96,9 +94,8 @@ function AttachmentCard({ att, onShare }) {
   return (
     <div className="mt-2 rounded-xl overflow-hidden border border-border max-w-xs bg-card">
       <a
-        href={att.url}
-        target="_blank"
-        rel="noreferrer noopener"
+        href={att.download_url || att.url}
+        download={att.name}
         className="flex items-center gap-3 px-3 py-2.5 group/att hover:border-muted-foreground transition-colors"
       >
         <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center flex-shrink-0`}>
@@ -113,11 +110,10 @@ function AttachmentCard({ att, onShare }) {
         <div className="text-[10px] text-muted-foreground truncate">{att.type.toUpperCase()}</div>
         <div className="flex items-center gap-2">
           <a
-            href={att.url}
-            target="_blank"
-            rel="noreferrer noopener"
+            href={att.download_url || att.url}
+            download={att.name}
             className="text-muted-foreground hover:text-foreground transition-colors"
-            title="Open attachment"
+            title="Download attachment"
           >
             <Download size={13} />
           </a>

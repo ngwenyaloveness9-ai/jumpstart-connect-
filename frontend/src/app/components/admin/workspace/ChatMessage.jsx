@@ -111,9 +111,15 @@ export function ChatMessage({
                     </span>
                   </div>
 
-                  <button className="hover:text-blue-500 transition">
+                  <a
+                    href={file.download_url || file.url}
+                    download={file.name}
+                    className="hover:text-blue-500 transition inline-flex"
+                    title="Download attachment"
+                    aria-label={`Download ${file.name}`}
+                  >
                     <Download size={16} />
-                  </button>
+                  </a>
                 </div>
               ))}
             </div>
