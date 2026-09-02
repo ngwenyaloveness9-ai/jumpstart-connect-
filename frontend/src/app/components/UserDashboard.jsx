@@ -75,11 +75,11 @@ function getGreeting() {
   return "Good evening";
 }
 
-export function UserDashboard() {
+export function UserDashboard({ tab = "workspaces" }) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
 
-  const [activeTab, setActiveTab] = useState("workspaces");
+  const activeTab = tab || "workspaces";
 
   const currentUser = JSON.parse(
     localStorage.getItem("currentUser") || "{}"
@@ -224,11 +224,17 @@ export function UserDashboard() {
             const Icon = tab.icon;
 
             const isActive = tab.id === activeTab;
+            const routeMap = {
+              workspaces: "/dashboard/workspaces",
+              employees: "/dashboard/employees",
+              messages: "/dashboard/messages",
+              leave: "/dashboard/leave",
+            };
 
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => navigate(routeMap[tab.id] || "/dashboard/workspaces")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   isActive
                     ? "bg-primary/10 text-primary"

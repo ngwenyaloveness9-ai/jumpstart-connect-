@@ -5,6 +5,15 @@ import { authApi } from "../services/authApi";
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const goBackSafely = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate("/dashboard", { replace: true });
+  };
+
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "", department: "", role: "employee" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,8 +58,8 @@ export function ProfilePage() {
   return (
     <div className="min-h-screen bg-background text-foreground px-6 py-10">
       <div className="max-w-2xl mx-auto">
-        <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
-          <ArrowLeft size={16} /> Back to dashboard
+        <button onClick={goBackSafely} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
+          <ArrowLeft size={16} /> Back
         </button>
         <div className="bg-card border border-border rounded-3xl p-6 sm:p-8">
           <div className="flex items-center gap-4 mb-8">

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router";
+import { Navigate, useLocation } from "react-router";
 import { authApi } from "../services/authApi";
 
 export function RequireAuth({ children }) {
   const [status, setStatus] = useState("checking");
+  const location = useLocation();
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -17,11 +18,7 @@ export function RequireAuth({ children }) {
           return;
         }
 
-        console.log("Found token:", token);
-
         const user = await authApi.me();
-
-        console.log("Authenticated user:", user);
 
         localStorage.setItem(
           "currentUser",
@@ -58,7 +55,12 @@ export function RequireAuth({ children }) {
   }
 
   if (status === "unauthenticated") {
-    return <Navigate to="/login" replace />;
+    const redirectPath = location.pathname + location.search;
+    if (redirectPath !== "/login") {
+      sessionStorage.setItem("redirectAfterLogin", redirectPath);
+    }
+
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   return children;

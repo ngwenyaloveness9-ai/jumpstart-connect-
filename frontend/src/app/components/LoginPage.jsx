@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { Eye, EyeOff, ArrowLeft, Shield, Lock, Mail, Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { authApi } from "../services/authApi";
@@ -7,8 +7,18 @@ import logo from "../../assets/images/jumpstart-logo.webp";
 
 export function LoginPage() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { theme, toggleTheme } = useTheme();
     const [email, setEmail] = useState("");
+
+    const goBackSafely = (fallbackPath = "/dashboard") => {
+        if (window.history.length > 1) {
+            navigate(-1);
+            return;
+        }
+
+        navigate(fallbackPath, { replace: true });
+    };
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -24,16 +34,16 @@ export function LoginPage() {
     );
 
     if (token) {
-        if (
-            user?.role === "superadmin" ||
-            user?.role === "admin"
-        ) {
-            navigate("/admin", { replace: true });
-        } else {
-            navigate("/dashboard", { replace: true });
-        }
+        const redirectPath =
+            location.state?.from?.pathname ||
+            sessionStorage.getItem("redirectAfterLogin") ||
+            (user?.role === "superadmin" || user?.role === "admin"
+                ? "/admin"
+                : "/dashboard");
+
+        navigate(redirectPath, { replace: true });
     }
-}, [navigate]);
+}, [location.state, navigate]);
 
     const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +84,8 @@ export function LoginPage() {
         response.email || email
     );
 
+    sessionStorage.removeItem("redirectAfterLogin");
+
     navigate("/verify-otp", {
         state: {
             email: response.email || email,
@@ -86,6 +98,8 @@ export function LoginPage() {
 
         // OTP required
         if (response?.requires_otp) {
+            sessionStorage.removeItem("redirectAfterLogin");
+
             navigate("/verify-otp", {
                 state: {
                     email,
@@ -104,15 +118,16 @@ export function LoginPage() {
                 JSON.stringify(response.user || {})
             );
 
-            // Route based on role
-            if (
-                response.user?.role === "superadmin" ||
-                response.user?.role === "admin"
-            ) {
-                navigate("/admin", { replace: true });
-            } else {
-                navigate("/dashboard", { replace: true });
-            }
+            const redirectPath =
+                location.state?.from?.pathname ||
+                sessionStorage.getItem("redirectAfterLogin") ||
+                (response.user?.role === "superadmin" || response.user?.role === "admin"
+                    ? "/admin"
+                    : "/dashboard");
+
+            sessionStorage.removeItem("redirectAfterLogin");
+
+            navigate(redirectPath, { replace: true });
 
             return;
         }
@@ -155,7 +170,7 @@ export function LoginPage() {
             <div className="w-full max-w-md relative">
                 {/* Back button */}
                 <button
-                    onClick={() => navigate("/")}
+                    onClick={() => goBackSafely("/login")}
                     className="absolute -top-12 left-0 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                     <ArrowLeft size={16} /> Back

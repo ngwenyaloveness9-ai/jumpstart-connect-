@@ -46,19 +46,24 @@ function renderSection(section) {
     }
 }
 
-export function AdminDashboard() {
+export function AdminDashboard({ section = "Dashboard" }) {
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
-    const [activeSection, setActiveSection] = useState("Dashboard");
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [search, setSearch] = useState("");
 
+    const activeSection = section;
     const activeItem = SIDEBAR_ITEMS.find((i) => i.component === activeSection);
 
     const handleLogout = () => {
         localStorage.clear();
         sessionStorage.clear();
         navigate("/login", { replace: true });
+    };
+
+    const handleNav = (route) => {
+        setSidebarOpen(false);
+        navigate(route);
     };
 
     return (<div className="theme-adaptive min-h-screen bg-background text-foreground flex" style={{ fontFamily: "system-ui, sans-serif" }}>
@@ -98,7 +103,21 @@ export function AdminDashboard() {
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {SIDEBAR_ITEMS.map((item) => {
             const isActive = activeSection === item.component;
-            return (<button key={item.label} onClick={() => { setActiveSection(item.component); setSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${isActive
+            const route = {
+              Dashboard: "/admin",
+              "Users & Access": "/admin/users",
+              Workspaces: "/admin/workspaces",
+              "Security & Auth": "/admin/security",
+              Automations: "/admin/automations",
+              Integrations: "/admin/integrations",
+              "Audit Logs": "/admin/audit-logs",
+              "API & Webhooks": "/admin/api-webhooks",
+              Messages: "/admin/messages",
+              Leave: "/admin/leave",
+              Settings: "/admin/settings",
+            }[item.label] || "/admin";
+
+            return (<button key={item.label} onClick={() => handleNav(route)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${isActive
                     ? "bg-primary/10 text-primary border border-primary/15"
                     : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent border border-transparent"}`}>
                 <item.icon size={16}/>
@@ -151,7 +170,7 @@ export function AdminDashboard() {
             <button onClick={toggleTheme} className="text-muted-foreground hover:text-primary transition-colors p-2" aria-label="Toggle theme">
               {theme === "dark" ? <Sun size={18}/> : <Moon size={18}/>}
             </button>
-            <button onClick={() => setActiveSection("Messages")} className="relative text-muted-foreground hover:text-primary transition-colors p-2" aria-label="Open messages">
+            <button onClick={() => navigate("/admin/messages")} className="relative text-muted-foreground hover:text-primary transition-colors p-2" aria-label="Open messages">
               <Bell size={18}/>
             </button>
             <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-1.5 text-xs cursor-pointer hover:border-primary/30 transition-all">

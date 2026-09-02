@@ -81,13 +81,6 @@ export function LandingPage() {
             }
         };
     }, []);
-  // Auto-navigate to login after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate('/login');
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [navigate]);
     return (<div className="min-h-screen bg-background text-foreground relative overflow-hidden">
       {/* Canvas for bubble animation */}
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}/>
