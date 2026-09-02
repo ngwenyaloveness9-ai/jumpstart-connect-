@@ -11,9 +11,9 @@ def seed_workspaces(apps, schema_editor):
     )
     if not cursor.fetchone():
         cursor.execute(
-            'INSERT INTO chat_group (name, description, group_type, department, auto_add_members, created_at, updated_at, visibility) '
-            'VALUES (%s, %s, %s, %s, %s, NOW(), NOW(), %s)',
-            ['Main Workspace', 'Main Workspace', 'MAIN', None, True, 'PRIVATE'],
+            'INSERT INTO chat_group (name, description, group_type, department, auto_add_members, created_at, updated_at) '
+            'VALUES (%s, %s, %s, %s, %s, NOW(), NOW())',
+            ['Main Workspace', 'Main Workspace', 'MAIN', None, True],
         )
 
     # Seed common departments
@@ -37,9 +37,9 @@ def seed_workspaces(apps, schema_editor):
         )
         if not cursor.fetchone():
             cursor.execute(
-                'INSERT INTO chat_group (name, description, group_type, department, auto_add_members, created_at, updated_at, visibility) '
-                'VALUES (%s, %s, %s, %s, %s, NOW(), NOW(), %s)',
-                [name, '', 'DEPARTMENT', name, False, 'PRIVATE'],
+                'INSERT INTO chat_group (name, description, group_type, department, auto_add_members, created_at, updated_at) '
+                'VALUES (%s, %s, %s, %s, %s, NOW(), NOW())',
+                [name, '', 'DEPARTMENT', name, False],
             )
 
 

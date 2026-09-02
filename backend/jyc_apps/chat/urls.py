@@ -2,6 +2,9 @@ from django.urls import path
 
 from .views import (
     SendMessageView,
+    UpdatePrivateMessageView,
+    DeletePrivateMessageView,
+    PrivateMessageReactionView,
     ShareAttachmentView,
     GetConversationView,
     GetInboxView,
@@ -12,6 +15,7 @@ from .views import (
     ContactDepartmentView,
     GetGroupMembersView,
     DeleteGroupMessageView,
+    UpdateGroupMessageView,
     GroupMessageReactionView,
     WorkspaceManagementView,
 )
@@ -33,6 +37,10 @@ urlpatterns = [
         ShareAttachmentView.as_view(),
         name="chat-share"
     ),
+
+    path("message/<int:message_id>/edit", UpdatePrivateMessageView.as_view(), name="message-update"),
+    path("message/<int:message_id>", DeletePrivateMessageView.as_view(), name="message-delete"),
+    path("message/reaction", PrivateMessageReactionView.as_view(), name="message-reaction"),
 
     path(
         "conversation/<int:user1_id>/<int:user2_id>",
@@ -92,6 +100,11 @@ path(
     "group/message/<int:message_id>",
     DeleteGroupMessageView.as_view(),
     name="group-message-delete",
+),
+path(
+    "group/message/<int:message_id>/edit",
+    UpdateGroupMessageView.as_view(),
+    name="group-message-update",
 ),
  path(
     "group/message/reaction",

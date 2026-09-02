@@ -3,11 +3,14 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 import json
+import re
 from django.conf import settings
 from .models import (
     Message,
     MessageAttachment,
+    MessageReaction,
     Group,
     GroupMember,
     GroupMessage,
@@ -16,6 +19,129 @@ from .models import (
 )
 
 User = get_user_model()
+
+MENTION_RE = re.compile(r"@([A-Za-z0-9._-]+)")
+
+
+def resolve_mention_user_ids(group, message_content):
+    if not message_content:
+        return []
+
+    member_users = list(
+        GroupMember.objects.filter(group=group).select_related("user").values(
+            "user__id",
+            "user__first_name",
+            "user__last_name",
+            "user__email",
+        )
+    )
+
+    mention_ids = []
+    seen = set()
+
+    for raw_mention in MENTION_RE.findall(message_content):
+        token = raw_mention.strip().lower()
+        for member in member_users:
+            user_id = member["user__id"]
+            first_name = (member["user__first_name"] or "").lower()
+            last_name = (member["user__last_name"] or "").lower()
+            email_user = (member["user__email"] or "").split("@", 1)[0].lower()
+            full_name = f"{first_name} {last_name}".strip()
+
+            if token in {first_name, last_name, full_name, email_user} and user_id not in seen:
+                mention_ids.append(user_id)
+                seen.add(user_id)
+
+    return mention_ids
+
+
+def resolve_private_mention_user_ids(message_content):
+    if not message_content:
+        return []
+
+    mention_ids = []
+    for raw_mention in MENTION_RE.findall(message_content):
+        token = raw_mention.lower()
+        users = User.objects.filter(is_active=True).filter(
+            first_name__iexact=token
+        ) | User.objects.filter(is_active=True).filter(
+            email__istartswith=f"{token}@"
+        )
+        mention_ids.extend(users.values_list("id", flat=True))
+
+    return list(dict.fromkeys(mention_ids))
+
+
+def build_group_message_payload(message, request):
+    attachments = []
+    for att in message.attachments.all():
+        content_type = att.content_type or ""
+        simplified_type = "file"
+
+        if content_type.startswith("image/"):
+            simplified_type = "image"
+        elif "pdf" in content_type:
+            simplified_type = "pdf"
+        elif "excel" in content_type or "spreadsheet" in content_type:
+            simplified_type = "excel"
+        elif "word" in content_type or "msword" in content_type:
+            simplified_type = "word"
+
+        attachments.append({
+            "id": att.id,
+            "name": att.filename,
+            "size": att.size_bytes,
+            "type": simplified_type,
+            "mimeType": att.content_type,
+            "url": request.build_absolute_uri(att.file.url),
+        })
+
+    reaction_map = {}
+    for reaction in message.reactions.select_related("user").all():
+        reaction_map.setdefault(reaction.emoji, {"emoji": reaction.emoji, "count": 0, "users": []})
+        reaction_map[reaction.emoji]["count"] += 1
+        reaction_map[reaction.emoji]["users"].append(reaction.user_id)
+
+    reactions = [{
+        "emoji": payload["emoji"],
+        "count": payload["count"],
+        "users": payload["users"],
+    } for payload in reaction_map.values()]
+
+    return {
+        "id": message.id,
+        "sender_id": message.sender.id,
+        "sender_name": f"{message.sender.first_name} {message.sender.last_name}".strip() or message.sender.email,
+        "message": message.message,
+        "timestamp": message.created_at.isoformat(),
+        "attachments": attachments,
+        "edited": message.edited,
+        "is_deleted": message.is_deleted,
+        "reactions": reactions,
+        "mentions": resolve_mention_user_ids(message.group, message.message),
+    }
+
+
+def build_private_message_payload(message):
+    reaction_map = {}
+    for reaction in message.reactions.all():
+        reaction_map.setdefault(reaction.emoji, {"emoji": reaction.emoji, "count": 0, "users": []})
+        reaction_map[reaction.emoji]["count"] += 1
+        reaction_map[reaction.emoji]["users"].append(reaction.user_id)
+
+    return {
+        "id": message.id,
+        "sender_id": message.sender_id,
+        "sender_name": f"{message.sender.first_name} {message.sender.last_name}".strip() or message.sender.email,
+        "receiver_id": message.receiver_id,
+        "receiver_name": f"{message.receiver.first_name} {message.receiver.last_name}".strip() or message.receiver.email,
+        "message": message.message,
+        "timestamp": message.timestamp.isoformat(),
+        "edited": message.edited,
+        "is_deleted": message.is_deleted,
+        "reactions": list(reaction_map.values()),
+        "mentions": resolve_private_mention_user_ids(message.message),
+    }
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -99,8 +225,93 @@ class SendMessageView(View):
                 "message": msg.message,
                 "timestamp": msg.timestamp.isoformat(),
                 "attachments": attachment_payload,
+                "edited": msg.edited,
+                "is_deleted": msg.is_deleted,
+                "reactions": [],
+                "mentions": resolve_private_mention_user_ids(msg.message),
             }
         }, status=201)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UpdatePrivateMessageView(View):
+
+    def patch(self, request, message_id):
+        try:
+            data = json.loads(request.body)
+            message_text = (data.get("message") or "").strip()
+            sender_id = data.get("sender_id")
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        try:
+            message = Message.objects.get(id=message_id)
+        except Message.DoesNotExist:
+            return JsonResponse({"error": "Message not found"}, status=404)
+
+        if str(message.sender_id) != str(sender_id):
+            return JsonResponse({"error": "Only the sender can edit this message"}, status=403)
+        if not message_text:
+            return JsonResponse({"error": "Message cannot be empty"}, status=400)
+
+        message.message = message_text
+        message.edited = True
+        message.save(update_fields=["message", "edited", "updated_at"])
+        return JsonResponse({"status": "updated", "message": build_private_message_payload(message)})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class DeletePrivateMessageView(View):
+
+    def delete(self, request, message_id):
+        try:
+            data = json.loads(request.body or "{}")
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        try:
+            message = Message.objects.get(id=message_id)
+        except Message.DoesNotExist:
+            return JsonResponse({"error": "Message not found"}, status=404)
+
+        if str(message.sender_id) != str(data.get("sender_id")):
+            return JsonResponse({"error": "Only the sender can delete this message"}, status=403)
+
+        message.is_deleted = True
+        message.save(update_fields=["is_deleted", "updated_at"])
+        return JsonResponse({"status": "deleted"})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class PrivateMessageReactionView(View):
+
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            message = Message.objects.get(id=data["message_id"])
+            user = User.objects.get(id=data["user_id"])
+            emoji = (data.get("emoji") or "").strip()
+        except (json.JSONDecodeError, KeyError, Message.DoesNotExist, User.DoesNotExist):
+            return JsonResponse({"error": "Invalid reaction request"}, status=400)
+
+        if not emoji:
+            return JsonResponse({"error": "Emoji is required"}, status=400)
+
+        reaction, created = MessageReaction.objects.get_or_create(
+            message=message,
+            user=user,
+            emoji=emoji,
+        )
+        if not created:
+            reaction.delete()
+            status = "removed"
+        else:
+            status = "added"
+
+        return JsonResponse({
+            "status": status,
+            "reactions": list(message.reactions.values("emoji").annotate(count=Count("id"))),
+        })
 
 
 class GetConversationView(View):
@@ -144,6 +355,10 @@ class GetConversationView(View):
                 "message": m.message,
                 "timestamp": m.timestamp.isoformat(),
                 "attachments": attachments,
+                "edited": m.edited,
+                "is_deleted": m.is_deleted,
+                "reactions": list(m.reactions.values("emoji").annotate(count=Count("id"))),
+                "mentions": resolve_private_mention_user_ids(m.message),
             })
 
         return JsonResponse({"messages": data, "count": len(data)})
@@ -555,44 +770,7 @@ class GetGroupMessagesView(View):
         results = []
 
         for msg in messages:
-
-            attachments = []
-
-            for att in msg.attachments.all():
-
-                content_type = att.content_type or ""
-
-                simplified_type = "file"
-
-                if content_type.startswith("image/"):
-                    simplified_type = "image"
-
-                elif "pdf" in content_type:
-                    simplified_type = "pdf"
-
-                elif "excel" in content_type or "spreadsheet" in content_type:
-                    simplified_type = "excel"
-
-                elif "word" in content_type or "msword" in content_type:
-                    simplified_type = "word"
-
-                attachments.append({
-                    "id": att.id,
-                    "name": att.filename,
-                    "size": att.size_bytes,
-                    "type": simplified_type,
-                    "mimeType": att.content_type,
-                    "url": request.build_absolute_uri(att.file.url),
-                })
-            
-            results.append({
-                "id": msg.id,
-                "sender_id": msg.sender.id,
-                "sender_name": f"{msg.sender.first_name} {msg.sender.last_name}",
-                "message": msg.message,
-                "timestamp": msg.created_at.isoformat(),
-                "attachments": attachments,
-            })
+            results.append(build_group_message_payload(msg, request))
 
         return JsonResponse({
             "group": group.name,
@@ -738,6 +916,8 @@ class SendGroupMessageView(View):
             message=message
         )
 
+        mention_ids = resolve_mention_user_ids(group, message)
+
         attachment_payload = []
 
         for attachment in attachments:
@@ -810,11 +990,43 @@ class SendGroupMessageView(View):
 
                 "timestamp": group_message.created_at.isoformat(),
 
-                "attachments": attachment_payload
+                "attachments": attachment_payload,
+                "edited": group_message.edited,
+                "is_deleted": group_message.is_deleted,
+                "reactions": [],
+                "mentions": mention_ids,
 
             }
 
         }, status=201)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UpdateGroupMessageView(View):
+
+    def patch(self, request, message_id):
+        try:
+            message = GroupMessage.objects.get(id=message_id)
+        except GroupMessage.DoesNotExist:
+            return JsonResponse({"error": "Message not found"}, status=404)
+
+        try:
+            data = json.loads(request.body)
+            new_message = (data.get("message") or "").strip()
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        if not new_message:
+            return JsonResponse({"error": "Message cannot be empty"}, status=400)
+
+        message.message = new_message
+        message.edited = True
+        message.save(update_fields=["message", "edited", "updated_at"])
+
+        return JsonResponse({
+            "status": "updated",
+            "message": build_group_message_payload(message, request),
+        })
 @method_decorator(csrf_exempt, name="dispatch")
 class ContactDepartmentView(View):
 
@@ -937,11 +1149,9 @@ class DeleteGroupMessageView(View):
                 status=404,
             )
 
-        # Delete all attachments
-        message.attachments.all().delete()
-
-        # Delete the message
-        message.delete()
+        message.is_deleted = True
+        message.edited = True
+        message.save(update_fields=["is_deleted", "edited", "updated_at"])
 
         return JsonResponse({
             "status": "deleted"
@@ -979,7 +1189,12 @@ class GroupMessageReactionView(View):
                 })
 
             return JsonResponse({
-                "status": "added"
+                "status": "added",
+                "reactions": [{
+                    "emoji": reaction.emoji,
+                    "count": message.reactions.filter(emoji=reaction.emoji).count(),
+                    "users": list(message.reactions.filter(emoji=reaction.emoji).values_list("user_id", flat=True))
+                }]
             })
 
         except Exception as e:
