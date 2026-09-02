@@ -26,146 +26,121 @@ export function LoginPage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-    const token =
-        localStorage.getItem("token") ||
-        localStorage.getItem("accessToken");
+        const token =
+            localStorage.getItem("token") ||
+            localStorage.getItem("accessToken");
 
-    const user = JSON.parse(
-        localStorage.getItem("currentUser") || "{}"
-    );
+        const user = JSON.parse(
+            localStorage.getItem("currentUser") || "{}"
+        );
 
-    if (token) {
-        const redirectPath =
-            location.state?.from?.pathname ||
-            sessionStorage.getItem("redirectAfterLogin") ||
-            (user?.role === "superadmin" || user?.role === "admin"
-                ? "/admin"
-                : "/dashboard");
-
-        navigate(redirectPath, { replace: true });
-    }
-}, [location.state, navigate]);
-
-    const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    console.log("=== LOGIN START ===");
-
-    if (!email) {
-        setError("Please enter your work email.");
-        return;
-    }
-
-    if (!email.includes("@")) {
-        setError("Please enter a valid organisational email address.");
-        return;
-    }
-
-    const hasPassword = Boolean(password && password.trim());
-    const hasOtp = Boolean(otp && otp.trim());
-
-    if (!hasPassword && !hasOtp) {
-        setError("Please enter your password or your one-time PIN.");
-        return;
-    }
-
-    if (hasPassword && hasOtp) {
-        setError("Use either your password or your one-time PIN, not both.");
-        return;
-    }
-
-    setLoading(true);
-
-    try {
-        const payload = hasOtp ? { email, otp } : { email, password };
-        const response = await authApi.login(payload);
-
-        if (response?.first_login) {
-<<<<<<< HEAD
-
-    localStorage.setItem(
-        "verification_email",
-        response.email || email
-    );
-
-    sessionStorage.removeItem("redirectAfterLogin");
-
-    navigate("/verify-otp", {
-        state: {
-            email: response.email || email,
-            firstLogin: true,
-        },
-    });
-
-    return;
-}
-
-        // OTP required
-        if (response?.requires_otp) {
-            sessionStorage.removeItem("redirectAfterLogin");
-
-            navigate("/verify-otp", {
-=======
-            localStorage.setItem("verification_email", response.email || email);
-            navigate("/create-password", {
->>>>>>> 8bd7eff6450a97a2cc1c8c6f829185c6dbb032d7
-                state: {
-                    email: response.email || email,
-                    isFirstLogin: true,
-                },
-            });
-            return;
-        }
-
-        if (response?.token) {
-            localStorage.setItem("token", response.token);
-            localStorage.setItem("currentUser", JSON.stringify(response.user || {}));
-
-<<<<<<< HEAD
-            localStorage.setItem(
-                "currentUser",
-                JSON.stringify(response.user || {})
-            );
-
+        if (token) {
             const redirectPath =
                 location.state?.from?.pathname ||
                 sessionStorage.getItem("redirectAfterLogin") ||
-                (response.user?.role === "superadmin" || response.user?.role === "admin"
+                (user?.role === "superadmin" || user?.role === "admin"
                     ? "/admin"
                     : "/dashboard");
 
             sessionStorage.removeItem("redirectAfterLogin");
-
             navigate(redirectPath, { replace: true });
-=======
-            if (response.user?.role === "superadmin" || response.user?.role === "admin") {
-                navigate("/admin", { replace: true });
-            } else {
-                navigate("/dashboard", { replace: true });
+        }
+    }, [location.state, navigate]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        console.log("=== LOGIN START ===");
+
+        if (!email) {
+            setError("Please enter your work email.");
+            return;
+        }
+
+        if (!email.includes("@")) {
+            setError("Please enter a valid organisational email address.");
+            return;
+        }
+
+        const hasPassword = Boolean(password && password.trim());
+        const hasOtp = Boolean(otp && otp.trim());
+
+        if (!hasPassword && !hasOtp) {
+            setError("Please enter your password or your one-time PIN.");
+            return;
+        }
+
+        if (hasPassword && hasOtp) {
+            setError("Use either your password or your one-time PIN, not both.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const payload = hasOtp ? { email, otp } : { email, password };
+            const response = await authApi.login(payload);
+
+            if (response?.first_login) {
+                localStorage.setItem("verification_email", response.email || email);
+                sessionStorage.removeItem("redirectAfterLogin");
+
+                navigate("/verify-otp", {
+                    state: {
+                        email: response.email || email,
+                        firstLogin: true,
+                    },
+                });
+
+                return;
             }
->>>>>>> 8bd7eff6450a97a2cc1c8c6f829185c6dbb032d7
 
-            return;
+            if (response?.requires_otp) {
+                sessionStorage.removeItem("redirectAfterLogin");
+
+                navigate("/verify-otp", {
+                    state: {
+                        email: response.email || email,
+                        isFirstLogin: false,
+                    },
+                });
+                return;
+            }
+
+            if (response?.token) {
+                localStorage.setItem("token", response.token);
+                localStorage.setItem("currentUser", JSON.stringify(response.user || {}));
+
+                const redirectPath =
+                    location.state?.from?.pathname ||
+                    sessionStorage.getItem("redirectAfterLogin") ||
+                    (response.user?.role === "superadmin" || response.user?.role === "admin"
+                        ? "/admin"
+                        : "/dashboard");
+
+                sessionStorage.removeItem("redirectAfterLogin");
+                navigate(redirectPath, { replace: true });
+                return;
+            }
+
+            if (response?.force_password_change) {
+                navigate("/password-expired", { state: { email } });
+                return;
+            }
+
+            setError(response?.message || "Login failed. Please try again.");
+        } catch (err) {
+            setError(
+                err?.response?.data?.error ||
+                err?.payload?.error ||
+                err?.message ||
+                "Unable to sign in. Please check your credentials."
+            );
+        } finally {
+            setLoading(false);
         }
-
-        if (response?.force_password_change) {
-            navigate("/password-expired", { state: { email } });
-            return;
-        }
-
-        setError(response?.message || "Login failed. Please try again.");
-    } catch (err) {
-        setError(
-            err?.response?.data?.error ||
-            err?.payload?.error ||
-            err?.message ||
-            "Unable to sign in. Please check your credentials."
-        );
-    } finally {
-        setLoading(false);
-    }
-};
+    };
     return (
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center relative p-8">
             {/* Theme Toggle Button */}

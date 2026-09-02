@@ -246,42 +246,54 @@ function SystemMessage({ text }) {
 
 function MessageRow({ msg, onReact, onShare }) {
   const [hovered, setHovered] = useState(false);
+  const isMine = Boolean(msg.isMine);
 
   if (msg.system) return <SystemMessage text={msg.text} />;
 
   return (
     <div
-      className={`group/msg flex gap-3 px-4 py-2 rounded-xl transition-all relative ${hovered ? "bg-muted" : ""}`}
+      className={`group/msg flex gap-3 px-4 py-2 rounded-xl transition-all relative ${
+        isMine ? "justify-end" : "justify-start"
+      } ${hovered ? "bg-muted/40" : ""}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Avatar */}
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold mt-0.5"
-        style={{ background: `${msg.color || "#F5C518"}20`, color: msg.color || "#F5C518" }}
-      >
-        {msg.initials || msg.author?.charAt(0) || "?"}
-      </div>
-
-      {/* Body */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-2 mb-0.5 flex-wrap">
-          <span className="text-xs font-semibold text-foreground">{msg.author}</span>
-          {msg.dept && <span className="text-[10px] text-muted-foreground">{msg.dept}</span>}
-          <span className="text-[10px] text-muted-foreground">{msg.time}</span>
+      {!isMine && (
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold mt-0.5"
+          style={{ background: `${msg.color || "#F5C518"}20`, color: msg.color || "#F5C518" }}
+        >
+          {msg.initials || msg.author?.charAt(0) || "?"}
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed">{msg.text}</p>
-        {msg.attachments?.length > 0 && (
-          <div className="mt-2 space-y-2">
-            {msg.attachments.map((att, idx) => (
-              <AttachmentCard key={idx} att={att} onShare={onShare} />
-            ))}
+      )}
+
+      <div className={`flex min-w-0 max-w-[82%] ${isMine ? "items-end" : "items-start"} flex-col`}>
+        {!isMine && (
+          <div className="flex items-baseline gap-2 mb-0.5 flex-wrap">
+            <span className="text-xs font-semibold text-foreground">{msg.author}</span>
+            {msg.dept && <span className="text-[10px] text-muted-foreground">{msg.dept}</span>}
+            <span className="text-[10px] text-muted-foreground">{msg.time}</span>
           </div>
         )}
 
-        {/* Reactions */}
+        <div className={`rounded-2xl px-4 py-3 shadow-lg relative ${isMine ? "bg-[#F7C948] text-black rounded-br-md ml-auto" : "bg-[#1B222C] text-white rounded-bl-md"}`}>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.text}</p>
+          {msg.attachments?.length > 0 && (
+            <div className="mt-2 space-y-2">
+              {msg.attachments.map((att, idx) => (
+                <AttachmentCard key={idx} att={att} onShare={onShare} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={`mt-2 flex items-center gap-2 text-[10px] ${isMine ? "justify-end text-gray-400" : "text-gray-400"}`}>
+          {isMine && <span>{msg.time}</span>}
+          {!isMine && <span>{msg.time}</span>}
+        </div>
+
         {msg.reactions?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className={`flex flex-wrap gap-1.5 mt-2 ${isMine ? "justify-end" : "justify-start"}`}>
             {msg.reactions.map((r) => (
               <ReactionPill key={r.emoji} {...r} onToggle={() => onReact(msg.id, r.emoji)} />
             ))}
@@ -291,7 +303,6 @@ function MessageRow({ msg, onReact, onShare }) {
           </div>
         )}
 
-        {/* Reply count */}
         {msg.replies > 0 && (
           <button className="mt-1.5 flex items-center gap-1.5 text-[11px] text-primary/70 hover:text-primary transition-colors">
             <Reply size={11} />
@@ -300,7 +311,6 @@ function MessageRow({ msg, onReact, onShare }) {
         )}
       </div>
 
-      {/* Hover toolbar */}
       {hovered && (
         <div className="absolute right-4 top-1 flex items-center gap-1 bg-muted border border-border rounded-lg px-1.5 py-1 shadow-xl">
           {["👍", "❤️", "😄"].map((e) => (
@@ -560,7 +570,9 @@ export function Messages({
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
         .map((m) => ({
           id: m.id,
-          author: m.sender_id === currentUserId ? "You" : m.sender_name,
+          senderId: m.sender_id,
+          isMine: Number(m.sender_id) === Number(currentUserId),
+          author: m.sender_id === currentUserId ? "You" : m.sender_name || "User",
           text: m.message || "",
           time: formatTime(m.timestamp),
           attachments: Array.isArray(m.attachments)
@@ -850,7 +862,12 @@ export function Messages({
               </div>
             ) : (
               conversationMessages.map((msg) => (
-                <MessageRow key={msg.id} msg={msg} onReact={handleReact} onShare={handleOpenShareAttachment} />
+                <MessageRow
+                  key={msg.id}
+                  msg={msg}
+                  onReact={handleReact}
+                  onShare={handleOpenShareAttachment}
+                />
               ))
             )}
 
