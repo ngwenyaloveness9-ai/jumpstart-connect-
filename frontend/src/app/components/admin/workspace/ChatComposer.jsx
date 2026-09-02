@@ -4,6 +4,7 @@ import {
   Paperclip,
   Image,
   Smile,
+  AtSign,
   Mic,
   X,
   Reply,
@@ -14,9 +15,12 @@ export function ChatComposer({
   onAttach,
   replyingTo = null,
   onCancelReply,
+  members = [],
 }) {
   const [message, setMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [mentionQuery, setMentionQuery] = useState(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -36,6 +40,8 @@ export function ChatComposer({
 
     setMessage("");
     setSelectedFiles([]);
+    setMentionQuery(null);
+    setShowEmojiPicker(false);
   };
 
   const handleKeyDown = (e) => {
@@ -43,6 +49,35 @@ export function ChatComposer({
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  const handleMessageChange = (e) => {
+    const value = e.target.value;
+    setMessage(value);
+
+    const match = value.match(/@([A-Za-z0-9._-]*)$/);
+    setMentionQuery(match ? match[1] : null);
+  };
+
+  const handleMentionSelect = (member) => {
+    const label = member?.name?.split(" ")[0] || member?.first_name || "user";
+    const nextValue = message.replace(/@([A-Za-z0-9._-]*)$/, `@${label}`);
+
+    setMessage(nextValue);
+    setMentionQuery(null);
+  };
+
+  const mentionSuggestions = mentionQuery !== null
+    ? members.filter((member) => {
+        const fullName = member.name || `${member.first_name || ""} ${member.last_name || ""}`.trim();
+        const normalized = `${fullName} ${member.email || ""}`.toLowerCase();
+        return normalized.includes(mentionQuery.toLowerCase());
+      })
+    : [];
+
+  const insertEmoji = (emoji) => {
+    setMessage((currentMessage) => `${currentMessage}${emoji}`);
+    setShowEmojiPicker(false);
   };
 
   const handleFiles = (files) => {
@@ -145,14 +180,28 @@ export function ChatComposer({
           <textarea
             rows={2}
             value={message}
-            onChange={(e) =>
-              setMessage(e.target.value)
-            }
+            onChange={handleMessageChange}
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             maxLength={MAX_CHARACTERS}
             className="w-full bg-transparent resize-none outline-none p-4 text-white placeholder:text-gray-500"
           />
+
+          {mentionSuggestions.length > 0 && (
+            <div className="border-t border-[#2B3137] px-3 py-2 flex flex-wrap gap-2">
+              {mentionSuggestions.slice(0, 5).map((member) => (
+                <button
+                  key={member.id}
+                  type="button"
+                  onClick={() => handleMentionSelect(member)}
+                  className="rounded-full bg-[#21262D] px-2 py-1 text-xs text-white hover:bg-[#30363D]"
+                >
+                  @{member.first_name || member.name?.split(" ")[0] || "user"}
+                                  @{member.name?.split(" ")[0] || member.first_name || "user"}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="flex items-center justify-between border-t border-[#2B3137] px-3 py-2">
 
@@ -160,10 +209,42 @@ export function ChatComposer({
 
             <div className="flex items-center gap-2">
 
-              <button
-                className="p-2 rounded-lg hover:bg-[#21262D]"
-              >
+              <div className="relative">
+                <button
+                  type="button"
+                  className="p-2 rounded-lg hover:bg-[#21262D]"
+                  onClick={() => setShowEmojiPicker((visible) => !visible)}
+                  title="Add emoji"
+                >
                 <Smile size={19}/>
+                </button>
+
+                {showEmojiPicker && (
+                  <div className="absolute bottom-[calc(100%+0.75rem)] left-0 z-50 grid w-56 grid-cols-5 gap-1.5 rounded-xl border border-[#3B424B] bg-[#161B22] p-3 shadow-2xl">
+                    {["😀", "😂", "😍", "😢", "😡", "👍", "👎", "❤️", "🎉", "🚀"].map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-xl hover:bg-[#30363D]"
+                        onClick={() => insertEmoji(emoji)}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="p-2 rounded-lg hover:bg-[#21262D]"
+                onClick={() => {
+                  setMessage((value) => `${value}@`);
+                  setMentionQuery("");
+                }}
+                title="Mention a member"
+              >
+                <AtSign size={19}/>
               </button>
 
               <button

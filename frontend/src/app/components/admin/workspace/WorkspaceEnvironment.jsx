@@ -42,6 +42,10 @@ export function WorkspaceEnvironment({
                 name: msg.sender_name,
             },
             attachments: msg.attachments || [],
+            reactions: msg.reactions || [],
+            mentions: msg.mentions || [],
+            edited: Boolean(msg.edited),
+            deleted: Boolean(msg.is_deleted),
             time: new Date(msg.timestamp).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -226,6 +230,27 @@ const handleDeleteMessage = async (messageId) => {
     }
 };
 
+const handleEditMessage = async (message) => {
+    const nextMessage = window.prompt("Edit your message", message.content || "");
+
+    if (nextMessage === null) return;
+
+    const trimmed = nextMessage.trim();
+
+    if (!trimmed) {
+        alert("Message cannot be empty.");
+        return;
+    }
+
+    try {
+        await groupsApi.updateMessage(message.id, trimmed);
+        await loadGroupMessages();
+    } catch (err) {
+        console.error("Failed to edit message:", err);
+        alert("Unable to edit this message.");
+    }
+};
+
 const handleReaction = async (messageId, emoji) => {
     try {
         await groupsApi.reactToMessage(
@@ -291,9 +316,11 @@ const handleDeleteAnnouncement = async (announcementId) => {
                             workspace={workspace}
                             messages={groupMessages}
                             currentUser={currentUser}
+                            members={members}
                             onSendMessage={handleSendMessage}
                             onDelete={isRestricted ? undefined : handleDeleteMessage}
                             onReaction={isRestricted ? undefined : handleReaction}
+                            onEdit={isRestricted ? undefined : handleEditMessage}
                         />
                     </>
                 )}

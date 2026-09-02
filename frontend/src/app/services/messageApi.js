@@ -62,6 +62,30 @@ export const messageApi = {
     return res.data;
   },
 
+  updateMessage: async (messageId, senderId, message) => {
+    const res = await api.patch(`/chat/message/${messageId}/edit`, {
+      sender_id: senderId,
+      message,
+    });
+    return res.data;
+  },
+
+  deleteMessage: async (messageId, senderId) => {
+    const res = await api.delete(`/chat/message/${messageId}`, {
+      data: { sender_id: senderId },
+    });
+    return res.data;
+  },
+
+  reactToMessage: async (messageId, userId, emoji) => {
+    const res = await api.post("/chat/message/reaction", {
+      message_id: messageId,
+      user_id: userId,
+      emoji,
+    });
+    return res.data;
+  },
+
   // =============================
   // GROUP CHAT
   // =============================

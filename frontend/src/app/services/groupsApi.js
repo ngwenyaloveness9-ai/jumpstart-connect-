@@ -69,7 +69,12 @@ export const groupsApi = {
   deleteMessage: async (messageId) => {
     const res = await api.delete(`/chat/group/message/${messageId}`);
     return res.data;
-},
+  },
+
+  updateMessage: async (messageId, message) => {
+    const res = await api.patch(`/chat/group/message/${messageId}/edit`, { message });
+    return res.data;
+  },
   // ==========================
   // DEPARTMENTS
   // ==========================

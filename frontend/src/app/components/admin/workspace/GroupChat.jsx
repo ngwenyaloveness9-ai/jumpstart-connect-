@@ -8,12 +8,14 @@ export function GroupChat({
     workspace,
     messages = [],
     currentUser,
+    members = [],
     typingUsers = [],
     pinnedMessage,
     onSendMessage,
     onAttachFile,
     onReaction,
     onReply,
+    onEdit,
     onDelete,
 }) {
 
@@ -117,6 +119,7 @@ export function GroupChat({
                                 currentUser={currentUser}
                                 onReaction={onReaction}
                                 onReply={onReply}
+                                onEdit={onEdit}
                                 onDelete={onDelete}
 
                             />
@@ -148,6 +151,7 @@ export function GroupChat({
             <ChatComposer
                 onSend={onSendMessage}
                 onAttach={onAttachFile}
+                members={members}
             />
 
         </div>

@@ -21,7 +21,7 @@ export function ChatMessage({
 }) {
   const [showActions, setShowActions] = useState(false);
 
-  const isMine = currentUser?.id === message.sender?.id;
+  const isMine = String(currentUser?.id) === String(message.sender?.id);
 
   const reactions = message.reactions || [];
   const attachments = message.attachments || [];
@@ -85,13 +85,19 @@ export function ChatMessage({
         >
           {/* Message */}
 
-          <p className="whitespace-pre-wrap break-words">
-            {message.content}
-          </p>
+          {message.deleted ? (
+            <p className="whitespace-pre-wrap break-words italic opacity-60">
+              This message was deleted
+            </p>
+          ) : (
+            <p className="whitespace-pre-wrap break-words">
+              {message.content}
+            </p>
+          )}
 
           {/* Attachments */}
 
-          {attachments.length > 0 && (
+          {!message.deleted && attachments.length > 0 && (
             <div className="mt-3 space-y-2">
               {attachments.map((file) => (
                 <div
@@ -115,7 +121,7 @@ export function ChatMessage({
 
           {/* Edited */}
 
-          {message.edited && (
+          {message.edited && !message.deleted && (
             <span className="text-xs opacity-60 mt-2 block">
               Edited
             </span>
@@ -140,7 +146,7 @@ export function ChatMessage({
 
         {/* Reactions */}
 
-        {reactions.length > 0 && (
+        {reactions.length > 0 && !message.deleted && (
           <div className="flex flex-wrap gap-2 mt-2">
             {reactions.map((reaction) => (
               <button

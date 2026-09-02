@@ -25,6 +25,8 @@ import {
   X,
   MessageSquare,
   CornerUpRight,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { messageApi } from "../../services/messageApi";
 
@@ -244,11 +246,12 @@ function SystemMessage({ text }) {
   );
 }
 
-function MessageRow({ msg, onReact, onShare }) {
+function MessageRow({ msg, onReact, onShare, onEdit, onDelete, currentUserId }) {
   const [hovered, setHovered] = useState(false);
-  const isMine = Boolean(msg.isMine);
 
   if (msg.system) return <SystemMessage text={msg.text} />;
+
+  const isMine = msg.isMine ?? String(msg.senderId) === String(currentUserId);
 
   return (
     <div
@@ -277,8 +280,11 @@ function MessageRow({ msg, onReact, onShare }) {
         )}
 
         <div className={`rounded-2xl px-4 py-3 shadow-lg relative ${isMine ? "bg-[#F7C948] text-black rounded-br-md ml-auto" : "bg-[#1B222C] text-white rounded-bl-md"}`}>
-          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.text}</p>
-          {msg.attachments?.length > 0 && (
+          <p className={`text-sm leading-relaxed whitespace-pre-wrap break-words ${msg.deleted ? "italic opacity-60" : ""}`}>
+            {msg.deleted ? "This message was deleted" : msg.text}
+            {msg.edited && !msg.deleted && <span className="ml-2 text-[10px] opacity-70">(edited)</span>}
+          </p>
+          {!msg.deleted && msg.attachments?.length > 0 && (
             <div className="mt-2 space-y-2">
               {msg.attachments.map((att, idx) => (
                 <AttachmentCard key={idx} att={att} onShare={onShare} />
@@ -292,7 +298,7 @@ function MessageRow({ msg, onReact, onShare }) {
           {!isMine && <span>{msg.time}</span>}
         </div>
 
-        {msg.reactions?.length > 0 && (
+        {msg.reactions?.length > 0 && !msg.deleted && (
           <div className={`flex flex-wrap gap-1.5 mt-2 ${isMine ? "justify-end" : "justify-start"}`}>
             {msg.reactions.map((r) => (
               <ReactionPill key={r.emoji} {...r} onToggle={() => onReact(msg.id, r.emoji)} />
@@ -329,6 +335,26 @@ function MessageRow({ msg, onReact, onShare }) {
           <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-border text-muted-foreground hover:text-foreground transition-all">
             <MoreHorizontal size={12} />
           </button>
+          {isMine && (
+            <>
+              <button
+                type="button"
+                onClick={() => onEdit?.(msg)}
+                className="w-6 h-6 flex items-center justify-center rounded hover:bg-border text-muted-foreground hover:text-foreground transition-all"
+                title="Edit message"
+              >
+                <PencilIcon />
+              </button>
+              <button
+                type="button"
+                onClick={() => onDelete?.(msg.id)}
+                className="w-6 h-6 flex items-center justify-center rounded hover:bg-border text-muted-foreground hover:text-foreground transition-all"
+                title="Delete message"
+              >
+                <TrashIcon />
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -410,6 +436,8 @@ export function Messages({
   const [error, setError] = useState(null);
 
   const [draft, setDraft] = useState("");
+  const [mentionQuery, setMentionQuery] = useState(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [shareAttachment, setShareAttachment] = useState(null);
   const [shareRecipientId, setShareRecipientId] = useState(null);
@@ -575,6 +603,10 @@ export function Messages({
           author: m.sender_id === currentUserId ? "You" : m.sender_name || "User",
           text: m.message || "",
           time: formatTime(m.timestamp),
+          edited: Boolean(m.edited),
+          deleted: Boolean(m.is_deleted),
+          reactions: m.reactions || [],
+          mentions: m.mentions || [],
           attachments: Array.isArray(m.attachments)
             ? m.attachments.map((att) => ({
                 id: att.id,
@@ -694,6 +726,8 @@ export function Messages({
       });
 
       setDraft("");
+      setMentionQuery(null);
+      setShowEmojiPicker(false);
       setAttachments([]);
       setIsTyping(false);
       inputRef.current?.focus();
@@ -707,6 +741,33 @@ export function Messages({
     }
   };
 
+  const handleDraftChange = (event) => {
+    const value = event.target.value;
+    setDraft(value);
+    const match = value.match(/@([A-Za-z0-9._-]*)$/);
+    setMentionQuery(match ? match[1] : null);
+  };
+
+  const mentionSuggestions = mentionQuery === null
+    ? []
+    : availableContacts.filter((contact) => {
+        const searchable = `${contact.name || ""} ${contact.email || ""}`.toLowerCase();
+        return searchable.includes(mentionQuery.toLowerCase());
+      });
+
+  const selectMention = (contact) => {
+    const name = (contact.name || contact.email || "user").split(" ")[0];
+    setDraft((value) => value.replace(/@([A-Za-z0-9._-]*)$/, `@${name} `));
+    setMentionQuery(null);
+    inputRef.current?.focus();
+  };
+
+  const insertEmoji = (emoji) => {
+    setDraft((value) => `${value}${emoji}`);
+    setShowEmojiPicker(false);
+    inputRef.current?.focus();
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -714,8 +775,38 @@ export function Messages({
     }
   };
 
-  const handleReact = (msgId, emoji) => {
-    console.log("React to message", msgId, emoji);
+  const handleReact = async (msgId, emoji) => {
+    try {
+      await messageApi.reactToMessage(msgId, currentUserId, emoji);
+      await loadConversation(activeChannelId);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleEdit = async (msg) => {
+    const nextText = window.prompt("Edit your message", msg.text);
+    if (nextText === null || !nextText.trim()) return;
+
+    try {
+      await messageApi.updateMessage(msg.id, currentUserId, nextText.trim());
+      await loadConversation(activeChannelId);
+      await loadInbox();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleDelete = async (msgId) => {
+    if (!window.confirm("Delete this message?")) return;
+
+    try {
+      await messageApi.deleteMessage(msgId, currentUserId);
+      await loadConversation(activeChannelId);
+      await loadInbox();
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   if (loadingInbox && directMessages.length === 0) {
@@ -865,7 +956,10 @@ export function Messages({
                 <MessageRow
                   key={msg.id}
                   msg={msg}
+                  currentUserId={currentUserId}
                   onReact={handleReact}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
                   onShare={handleOpenShareAttachment}
                 />
               ))
@@ -897,13 +991,28 @@ export function Messages({
               <textarea
                 ref={inputRef}
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                onChange={handleDraftChange}
                 onKeyDown={handleKeyDown}
                 placeholder={`Message ${selectedChannel.name}...`}
                 rows={1}
                 className="w-full bg-transparent px-4 pt-3 pb-1 text-sm text-foreground placeholder-muted-foreground focus:outline-none resize-none"
                 style={{ minHeight: "44px", maxHeight: "120px" }}
               />
+
+              {mentionSuggestions.length > 0 && (
+                <div className="px-3 pb-2 flex flex-wrap gap-1.5">
+                  {mentionSuggestions.slice(0, 6).map((contact) => (
+                    <button
+                      key={contact.id}
+                      type="button"
+                      onClick={() => selectMention(contact)}
+                      className="rounded-full border border-border bg-card px-2 py-1 text-xs text-foreground hover:border-primary"
+                    >
+                      @{(contact.name || contact.email || "user").split(" ")[0]}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Attachments preview */}
               {attachments.length > 0 && (
@@ -956,10 +1065,33 @@ export function Messages({
                         title={label}
                         type="button"
                         className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-all"
+                        onClick={() => {
+                          if (label === "Emoji") setShowEmojiPicker((visible) => !visible);
+                          if (label === "Mention") {
+                            setDraft((value) => `${value}@`);
+                            setMentionQuery("");
+                            inputRef.current?.focus();
+                          }
+                        }}
                       >
                         <Icon size={14} />
                       </button>
                     )
+                  )}
+
+                  {showEmojiPicker && (
+                    <div className="absolute bottom-12 left-3 grid grid-cols-5 gap-1 rounded-xl border border-border bg-card p-2 shadow-xl z-20">
+                      {["😀", "😂", "😍", "😢", "😡", "👍", "👎", "❤️", "🎉", "🚀"].map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => insertEmoji(emoji)}
+                          className="rounded p-1 text-lg hover:bg-muted"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
                   )}
 
                   <input
@@ -1002,4 +1134,12 @@ export function Messages({
       )}
     </div>
   );
+}
+
+function PencilIcon() {
+  return <Pencil size={12} />;
+}
+
+function TrashIcon() {
+  return <Trash2 size={12} />;
 }
