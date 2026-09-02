@@ -992,8 +992,20 @@ export function Messages({
                 ref={inputRef}
                 value={draft}
                 onChange={handleDraftChange}
+                onKeyDown={handleKeyDown}
+                placeholder={`Message ${selectedChannel.name}...`}
+                rows={1}
+                className="w-full bg-transparent px-4 pt-3 pb-1 text-sm text-foreground placeholder-muted-foreground focus:outline-none resize-none"
+                style={{ minHeight: "44px", maxHeight: "120px" }}
+              />
+
+              {mentionSuggestions.length > 0 && (
+                <div className="px-3 pb-2 flex flex-wrap gap-1.5">
+                  {mentionSuggestions.slice(0, 6).map((contact) => (
+                    <button
                       key={contact.id}
                       type="button"
+                      onClick={() => selectMention(contact)}
                       className="rounded-full border border-border bg-card px-2 py-1 text-xs text-foreground hover:border-primary"
                     >
                       @{(contact.name || contact.email || "user").split(" ")[0]}
