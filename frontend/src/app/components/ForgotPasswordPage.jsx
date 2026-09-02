@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { authApi } from "../services/authApi";
+import logo from "../../assets/images/jumpstart-logo.webp";
 
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -40,6 +41,19 @@ export function ForgotPasswordPage() {
     }
   };
 
+  const handleResend = async () => {
+    setError("");
+
+    try {
+      setLoading(true);
+      await authApi.forgotPassword({ email });
+    } catch (err) {
+      setError(err.message || "Unable to resend reset link.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center relative p-8">
       <button
@@ -63,10 +77,8 @@ export function ForgotPasswordPage() {
         </button>
 
         <div className="flex items-center gap-3 mb-10 justify-center">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">
-              JC
-            </span>
+          <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center">
+            <img src={logo} alt="JumpStart Logo" className="w-full h-full object-contain" />
           </div>
 
           <span className="text-foreground font-semibold text-xl">
@@ -165,11 +177,19 @@ export function ForgotPasswordPage() {
               </p>
             </div>
 
+            {error && (
+              <div className="mb-5 bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
+                {error}
+              </div>
+            )}
+
             <button
-              onClick={() => navigate(`/reset-password?email=${encodeURIComponent(email)}`)}
-              className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/15 mb-3"
+              onClick={handleResend}
+              disabled={loading}
+              className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/15 mb-3"
             >
-              Continue to reset password
+              {loading ? "Sending..." : "Resend reset link"}
+              {!loading && <SendHorizonal size={16} />}
             </button>
 
             <button

@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router";
 import { Clock, ArrowRight, LogOut, Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
+import logo from "../../assets/images/jumpstart-logo.webp";
 
 export function PasswordExpiredPage() {
   const navigate = useNavigate();
@@ -26,10 +27,8 @@ export function PasswordExpiredPage() {
 
       <div className="w-full max-w-md text-center">
         <div className="flex items-center gap-3 mb-12 justify-center">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">
-              JC
-            </span>
+          <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center">
+            <img src={logo} alt="JumpStart Logo" className="w-full h-full object-contain" />
           </div>
 
           <span className="text-foreground font-semibold text-xl">

@@ -17,6 +17,7 @@ import { Messages } from "./admin/Messages";
 import { Workspaces } from "./admin/Workspaces";
 import { UsersAccess } from "./admin/UsersAccess";
 import { LeavePage } from "./LeavePage";
+import logo from "../../assets/images/jumpstart-logo.webp";
 
 const EMPLOYEE_TABS = [
   {
@@ -114,10 +115,8 @@ export function UserDashboard({ tab = "workspaces" }) {
 
         <div className="flex items-center gap-3">
 
-          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">
-              JC
-            </span>
+          <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center">
+            <img src={logo} alt="JumpStart Logo" className="w-full h-full object-contain" />
           </div>
 
           <span className="font-semibold text-foreground">
