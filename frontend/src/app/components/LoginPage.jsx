@@ -20,6 +20,7 @@ export function LoginPage() {
         navigate(fallbackPath, { replace: true });
     };
     const [password, setPassword] = useState("");
+    const [otp, setOtp] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -51,8 +52,8 @@ export function LoginPage() {
 
     console.log("=== LOGIN START ===");
 
-    if (!email || !password) {
-        setError("Please enter your email and password.");
+    if (!email) {
+        setError("Please enter your work email.");
         return;
     }
 
@@ -61,23 +62,27 @@ export function LoginPage() {
         return;
     }
 
+    const hasPassword = Boolean(password && password.trim());
+    const hasOtp = Boolean(otp && otp.trim());
+
+    if (!hasPassword && !hasOtp) {
+        setError("Please enter your password or your one-time PIN.");
+        return;
+    }
+
+    if (hasPassword && hasOtp) {
+        setError("Use either your password or your one-time PIN, not both.");
+        return;
+    }
+
     setLoading(true);
 
     try {
-        console.log("Sending login request...");
-        console.log("Email:", email);
+        const payload = hasOtp ? { email, otp } : { email, password };
+        const response = await authApi.login(payload);
 
-        const response = await authApi.login({
-            email,
-            password,
-        });
-
-        console.log("LOGIN RESPONSE:", response);
-
-        console.log("Login response:", response);
-
-        // First-time login
         if (response?.first_login) {
+<<<<<<< HEAD
 
     localStorage.setItem(
         "verification_email",
@@ -101,18 +106,23 @@ export function LoginPage() {
             sessionStorage.removeItem("redirectAfterLogin");
 
             navigate("/verify-otp", {
+=======
+            localStorage.setItem("verification_email", response.email || email);
+            navigate("/create-password", {
+>>>>>>> 8bd7eff6450a97a2cc1c8c6f829185c6dbb032d7
                 state: {
-                    email,
+                    email: response.email || email,
+                    isFirstLogin: true,
                 },
             });
-
             return;
         }
 
-        // Successful login
         if (response?.token) {
             localStorage.setItem("token", response.token);
+            localStorage.setItem("currentUser", JSON.stringify(response.user || {}));
 
+<<<<<<< HEAD
             localStorage.setItem(
                 "currentUser",
                 JSON.stringify(response.user || {})
@@ -128,18 +138,24 @@ export function LoginPage() {
             sessionStorage.removeItem("redirectAfterLogin");
 
             navigate(redirectPath, { replace: true });
+=======
+            if (response.user?.role === "superadmin" || response.user?.role === "admin") {
+                navigate("/admin", { replace: true });
+            } else {
+                navigate("/dashboard", { replace: true });
+            }
+>>>>>>> 8bd7eff6450a97a2cc1c8c6f829185c6dbb032d7
 
+            return;
+        }
+
+        if (response?.force_password_change) {
+            navigate("/password-expired", { state: { email } });
             return;
         }
 
         setError(response?.message || "Login failed. Please try again.");
     } catch (err) {
-        console.error("LOGIN ERROR");
-        console.error(err);
-        console.error("MESSAGE:", err.message);
-        console.error("PAYLOAD:", err.payload);
-        console.error("RESPONSE:", err.response);
-
         setError(
             err?.response?.data?.error ||
             err?.payload?.error ||
@@ -148,7 +164,6 @@ export function LoginPage() {
         );
     } finally {
         setLoading(false);
-        console.log("=== LOGIN END ===");
     }
 };
     return (
@@ -193,6 +208,10 @@ export function LoginPage() {
                     </span>
                 </div>
 
+                <div className="mb-6 rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
+                    First-time users can sign in with their work email and the one-time PIN sent by email.
+                </div>
+
                 {/* Error */}
                 {error && (
                     <div className="mb-5 bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
@@ -201,10 +220,9 @@ export function LoginPage() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                    {/* Email */}
                     <div>
                         <label className="block text-sm text-muted-foreground mb-2">
-                            Email Address
+                            Work email
                         </label>
 
                         <div className="relative">
@@ -216,25 +234,25 @@ export function LoginPage() {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@jumpstartyourcareer.co.za"
+                                placeholder="you@jumpstartyourcareer.org.za"
                                 className="w-full bg-input-background border border-border text-foreground pl-11 pr-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
                             />
                         </div>
                     </div>
 
-                    {/* Password */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
                             <label className="block text-sm text-muted-foreground">
                                 Password
                             </label>
 
-                            <a
-                                href="#"
+                            <button
+                                type="button"
+                                onClick={() => navigate("/forgot-password")}
                                 className="text-xs text-primary hover:opacity-80 transition-opacity"
                             >
                                 Forgot password?
-                            </a>
+                            </button>
                         </div>
 
                         <div className="relative">
@@ -264,20 +282,27 @@ export function LoginPage() {
                         </div>
                     </div>
 
-                    {/* 2FA notice */}
-                    <div className="flex items-start gap-3 bg-primary/5 border border-primary/15 rounded-xl px-4 py-3">
-                        <Shield
-                            size={15}
-                            className="text-primary mt-0.5 flex-shrink-0"
-                        />
+                    <div>
+                        <label className="block text-sm text-muted-foreground mb-2">
+                            One-time PIN (first-time sign in only)
+                        </label>
 
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                            Two-factor authentication may be required for your
-                            account. Ensure you have access to your authenticator app.
-                        </p>
+                        <div className="relative">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                <Shield size={16} />
+                            </div>
+
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                placeholder="Enter 6-digit PIN"
+                                className="w-full bg-input-background border border-border text-foreground pl-11 pr-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                            />
+                        </div>
                     </div>
 
-                    {/* Submit */}
                     <button
                         type="submit"
                         disabled={loading}

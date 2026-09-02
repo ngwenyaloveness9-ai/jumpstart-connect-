@@ -148,8 +148,34 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     password = serializers.CharField(
-        write_only=True
+        write_only=True,
+        required=False,
+        allow_blank=True
     )
+
+    otp = serializers.CharField(
+        write_only=True,
+        required=False,
+        allow_blank=True,
+        min_length=6,
+        max_length=6,
+    )
+
+    def validate(self, attrs):
+        password = (attrs.get("password") or "").strip()
+        otp = (attrs.get("otp") or "").strip()
+
+        if not password and not otp:
+            raise serializers.ValidationError(
+                "Either password or a one-time PIN is required."
+            )
+
+        if password and otp:
+            raise serializers.ValidationError(
+                "Provide either your password or a one-time PIN, not both."
+            )
+
+        return attrs
 
 
 # ============================================================

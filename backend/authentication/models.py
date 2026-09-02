@@ -17,13 +17,13 @@ class OTP(models.Model):
         auto_now_add=True
     )
 
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
 
     def is_valid(self):
-        return (
-            not self.is_used and
-            timezone.now() < self.expires_at
-        )
+        return not self.is_used
 
     def __str__(self):
         return f"{self.email} - {self.code}"

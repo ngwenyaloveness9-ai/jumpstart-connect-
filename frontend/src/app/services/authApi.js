@@ -7,11 +7,6 @@ export const authApi = {
     return res.data;
   },
 
-  verifyOtp: async (data) => {
-    const res = await api.post("/auth/verify-otp/", data);
-    return res.data;
-  },
-
   createPassword: async (data) => {
     const res = await api.post("/auth/create-password/", data);
     return res.data;
