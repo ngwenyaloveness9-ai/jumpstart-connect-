@@ -11,6 +11,16 @@ export function LandingPage() {
     const bubblesRef = useRef([]);
     const animationIdRef = useRef();
     useEffect(() => {
+        const redirectTimer = setTimeout(() => {
+            navigate("/login", { replace: true });
+        }, 5000);
+
+        return () => {
+            clearTimeout(redirectTimer);
+        };
+    }, [navigate]);
+
+    useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas)
             return;
