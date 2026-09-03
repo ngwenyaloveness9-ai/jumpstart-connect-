@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { Eye, EyeOff, ArrowLeft, Shield, Lock, Mail, Moon, Sun } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Lock, Mail, Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { authApi } from "../services/authApi";
 import logo from "../../assets/images/jumpstart-logo.webp";
@@ -20,7 +20,6 @@ export function LoginPage() {
         navigate(fallbackPath, { replace: true });
     };
     const [password, setPassword] = useState("");
-    const [otp, setOtp] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -63,48 +62,27 @@ export function LoginPage() {
             return;
         }
 
-        const hasPassword = Boolean(password && password.trim());
-        const hasOtp = Boolean(otp && otp.trim());
-
-        if (!hasPassword && !hasOtp) {
-            setError("Please enter your password or your one-time PIN.");
-            return;
-        }
-
-        if (hasPassword && hasOtp) {
-            setError("Use either your password or your one-time PIN, not both.");
+        if (!password.trim()) {
+            setError("Please enter your password.");
             return;
         }
 
         setLoading(true);
 
         try {
-            const payload = hasOtp ? { email, otp } : { email, password };
-            const response = await authApi.login(payload);
+            const response = await authApi.login({ email, password });
 
             if (response?.first_login) {
                 localStorage.setItem("verification_email", response.email || email);
                 sessionStorage.removeItem("redirectAfterLogin");
 
-                navigate("/verify-otp", {
+                navigate("/create-password", {
                     state: {
                         email: response.email || email,
-                        firstLogin: true,
+                        isFirstLogin: true,
                     },
                 });
 
-                return;
-            }
-
-            if (response?.requires_otp) {
-                sessionStorage.removeItem("redirectAfterLogin");
-
-                navigate("/verify-otp", {
-                    state: {
-                        email: response.email || email,
-                        isFirstLogin: false,
-                    },
-                });
                 return;
             }
 
@@ -184,7 +162,7 @@ export function LoginPage() {
                 </div>
 
                 <div className="mb-6 rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
-                    First-time users can sign in with their work email and the one-time PIN sent by email.
+                    First-time users can sign in with their work email and the one-time password sent by email.
                 </div>
 
                 {/* Error */}
@@ -254,27 +232,6 @@ export function LoginPage() {
                                     <Eye size={16} />
                                 )}
                             </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm text-muted-foreground mb-2">
-                            One-time PIN (first-time sign in only)
-                        </label>
-
-                        <div className="relative">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                                <Shield size={16} />
-                            </div>
-
-                            <input
-                                type="text"
-                                inputMode="numeric"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                                placeholder="Enter 6-digit PIN"
-                                className="w-full bg-input-background border border-border text-foreground pl-11 pr-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
-                            />
                         </div>
                     </div>
 
