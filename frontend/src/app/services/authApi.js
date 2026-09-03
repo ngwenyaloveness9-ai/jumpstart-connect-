@@ -12,11 +12,6 @@ export const authApi = {
     return res.data;
   },
 
-  forgotPassword: async (data) => {
-    const res = await api.post("/auth/forgot-password/", data);
-    return res.data;
-  },
-
   resetPassword: async (data) => {
     const res = await api.post("/auth/reset-password/", data);
     return res.data;

@@ -26,8 +26,13 @@ export const usersApi = {
     return res.data;
   },
 
-  sendResetLink: async (id) => {
-    const res = await api.post(`/users/${id}/reset-link/`);
+  sendResetOtp: async (id) => {
+    const res = await api.post(`/users/${id}/reset-otp/`);
+    return res.data;
+  },
+
+  sendResetLink: async (id, otp) => {
+    const res = await api.post(`/users/${id}/reset-link/`, { otp });
     return res.data;
   },
 };

@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils import timezone
@@ -267,30 +266,6 @@ class ChangePasswordView(APIView):
         return Response({
             "message": "Password changed successfully"
         })
-
-
-class ForgotPasswordView(APIView):
-    authentication_classes = []
-    permission_classes = []
-
-    def post(self, request):
-        email = str(request.data.get("email", "")).strip().lower()
-        if not email:
-            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = User.objects.filter(email__iexact=email, is_active=True).first()
-        if user:
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            reset_url = f"http://localhost:5173/reset-password?uid={uid}&token={token}&email={user.email}"
-            send_mail(
-                "Reset your JumpStart Connect password",
-                f"Hello {user.first_name},\n\nReset your password here:\n{reset_url}\n\nIf you did not request this, you can ignore this email.",
-                None,
-                [user.email],
-            )
-
-        return Response({"message": "If an account exists for that email, a reset link has been sent."})
 
 
 class ResetPasswordView(APIView):

@@ -269,10 +269,14 @@ useEffect(() => {
                       {openMenu === user.id && (<div className="absolute right-0 top-7 z-20 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-1 w-44 shadow-xl">
                           {[
                     { icon: Edit2, label: "Edit User", color: "text-white", onClick: () => openEditUser(user) },
-                    { icon: Mail, label: "Send Reset Link", color: "text-white", onClick: () => runUserAction(() => usersApi.sendResetLink(user.id), "Password reset link sent.") },
+                    { icon: Mail, label: "Send Reset OTP", employeeOnly: true, color: "text-white", onClick: () => runUserAction(() => usersApi.sendResetOtp(user.id), "Reset OTP sent to the employee.") },
+                    { icon: Mail, label: "Verify OTP & Send Link", employeeOnly: true, color: "text-white", onClick: async () => {
+                      const otp = window.prompt(`Enter the reset OTP ${user.name} shared with HR:`)?.trim();
+                      if (otp) await runUserAction(() => usersApi.sendResetLink(user.id, otp), "Password reset link sent.");
+                    } },
                     { icon: user.status === "active" ? UserX : UserCheck, label: user.status === "active" ? "Deactivate" : "Activate", color: user.status === "active" ? "text-orange-400" : "text-green-400", onClick: () => runUserAction(() => usersApi.update(user.id, { is_active: user.status !== "active" }), `User ${user.status === "active" ? "deactivated" : "activated"}.`) },
                     { icon: Trash2, label: "Remove User", color: "text-red-400", onClick: () => { if (window.confirm(`Remove ${user.name}? This cannot be undone.`)) runUserAction(() => usersApi.remove(user.id), "User removed successfully."); } },
-                ].map((action) => (<button key={action.label} disabled={actionLoading} onClick={action.onClick} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all disabled:opacity-50 ${action.color}`}>
+                ].filter((action) => !action.employeeOnly || !["hr", "superadmin"].includes(user.role.toLowerCase())).map((action) => (<button key={action.label} disabled={actionLoading} onClick={action.onClick} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all disabled:opacity-50 ${action.color}`}>
                               <action.icon size={13}/> {action.label}
                             </button>))}
                         </div>)}

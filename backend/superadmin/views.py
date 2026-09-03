@@ -1,5 +1,9 @@
 from datetime import timedelta
+import base64
+from html import escape
+from pathlib import Path
 import random
+import threading
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -21,6 +25,57 @@ from jyc_apps.chat.models import Group, GroupMember
 
 
 User = get_user_model()
+
+
+def _jumpstart_logo_data_uri():
+        logo_path = Path(settings.BASE_DIR).parent / "frontend" / "src" / "assets" / "images" / "jumpstart-logo.webp"
+        try:
+                encoded_logo = base64.b64encode(logo_path.read_bytes()).decode("ascii")
+                return f"data:image/webp;base64,{encoded_logo}"
+        except OSError:
+                return ""
+
+
+def _reset_email_html(user, subject, heading, intro, content, action_label=None, action_url=None, note=""):
+        sender = escape(settings.DEFAULT_FROM_EMAIL)
+        recipient = escape(user.email)
+        first_name = escape(user.first_name or "there")
+        logo = _jumpstart_logo_data_uri()
+        action = (
+                f'<a href="{escape(action_url)}" style="display:inline-block;background:#F5C518;color:#0D0D0D;'
+                f'padding:14px 24px;border-radius:8px;text-decoration:none;font-weight:700;">{escape(action_label)}</a>'
+                if action_label and action_url else ""
+        )
+        logo_markup = f'<img src="{logo}" alt="JumpStart Your Career" width="72" height="72" style="display:block;margin:0 auto 12px;">' if logo else ""
+        return f"""
+        <div style="margin:0;padding:32px 16px;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif;color:#171717;">
+            <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;">
+                <div style="background:#F5C518;padding:28px 32px;text-align:center;">
+                    {logo_markup}
+                    <div style="font-size:22px;font-weight:700;">Jumpstart Connect</div>
+                    <div style="font-size:12px;margin-top:5px;letter-spacing:1px;text-transform:uppercase;">JumpStart Your Career</div>
+                </div>
+                <div style="padding:32px;">
+                    <table style="width:100%;font-size:12px;color:#666;margin-bottom:28px;">
+                        <tr><td style="padding-bottom:6px;"><strong>From:</strong> {sender}</td></tr>
+                        <tr><td><strong>To:</strong> {recipient}</td></tr>
+                    </table>
+                    <h1 style="font-size:24px;margin:0 0 18px;color:#0D0D0D;">{escape(heading)}</h1>
+                    <p style="font-size:16px;line-height:1.6;margin:0 0 14px;">Hello <strong>{first_name}</strong>,</p>
+                    <p style="font-size:15px;line-height:1.7;margin:0 0 18px;color:#333;">{escape(intro)}</p>
+                    {content}
+                    {action}
+                    <p style="font-size:13px;line-height:1.6;margin:24px 0 0;color:#666;">{escape(note)}</p>
+                    <p style="font-size:14px;line-height:1.6;margin:28px 0 0;">Regards,<br><strong>Jumpstart Connect HR</strong></p>
+                </div>
+                <div style="background:#0D0D0D;color:#ffffff;padding:16px 32px;font-size:12px;text-align:center;">JumpStart Your Career | Human Resources</div>
+            </div>
+        </div>
+        """
+
+
+def is_employee_account(user):
+    return (user.role or "").strip().lower() not in {"hr", "superadmin"}
 
 
 class CreateEmployeeView(APIView):
@@ -575,6 +630,62 @@ class UserListView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
 
+class UserResetOtpView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role not in ["hr", "superadmin"]:
+            return Response(
+                {"error": "Only Human Resources or Superadmin can send reset OTPs."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        user = get_object_or_404(User, pk=pk)
+        if request.user.role == "hr" and not is_employee_account(user):
+            return Response(
+                {"error": "HR can only manage employee accounts."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        otp_code = str(random.randint(100000, 999999))
+        OTP.objects.filter(email__iexact=user.email, is_used=False).update(is_used=True)
+        OTP.objects.create(
+            email=user.email,
+            code=otp_code,
+            expires_at=timezone.now() + timedelta(minutes=15),
+        )
+
+        def _send_otp():
+            try:
+                sender = settings.DEFAULT_FROM_EMAIL
+                send_mail(
+                    subject="Your JumpStart Connect password reset OTP",
+                    message=(f"From: {sender}\nTo: {user.email}\n\nHello {user.first_name},\n\n"
+                             f"Your password reset OTP is: {otp_code}\n\nShare this OTP with Human Resources. "
+                             "It expires in 15 minutes."),
+                    from_email=sender,
+                    recipient_list=[user.email],
+                    html_message=_reset_email_html(
+                        user,
+                        "Your JumpStart Connect password reset OTP",
+                        "Password reset verification",
+                        "Human Resources requested a password reset verification code for your Jumpstart Connect account.",
+                        f'''<div style="background:#FFF9E6;border:1px solid #F5C518;border-radius:10px;padding:22px;text-align:center;margin:22px 0;">
+                          <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:10px;">Your one-time password reset code</div>
+                          <div style="font-size:34px;font-weight:700;letter-spacing:8px;color:#0D0D0D;">{escape(otp_code)}</div>
+                        </div>''',
+                        note="Please send this code to Human Resources. Do not share it with anyone else. The code expires in 15 minutes.",
+                    ),
+                )
+            except Exception:
+                # Swallow exceptions so the API can return quickly; admins may check logs.
+                pass
+
+        threading.Thread(target=_send_otp, daemon=True).start()
+
+        return Response({"message": "Password reset OTP sent successfully."})
+
+
 class UserResetLinkView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -586,22 +697,55 @@ class UserResetLinkView(APIView):
             )
 
         user = get_object_or_404(User, pk=pk)
-        if request.user.role == "hr" and (user.role or "").lower() != "employee":
+        if request.user.role == "hr" and not is_employee_account(user):
             return Response(
                 {"error": "HR can only manage employee accounts."},
                 status=status.HTTP_403_FORBIDDEN,
+            )
+
+        otp_code = str(request.data.get("otp", "")).strip()
+        otp = OTP.objects.filter(
+            email__iexact=user.email,
+            code=otp_code,
+            is_used=False,
+        ).order_by("-created_at").first()
+        if not otp or not otp.expires_at or otp.expires_at <= timezone.now():
+            return Response(
+                {"error": "The OTP is invalid or expired. Request a new OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
         reset_url = f"http://localhost:5173/reset-password?uid={uid}&token={token}&email={user.email}"
 
-        send_mail(
-            subject="Reset your JumpStart Connect password",
-            message=f"Hello {user.first_name},\n\nReset your password here: {reset_url}\n\nThis link expires when your account credentials change.",
-            from_email=None,
-            recipient_list=[user.email],
-        )
+        def _send_link():
+            try:
+                sender = settings.DEFAULT_FROM_EMAIL
+                send_mail(
+                    subject="Reset your JumpStart Connect password",
+                    message=(f"From: {sender}\nTo: {user.email}\n\nHello {user.first_name},\n\n"
+                             f"Human Resources verified your request. Reset your password here: {reset_url}\n\n"
+                             "This link expires when your account credentials change."),
+                    from_email=sender,
+                    recipient_list=[user.email],
+                    html_message=_reset_email_html(
+                        user,
+                        "Reset your JumpStart Connect password",
+                        "Reset your password",
+                        "Human Resources verified your password reset request. Use the button below to choose a new password.",
+                        '<div style="background:#f7f7f7;border-left:4px solid #F5C518;padding:14px 16px;margin:22px 0;color:#333;font-size:14px;line-height:1.6;">This link is for your account only.</div>',
+                        action_label="Reset my password",
+                        action_url=reset_url,
+                        note="For your security, the link expires when your account credentials change. If you did not contact Human Resources, notify them immediately.",
+                    ),
+                )
+            except Exception:
+                pass
+
+        threading.Thread(target=_send_link, daemon=True).start()
+        otp.is_used = True
+        otp.save(update_fields=["is_used"])
 
         return Response({"message": "Password reset link sent successfully."})
 

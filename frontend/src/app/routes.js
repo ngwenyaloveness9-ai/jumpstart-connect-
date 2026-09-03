@@ -5,7 +5,6 @@ import { LoginPage } from "./components/LoginPage";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { CreatePasswordPage } from "./components/CreatePasswordPage";
 import { PasswordExpiredPage } from "./components/PasswordExpiredPage";
-import { ForgotPasswordPage } from "./components/ForgotPasswordPage";
 import { ResetPasswordPage } from "./components/ResetPasswordPage";
 import { UserDashboard } from "./components/UserDashboard";
 import { ProfilePage } from "./components/ProfilePage";
@@ -27,7 +26,6 @@ export const router = createBrowserRouter([
   { path: "login", Component: LoginPage },
   { path: "create-password", Component: CreatePasswordPage },
   { path: "password-expired", Component: PasswordExpiredPage },
-  { path: "forgot-password", Component: ForgotPasswordPage },
   { path: "reset-password", Component: ResetPasswordPage },
 
   { path: "dashboard", Component: withAuth(UserDashboard, { tab: "workspaces" }) },

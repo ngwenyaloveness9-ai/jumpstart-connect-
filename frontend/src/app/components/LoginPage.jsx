@@ -221,13 +221,6 @@ export function LoginPage() {
                                 Password
                             </label>
 
-                            <button
-                                type="button"
-                                onClick={() => navigate("/forgot-password")}
-                                className="text-xs text-primary hover:opacity-80 transition-opacity"
-                            >
-                                Forgot password?
-                            </button>
                         </div>
 
                         <div className="relative">
