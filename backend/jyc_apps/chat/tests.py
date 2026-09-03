@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Group, GroupMember, GroupMessage, GroupMessageReaction
+from .models import Group, GroupMember, GroupMessage, GroupMessageReaction, MessageAttachment
 
 
 class ChatContactsEndpointTests(TestCase):
@@ -106,6 +106,32 @@ class ChatContactsEndpointTests(TestCase):
         self.assertEqual(len(share_data["message"]["attachments"]), 1)
         self.assertEqual(share_data["message"]["attachments"][0]["name"], "forward.txt")
 
+    def test_private_attachment_download_returns_file_with_attachment_header(self):
+        uploaded_file = SimpleUploadedFile(
+            "download-me.txt",
+            b"hello from download test",
+            content_type="text/plain"
+        )
+
+        send_response = self.client.post(
+            reverse("chat-send"),
+            data={
+                "sender_id": self.user.id,
+                "receiver_id": self.other.id,
+                "message": "Download this",
+                "attachments": uploaded_file,
+            },
+            format="multipart",
+        )
+
+        attachment_id = send_response.json()["message"]["attachments"][0]["id"]
+
+        response = self.client.get(reverse("chat-attachment-download", kwargs={"attachment_id": attachment_id}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("attachment; filename=\"download-me.txt\"", response["Content-Disposition"])
+        self.assertEqual(b"".join(response.streaming_content), b"hello from download test")
+
 
 class GroupChatMessageFeatureTests(TestCase):
     def setUp(self):
@@ -178,6 +204,33 @@ class GroupChatMessageFeatureTests(TestCase):
         self.assertEqual(remove_response.status_code, 200)
         self.assertEqual(remove_response.json()["status"], "removed")
         self.assertFalse(GroupMessageReaction.objects.filter(message=message, user=self.sender, emoji="👍").exists())
+
+    def test_group_attachment_download_uses_group_route(self):
+        uploaded_file = SimpleUploadedFile(
+            "team-doc.pdf",
+            b"team file bytes",
+            content_type="application/pdf"
+        )
+
+        response = self.client.post(
+            reverse("group-send"),
+            data={
+                "sender_id": self.sender.id,
+                "group_id": self.group.id,
+                "message": "Shared document",
+                "attachments": uploaded_file,
+            },
+            format="multipart",
+        )
+
+        attachment_id = response.json()["message"]["attachments"][0]["id"]
+        url = response.json()["message"]["attachments"][0]["download_url"]
+
+        self.assertIn("group/attachment/" + str(attachment_id) + "/download", url)
+
+        download_response = self.client.get(url.replace("http://testserver", ""))
+        self.assertEqual(download_response.status_code, 200)
+        self.assertIn("attachment; filename=\"team-doc.pdf\"", download_response["Content-Disposition"])
 
     def test_group_message_can_be_edited_and_deleted(self):
         message = GroupMessage.objects.create(

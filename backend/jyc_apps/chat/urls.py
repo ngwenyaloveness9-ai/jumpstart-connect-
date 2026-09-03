@@ -6,6 +6,8 @@ from .views import (
     DeletePrivateMessageView,
     PrivateMessageReactionView,
     ShareAttachmentView,
+    DownloadAttachmentView,
+    DownloadGroupAttachmentView,
     GetConversationView,
     GetInboxView,
     GetContactsView,
@@ -36,6 +38,11 @@ urlpatterns = [
         "share",
         ShareAttachmentView.as_view(),
         name="chat-share"
+    ),
+    path(
+        "attachment/<int:attachment_id>/download",
+        DownloadAttachmentView.as_view(),
+        name="chat-attachment-download"
     ),
 
     path("message/<int:message_id>/edit", UpdatePrivateMessageView.as_view(), name="message-update"),
@@ -85,11 +92,10 @@ urlpatterns = [
         name="group-send"
     ),
     path(
-    "department/contact",
-    ContactDepartmentView.as_view(),
-    name="department-contact"
-),
-
+        "group/attachment/<int:attachment_id>/download",
+        DownloadGroupAttachmentView.as_view(),
+        name="group-attachment-download"
+    ),
     path(
     "groups/<int:group_id>/members",
     GetGroupMembersView.as_view(),

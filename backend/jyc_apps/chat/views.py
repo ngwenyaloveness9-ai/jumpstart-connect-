@@ -1,9 +1,10 @@
-from django.http import JsonResponse
+from django.http import FileResponse, JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django.urls import reverse
 import json
 import re
 from django.conf import settings
@@ -21,6 +22,18 @@ from .models import (
 User = get_user_model()
 
 MENTION_RE = re.compile(r"@([A-Za-z0-9._-]+)")
+
+
+def _attachment_download_response(attachment):
+    if attachment.file.name in (None, ""):
+        raise FileNotFoundError("Attachment file is empty")
+
+    filename = attachment.filename or attachment.file.name.rsplit("/", 1)[-1]
+    file_handle = attachment.file.open("rb")
+    response = FileResponse(file_handle, as_attachment=True, filename=filename)
+    response["Content-Type"] = attachment.content_type or "application/octet-stream"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
 
 
 def resolve_mention_user_ids(group, message_content):
@@ -94,6 +107,7 @@ def build_group_message_payload(message, request):
             "type": simplified_type,
             "mimeType": att.content_type,
             "url": request.build_absolute_uri(att.file.url),
+            "download_url": request.build_absolute_uri(reverse("group-attachment-download", args=[att.id])),
         })
 
     reaction_map = {}
@@ -212,6 +226,7 @@ class SendMessageView(View):
                 "type": simplified_type,
                 "mimeType": attachment_obj.content_type,
                 "url": request.build_absolute_uri(attachment_obj.file.url),
+                "download_url": request.build_absolute_uri(reverse("chat-attachment-download", args=[attachment_obj.id])),
             })
 
         return JsonResponse({
@@ -345,6 +360,7 @@ class GetConversationView(View):
                     "type": simplified_type,
                     "mimeType": content_type,
                     "url": request.build_absolute_uri(att.file.url),
+                    "download_url": request.build_absolute_uri(reverse("chat-attachment-download", args=[att.id])),
                 })
             data.append({
                 "id": m.id,
@@ -452,9 +468,42 @@ class ShareAttachmentView(View):
                     "type": original_attachment.content_type,
                     "mimeType": shared_attachment.content_type,
                     "url": request.build_absolute_uri(shared_attachment.file.url),
+                    "download_url": request.build_absolute_uri(reverse("chat-attachment-download", args=[shared_attachment.id])),
                 }],
             }
         }, status=201)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class DownloadAttachmentView(View):
+    def get(self, request, attachment_id):
+        try:
+            attachment = MessageAttachment.objects.get(id=attachment_id)
+        except MessageAttachment.DoesNotExist:
+            return JsonResponse({"error": "Attachment not found"}, status=404)
+
+        try:
+            response = _attachment_download_response(attachment)
+        except FileNotFoundError:
+            return JsonResponse({"error": "Attachment file not found"}, status=404)
+
+        return response
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class DownloadGroupAttachmentView(View):
+    def get(self, request, attachment_id):
+        try:
+            attachment = GroupMessageAttachment.objects.get(id=attachment_id)
+        except GroupMessageAttachment.DoesNotExist:
+            return JsonResponse({"error": "Attachment not found"}, status=404)
+
+        try:
+            response = _attachment_download_response(attachment)
+        except FileNotFoundError:
+            return JsonResponse({"error": "Attachment file not found"}, status=404)
+
+        return response
 
 
 class GetInboxView(View):
@@ -966,7 +1015,8 @@ class SendGroupMessageView(View):
 
                 "mimeType": att.content_type,
 
-                "url": request.build_absolute_uri(att.file.url)
+                "url": request.build_absolute_uri(att.file.url),
+                "download_url": request.build_absolute_uri(reverse("group-attachment-download", args=[att.id]))
 
             })
 

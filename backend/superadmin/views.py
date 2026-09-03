@@ -1,9 +1,13 @@
 from datetime import timedelta
+<<<<<<< HEAD
 import base64
 from html import escape
 from pathlib import Path
 import random
 import threading
+=======
+import secrets
+>>>>>>> bfc7deec3a083e6c51a6ffc76253684ae55f7026
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -159,17 +163,10 @@ class CreateEmployeeView(APIView):
                 )
 
                 
-                # -----------------------------------
-                # Generate OTP
-                # -----------------------------------
-
-                otp_code = str(random.randint(100000, 999999))
-
-                OTP.objects.create(
-                    email=user.email,
-                    code=otp_code,
-                    expires_at=None,
-                )
+                # Generate and store the temporary password used for first login.
+                temporary_password = secrets.token_urlsafe(12)
+                user.set_password(temporary_password)
+                user.save(update_fields=["password"])
 
                 # -----------------------------------
                 # Send Email
@@ -193,18 +190,18 @@ class CreateEmployeeView(APIView):
         </p>
 
         <p style="margin:0 0 18px; font-size:15px; line-height:1.7; color:#0D0D0D;">
-          Your employee account has been created successfully. Use the one-time PIN below to complete your first sign in using your work email.
+          Your employee account has been created successfully. Use the one-time password below to complete your first sign in using your work email.
         </p>
 
         <div style="background:#FFF9E6; border:1px solid #F5C518; border-radius:12px; padding:20px; text-align:center; margin:24px 0;">
           <div style="font-size:12px; font-weight:700; letter-spacing:1.5px; color:#666666; text-transform:uppercase; margin-bottom:12px;">
-            Your One-Time PIN
+            Your One-Time Password
           </div>
-          <div style="font-size:34px; font-weight:700; letter-spacing:8px; color:#0D0D0D;">{otp_code}</div>
+          <div style="font-size:24px; font-weight:700; letter-spacing:2px; color:#0D0D0D;">{temporary_password}</div>
         </div>
 
         <p style="margin:0 0 16px; font-size:15px; line-height:1.7; color:#0D0D0D;">
-          This PIN does not expire and can be used only once. After the first sign in, you will be redirected to create your own password.
+          This password is for your first sign in only. After signing in, you will be redirected to create your own password.
         </p>
 
         <p style="margin:0; font-size:15px; line-height:1.7; color:#0D0D0D;">
@@ -223,10 +220,10 @@ Hello {user.first_name},
 
 Your employee account has been created successfully.
 
-Your One-Time PIN:
-{otp_code}
+Your One-Time Password:
+{temporary_password}
 
-This PIN does not expire and can be used only once.
+Use this password for your first sign in only. You will then be redirected to create your own password.
 
 Regards,
 JumpStart Your Career
