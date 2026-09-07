@@ -382,9 +382,12 @@ function DMItem({ dm, isActive, onSelect }) {
         )}
       </div>
       <span className="flex-1 text-left truncate">{dm.name}</span>
-      {dm.unread > 0 && (
-        <span className="bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-          {dm.unread}
+      {dm.unreadCount > 0 && (
+        <span
+          className="bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+          title={`${dm.unreadCount || 0} unread of ${dm.messageCount} messages`}
+        >
+          {dm.unreadCount}
         </span>
       )}
     </button>
@@ -466,14 +469,18 @@ export function Messages({
       setError(null);
 
       const data = await messageApi.getThreads(currentUserId);
-      const rawMessages = data?.inbox || [];
+      const rawMessages = Array.isArray(data?.inbox)
+        ? data.inbox
+        : Array.isArray(data?.messages)
+        ? data.messages
+        : [];
 
       // Group messages by the "other" participant in the conversation
       const conversationsByPartner = new Map();
 
       rawMessages.forEach((m) => {
         const isOutgoing = m.sender_id === currentUserId;
-        const partnerId = isOutgoing ? m.receiver_id : m.sender_id;
+        const partnerId = String(isOutgoing ? m.receiver_id : m.sender_id);
         const partnerName = isOutgoing ? m.receiver_name : m.sender_name;
 
         const existing = conversationsByPartner.get(partnerId);
@@ -482,11 +489,20 @@ export function Messages({
           name: partnerName || "Unknown",
           lastMessage: m.message,
           lastTimestamp: m.timestamp,
-          unread: 0,
+          messageCount: 1,
+          unreadCount: m.unread ? 1 : 0,
         };
 
-        if (!existing || new Date(m.timestamp) > new Date(existing.lastTimestamp)) {
+        if (!existing) {
           conversationsByPartner.set(partnerId, entry);
+        } else {
+          existing.messageCount += 1;
+          existing.unreadCount += m.unread ? 1 : 0;
+          if (new Date(m.timestamp) > new Date(existing.lastTimestamp)) {
+            existing.lastMessage = entry.lastMessage;
+            existing.lastTimestamp = entry.lastTimestamp;
+            existing.name = entry.name;
+          }
         }
       });
 
@@ -631,7 +647,7 @@ export function Messages({
     } finally {
       setLoadingConversation(false);
     }
-  }, [currentUserId, activeChannelId]);
+  }, [currentUserId]);
 
   useEffect(() => {
     if (activeChannelId) {
@@ -662,9 +678,14 @@ export function Messages({
   );
 
   // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleChannelSelect = useCallback((id) => {
+  const handleChannelSelect = useCallback(async (id) => {
+    if (currentUserId) {
+      await messageApi.markInboxRead(currentUserId, id);
+      window.dispatchEvent(new Event("chat-messages-read"));
+      await loadInbox();
+    }
     setActiveChannelId(id);
-  }, []);
+  }, [currentUserId, loadInbox]);
 
   const handleOpenShareAttachment = (attachment) => {
     setShareAttachment(attachment);

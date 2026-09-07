@@ -1,6 +1,7 @@
 from django.http import FileResponse, JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from django.db.models import Count
@@ -526,9 +527,36 @@ class GetInboxView(View):
                 "sender_name": f"{m.sender.first_name} {m.sender.last_name}",
                 "message": message_text,
                 "timestamp": m.timestamp.isoformat(),
+                "unread": m.read_at is None,
             })
 
-        return JsonResponse({"inbox": data, "count": len(data)})
+        return JsonResponse({
+            "inbox": data,
+            "count": len(data),
+            "unreadCount": sum(1 for message in data if message["unread"]),
+        })
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class MarkInboxReadView(View):
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Employee not found"}, status=404)
+
+        sender_id = request.POST.get("sender_id")
+        if not sender_id:
+            try:
+                sender_id = json.loads(request.body or "{}").get("sender_id")
+            except json.JSONDecodeError:
+                sender_id = None
+
+        messages = Message.objects.filter(receiver=user, read_at__isnull=True)
+        if sender_id:
+            messages = messages.filter(sender_id=sender_id)
+        updated = messages.update(read_at=timezone.now())
+        return JsonResponse({"updated": updated})
 
 # =====================================================
 # GROUP CHAT
@@ -624,6 +652,18 @@ class GetGroupsView(View):
                 user=user
             ).exists()
 
+            membership = GroupMember.objects.filter(
+                group=group,
+                user=user,
+            ).first()
+            unread_group_messages = GroupMessage.objects.filter(
+                group=group,
+            ).exclude(sender=user)
+            if membership and membership.last_read_at:
+                unread_group_messages = unread_group_messages.filter(
+                    created_at__gt=membership.last_read_at,
+                )
+
             admin_member = (
                 GroupMember.objects.filter(group=group, is_admin=True)
                 .select_related("user")
@@ -650,6 +690,7 @@ class GetGroupsView(View):
                 "status": "restricted" if is_restricted_for_superadmin else ("active" if is_member or role in ADMIN_ROLES else "restricted"),
                 "access": "limited" if is_restricted_for_superadmin else ("full" if is_member or role in ADMIN_ROLES else "limited"),
                 "is_admin": GroupMember.objects.filter(group=group, user=user, is_admin=True).exists(),
+                "unread_count": unread_group_messages.count(),
             })
 
         return JsonResponse({
@@ -814,6 +855,12 @@ class GetGroupMessagesView(View):
             .filter(group=group)
             .select_related("sender")
             .order_by("created_at")
+        )
+
+        GroupMember.objects.update_or_create(
+            group=group,
+            user=user,
+            defaults={"last_read_at": timezone.now()},
         )
 
         results = []

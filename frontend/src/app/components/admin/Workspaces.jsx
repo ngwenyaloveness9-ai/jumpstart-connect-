@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router";
 import { Plus, LayoutGrid, List, Users, Layers, MoreHorizontal, Search, Settings, Eye, Trash2, Lock, Loader2, ShieldCheck, X } from "lucide-react";
 import { groupsApi } from "../../services/groupsApi";
 import { WorkspaceEnvironment } from "./workspace/WorkspaceEnvironment";
@@ -45,6 +46,7 @@ const canCreateWorkspace =
   const [autoAssign, setAutoAssign] = useState(true);
   const [autoAdmin, setAutoAdmin] = useState(true);
 const [selectedWorkspace, setSelectedWorkspace] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
 const openWorkspace = (workspace) => {
     setSelectedWorkspace(workspace);
@@ -81,6 +83,17 @@ const closeWorkspace = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const workspaceId = searchParams.get("workspaceId");
+    if (!workspaceId || selectedWorkspace || workspaces.length === 0) return;
+
+    const workspace = workspaces.find((item) => String(item.id) === workspaceId);
+    if (workspace) {
+      setSelectedWorkspace(workspace);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, selectedWorkspace, setSearchParams, workspaces]);
 
   useEffect(() => {
     if (departments.length && !newDepartment) {

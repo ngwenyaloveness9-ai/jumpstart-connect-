@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   LogOut,
@@ -17,6 +17,8 @@ import { Messages } from "./admin/Messages";
 import { Workspaces } from "./admin/Workspaces";
 import { UsersAccess } from "./admin/UsersAccess";
 import { LeavePage } from "./LeavePage";
+import { messageApi } from "../services/messageApi";
+import { groupsApi } from "../services/groupsApi";
 import logo from "../../assets/images/jumpstart-logo.webp";
 
 const EMPLOYEE_TABS = [
@@ -97,6 +99,68 @@ export function UserDashboard({ tab = "workspaces" }) {
 
   const TABS = isHR ? HR_TABS : EMPLOYEE_TABS;
 
+  const [chatNotifications, setChatNotifications] = useState({
+    directCount: 0,
+    groupCount: 0,
+    groupId: null,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadChatNotifications = async () => {
+      if (!currentUser.id) return;
+
+      try {
+        const [inboxData, groupsData] = await Promise.all([
+          messageApi.getThreads(currentUser.id),
+          groupsApi.list(currentUser.id),
+        ]);
+        const unreadDirect = (inboxData?.inbox || []).filter((message) => message.unread);
+        const groups = (groupsData?.groups || []).filter((group) => group.access !== "limited");
+        const groupResults = groups.map((group) => ({
+          groupId: group.id,
+          count: group.unread_count || 0,
+        }));
+        const unreadGroup = groupResults.find((result) => result.count > 0);
+
+        if (!cancelled) {
+          setChatNotifications({
+            directCount: unreadDirect.length,
+            groupCount: groupResults.reduce((total, result) => total + result.count, 0),
+            groupId: unreadGroup?.groupId || null,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load chat notifications:", error);
+      }
+    };
+
+    void loadChatNotifications();
+    const intervalId = setInterval(loadChatNotifications, 15000);
+    window.addEventListener("chat-messages-read", loadChatNotifications);
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+      window.removeEventListener("chat-messages-read", loadChatNotifications);
+    };
+  }, [currentUser.id]);
+
+  const openChatNotifications = async () => {
+    if (chatNotifications.directCount > 0) {
+      await messageApi.markInboxRead(currentUser.id);
+      navigate("/dashboard/messages");
+      return;
+    }
+
+    if (chatNotifications.groupCount > 0 && chatNotifications.groupId) {
+      navigate(`/dashboard/workspaces?workspaceId=${chatNotifications.groupId}`);
+      return;
+    }
+
+    navigate("/dashboard/messages");
+  };
+
   const active =
     TABS.find((tab) => tab.id === activeTab) || TABS[0];
 
@@ -128,14 +192,20 @@ export function UserDashboard({ tab = "workspaces" }) {
         <div className="flex items-center gap-3">
 
           <button
+            onClick={openChatNotifications}
             className="relative w-9 h-9 rounded-xl bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+            aria-label="Open unread messages"
           >
             <Bell
               size={16}
               className="text-muted-foreground"
             />
 
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary" />
+            {chatNotifications.directCount + chatNotifications.groupCount > 0 && (
+              <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                {chatNotifications.directCount + chatNotifications.groupCount > 99 ? "99+" : chatNotifications.directCount + chatNotifications.groupCount}
+              </span>
+            )}
           </button>
 
           <button

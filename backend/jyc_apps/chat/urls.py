@@ -10,6 +10,7 @@ from .views import (
     DownloadGroupAttachmentView,
     GetConversationView,
     GetInboxView,
+    MarkInboxReadView,
     GetContactsView,
     GetGroupsView,
     GetGroupMessagesView,
@@ -65,6 +66,12 @@ urlpatterns = [
         "inbox/<int:user_id>",
         GetInboxView.as_view(),
         name="chat-inbox"
+    ),
+
+    path(
+        "inbox/<int:user_id>/read",
+        MarkInboxReadView.as_view(),
+        name="chat-inbox-read",
     ),
 
     # -------------------------

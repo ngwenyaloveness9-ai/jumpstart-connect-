@@ -24,6 +24,11 @@ class Message(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    read_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
     updated_at = models.DateTimeField(
         auto_now=True
     )
@@ -203,6 +208,11 @@ class GroupMember(models.Model):
 
     joined_at = models.DateTimeField(
         auto_now_add=True
+    )
+
+    last_read_at = models.DateTimeField(
+        null=True,
+        blank=True,
     )
 
     class Meta:

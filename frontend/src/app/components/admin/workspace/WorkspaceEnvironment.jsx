@@ -63,6 +63,7 @@ export function WorkspaceEnvironment({
             );
             if (mountedRef.current) {
                 setGroupMessages(formatMessages(messageData));
+                window.dispatchEvent(new Event("chat-messages-read"));
             }
         } catch (err) {
             console.error("Failed to load group messages", err);

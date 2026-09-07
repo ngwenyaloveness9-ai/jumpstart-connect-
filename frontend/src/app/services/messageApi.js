@@ -11,6 +11,13 @@ export const messageApi = {
     return res.data;
   },
 
+  markInboxRead: async (userId, senderId = null) => {
+    const res = await api.post(`/chat/inbox/${userId}/read`, {
+      sender_id: senderId,
+    });
+    return res.data;
+  },
+
   getContacts: async (userId) => {
     const res = await api.get(`/chat/contacts/${userId}`);
     return res.data;
