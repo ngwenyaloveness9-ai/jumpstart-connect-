@@ -1,13 +1,10 @@
 from datetime import timedelta
-<<<<<<< HEAD
 import base64
 from html import escape
 from pathlib import Path
 import random
 import threading
-=======
 import secrets
->>>>>>> bfc7deec3a083e6c51a6ffc76253684ae55f7026
 
 from django.conf import settings
 from django.contrib.auth import get_user_model

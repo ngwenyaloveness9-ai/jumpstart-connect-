@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
-  Hash,
+  Hash, // This line is retained for context
+  // New import for initials avatar
   Lock,
   Search,
   Smile,
@@ -914,7 +915,9 @@ export function Messages({
           {/* Channel header */}
           <div className="h-12 border-b border-border flex items-center justify-between px-4 flex-shrink-0 bg-card">
             <div className="flex items-center gap-2 min-w-0">
-              <Hash size={15} className="text-muted-foreground flex-shrink-0" />
+                <div className="w-7 h-7 rounded-full bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 text-[10px] font-bold">
+                  {getInitials(selectedChannel.name)}
+                </div>
               <span className="text-sm font-semibold text-foreground truncate">{selectedChannel.name}</span>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
