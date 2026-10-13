@@ -30,6 +30,7 @@ DEBUG = env.bool("DEBUG", default=True)
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
+     "192.168.139.137",
 ]
 
 # -------------------------------------------------
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     "jyc_apps.announcements",
     "jyc_apps.files",
     "jyc_apps.directory",
+    "jyc_apps.projects",
 ]
 
 MIDDLEWARE = [

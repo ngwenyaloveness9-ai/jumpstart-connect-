@@ -30,6 +30,7 @@ export const router = createBrowserRouter([
 
   { path: "dashboard", Component: withAuth(UserDashboard, { tab: "workspaces" }) },
   { path: "dashboard/workspaces", Component: withAuth(UserDashboard, { tab: "workspaces" }) },
+  { path: "dashboard/projects", Component: withAuth(UserDashboard, { tab: "projects" }) },
   { path: "dashboard/messages", Component: withAuth(UserDashboard, { tab: "messages" }) },
   { path: "dashboard/leave", Component: withAuth(UserDashboard, { tab: "leave" }) },
   { path: "dashboard/employees", Component: withAuth(UserDashboard, { tab: "employees" }) },

@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Users,
   CalendarDays,
+  FolderKanban,
 } from "lucide-react";
 
 import { useTheme } from "./ThemeProvider";
@@ -17,11 +18,18 @@ import { Messages } from "./admin/Messages";
 import { Workspaces } from "./admin/Workspaces";
 import { UsersAccess } from "./admin/UsersAccess";
 import { LeavePage } from "./LeavePage";
+import { ProjectWorkspace } from "./ProjectWorkspace";
 import { messageApi } from "../services/messageApi";
 import { groupsApi } from "../services/groupsApi";
 import logo from "../../assets/images/jumpstart-logo.webp";
 
 const EMPLOYEE_TABS = [
+  {
+    id: "projects",
+    label: "Projects",
+    icon: FolderKanban,
+    description: "Projects, tasks and schedules",
+  },
   {
     id: "workspaces",
     label: "Workspaces",
@@ -43,6 +51,12 @@ const EMPLOYEE_TABS = [
 ];
 
 const HR_TABS = [
+  {
+    id: "projects",
+    label: "Projects",
+    icon: FolderKanban,
+    description: "Department projects and task schedules",
+  },
   {
     id: "workspaces",
     label: "Workspaces",
@@ -295,6 +309,7 @@ export function UserDashboard({ tab = "workspaces" }) {
             const isActive = tab.id === activeTab;
             const routeMap = {
               workspaces: "/dashboard/workspaces",
+              projects: "/dashboard/projects",
               employees: "/dashboard/employees",
               messages: "/dashboard/messages",
               leave: "/dashboard/leave",
@@ -363,6 +378,8 @@ export function UserDashboard({ tab = "workspaces" }) {
               {activeTab === "workspaces" && (
                 <Workspaces />
               )}
+
+              {activeTab === "projects" && <ProjectWorkspace />}
 
               {activeTab === "employees" && isHR && (
                 <UsersAccess />

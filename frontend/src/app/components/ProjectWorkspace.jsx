@@ -1,0 +1,300 @@
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown, CirclePlus, Clock3, FileUp, FolderKanban, MessageCircle, Plus, Search, X } from "lucide-react";
+import { projectsApi } from "../services/projectsApi";
+
+const PROJECT_STATUSES = ["Active", "On Hold", "Completed"];
+const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
+const NEXT_TASK_STATUSES = { "To Do": ["In Progress"], "In Progress": ["Review"], Review: ["In Progress", "Done"], Done: [] };
+const MANAGER_ROLES = ["manager", "department manager", "head of department", "supervisor", "head of technology", "superadmin", "admin", "administrator"];
+const EVENT_COLORS = {
+  project_start: "bg-emerald-500",
+  project_end: "bg-rose-500",
+  task_start: "bg-sky-500",
+  task_deadline: "bg-amber-500",
+};
+
+const readCurrentUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("currentUser") || "{}");
+  } catch {
+    return {};
+  }
+};
+
+const fullName = (user) => user?.name || `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || user?.email || "Unassigned";
+const formatDate = (value) => value ? new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "No date";
+const localDateString = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+function ProjectForm({ members, currentUser, onCancel, onCreated }) {
+  const isAdmin = currentUser.is_superuser || ["superadmin", "admin", "administrator"].includes(String(currentUser.role || currentUser.role_name || "").toLowerCase());
+  const [form, setForm] = useState({ name: "", description: "", department: currentUser.department || "", start_date: "", end_date: "", leader_id: String(currentUser.id || ""), member_ids: [] });
+  const [memberPickerOpen, setMemberPickerOpen] = useState(false);
+  const [draftMemberIds, setDraftMemberIds] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const change = (event) => setForm((previous) => ({ ...previous, [event.target.name]: event.target.value }));
+  const toggleDraftMember = (memberId) => setDraftMemberIds((previous) => previous.includes(memberId) ? previous.filter((id) => id !== memberId) : [...previous, memberId]);
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      const created = await projectsApi.create({ ...form, leader_id: Number(form.leader_id), member_ids: form.member_ids.map(Number) });
+      await onCreated(created);
+    } catch (requestError) {
+      setError(requestError.message || "Could not create the project.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="border-b border-border bg-secondary/30 px-5 py-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold">Create a project</h3>
+        <button type="button" onClick={onCancel} aria-label="Close project form" className="rounded p-1 text-muted-foreground hover:bg-secondary"><X size={16} /></button>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="text-xs text-muted-foreground">Project name<input required name="name" value={form.name} onChange={change} maxLength={200} className="mt-1.5 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+        {isAdmin && <label className="text-xs text-muted-foreground">Department<input required name="department" value={form.department} onChange={change} className="mt-1.5 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>}
+        <label className="text-xs text-muted-foreground">Start date<input type="date" name="start_date" value={form.start_date} onChange={change} className="mt-1.5 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+        <label className="text-xs text-muted-foreground">End date<input type="date" name="end_date" value={form.end_date} onChange={change} className="mt-1.5 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+        <label className="text-xs text-muted-foreground md:col-span-2">Description<textarea name="description" value={form.description} onChange={change} rows={3} className="mt-1.5 w-full resize-y rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+        <label className="text-xs text-muted-foreground md:col-span-2">Project leader<select required name="leader_id" value={form.leader_id} onChange={change} className="mt-1.5 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground">{members.map((member) => <option key={member.id} value={member.id}>{fullName(member)} · {member.department || "No department"}</option>)}</select></label>
+        <div className="relative text-xs text-muted-foreground md:col-span-2">
+          <span>Project members</span>
+          <button type="button" aria-expanded={memberPickerOpen} onClick={() => { setDraftMemberIds(form.member_ids); setMemberPickerOpen((open) => !open); }} className="mt-1.5 flex w-full items-center justify-between rounded border border-border bg-background px-3 py-2.5 text-left text-sm text-foreground hover:border-primary/50">
+            <span>{form.member_ids.length ? `${form.member_ids.length} member${form.member_ids.length === 1 ? "" : "s"} selected` : "Select project members"}</span>
+            <ChevronDown size={15} className={`text-muted-foreground transition-transform ${memberPickerOpen ? "rotate-180" : ""}`} />
+          </button>
+          {form.member_ids.length > 0 && <p className="mt-1.5 truncate text-[11px] text-muted-foreground">{members.filter((member) => form.member_ids.includes(String(member.id))).map(fullName).join(", ")}</p>}
+          {memberPickerOpen && <div className="absolute z-20 mt-1 w-full rounded border border-border bg-background shadow-lg">
+            <div className="max-h-64 overflow-y-auto p-1">
+              {members.map((member) => <label key={member.id} className="flex cursor-pointer items-center gap-2.5 rounded px-2.5 py-2 text-sm text-foreground hover:bg-secondary/70">
+                <input type="checkbox" checked={draftMemberIds.includes(String(member.id))} onChange={() => toggleDraftMember(String(member.id))} className="h-4 w-4 accent-primary" />
+                <span className="min-w-0 flex-1 truncate">{fullName(member)}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{member.department || "No department"}</span>
+              </label>)}
+              {!members.length && <p className="px-3 py-4 text-center text-sm text-muted-foreground">No active users found.</p>}
+            </div>
+            <div className="flex items-center justify-between border-t border-border px-3 py-2">
+              <span className="text-xs text-muted-foreground">{draftMemberIds.length} selected</span>
+              <button type="button" onClick={() => { setForm((previous) => ({ ...previous, member_ids: draftMemberIds })); setMemberPickerOpen(false); }} className="rounded bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground">Done</button>
+            </div>
+          </div>}
+        </div>
+      </div>
+      {error && <p role="alert" className="mt-3 text-sm text-rose-600">{error}</p>}
+      <div className="mt-4 flex justify-end"><button disabled={saving} className="inline-flex items-center gap-2 rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"><Check size={15} />{saving ? "Creating..." : "Create project"}</button></div>
+    </form>
+  );
+}
+
+function TaskForm({ project, members, onCancel, onCreated }) {
+  const [form, setForm] = useState({ title: "", description: "", assignee_id: "", priority: "Medium", status: "To Do", start_date: "", end_date: "", tags: "" });
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const change = (event) => setForm((previous) => ({ ...previous, [event.target.name]: event.target.value }));
+  const submit = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      await projectsApi.createTask({ ...form, project_id: project.id, assignee_id: form.assignee_id ? Number(form.assignee_id) : null, tags: form.tags.split(",").map((tag) => tag.trim()).filter(Boolean) });
+      await onCreated();
+    } catch (requestError) {
+      setError(requestError.message || "Could not create the task.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="mb-4 rounded border border-border bg-secondary/25 p-4">
+      <div className="mb-3 flex items-center justify-between"><h4 className="text-sm font-semibold">New task</h4><button type="button" onClick={onCancel} aria-label="Close task form" className="text-muted-foreground"><X size={15} /></button></div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="text-xs text-muted-foreground md:col-span-2">Task title<input required name="title" value={form.title} onChange={change} className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+        <label className="text-xs text-muted-foreground">Assignee<select name="assignee_id" value={form.assignee_id} onChange={change} className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground"><option value="">Unassigned</option>{members.map((member) => <option key={member.id} value={member.id}>{fullName(member)}</option>)}</select></label>
+        <label className="text-xs text-muted-foreground">Priority<select name="priority" value={form.priority} onChange={change} className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground">{PRIORITIES.map((priority) => <option key={priority}>{priority}</option>)}</select></label>
+        <label className="text-xs text-muted-foreground">Start date<input type="date" name="start_date" value={form.start_date} onChange={change} className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+        <label className="text-xs text-muted-foreground">Deadline<input type="date" name="end_date" value={form.end_date} onChange={change} className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+        <label className="text-xs text-muted-foreground md:col-span-2">Description<textarea name="description" value={form.description} onChange={change} rows={2} className="mt-1 w-full resize-y rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+        <label className="text-xs text-muted-foreground md:col-span-2">Tags, separated by commas<input name="tags" value={form.tags} onChange={change} className="mt-1 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground" /></label>
+      </div>
+      {error && <p role="alert" className="mt-3 text-sm text-rose-600">{error}</p>}
+      <div className="mt-3 flex justify-end"><button disabled={saving} className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60">{saving ? "Adding..." : "Add task"}</button></div>
+    </form>
+  );
+}
+
+function ProjectCalendar({ onOpenProject }) {
+  const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const [events, setEvents] = useState([]);
+  const [error, setError] = useState("");
+  const year = month.getFullYear();
+  const monthIndex = month.getMonth();
+  const monthLabel = month.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+
+  useEffect(() => {
+    let active = true;
+    const start = localDateString(new Date(year, monthIndex, 1));
+    const end = localDateString(new Date(year, monthIndex + 1, 0));
+    projectsApi.calendar({ start, end }).then((result) => {
+      if (active) setEvents(result);
+    }).catch((requestError) => {
+      if (active) setError(requestError.message || "Could not load calendar events.");
+    });
+    return () => { active = false; };
+  }, [year, monthIndex]);
+
+  const days = useMemo(() => {
+    const total = new Date(year, monthIndex + 1, 0).getDate();
+    const offset = (new Date(year, monthIndex, 1).getDay() + 6) % 7;
+    return [...Array(offset).fill(null), ...Array.from({ length: total }, (_, index) => index + 1)];
+  }, [year, monthIndex]);
+  const byDate = useMemo(() => events.reduce((map, event) => map.set(event.date, [...(map.get(event.date) || []), event]), new Map()), [events]);
+  const agenda = events.filter((event) => event.date.slice(0, 7) === `${year}-${String(monthIndex + 1).padStart(2, "0")}`);
+
+  return (
+    <section>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div><p className="text-xs font-medium uppercase text-muted-foreground">Project schedule</p><h2 className="mt-1 text-lg font-semibold">{monthLabel}</h2></div>
+        <div className="flex items-center gap-1"><button onClick={() => setMonth(new Date(year, monthIndex - 1, 1))} aria-label="Previous month" className="rounded border border-border p-2 hover:bg-secondary"><ArrowLeft size={16} /></button><button onClick={() => setMonth(new Date())} className="rounded border border-border px-3 py-2 text-xs hover:bg-secondary">Today</button><button onClick={() => setMonth(new Date(year, monthIndex + 1, 1))} aria-label="Next month" className="rounded border border-border p-2 hover:bg-secondary"><ArrowRight size={16} /></button></div>
+      </div>
+      {error && <p role="alert" className="mb-3 text-sm text-rose-600">{error}</p>}
+      <div className="grid grid-cols-7 border-l border-t border-border">
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => <div key={day} className="border-b border-r border-border bg-secondary/40 px-2 py-2 text-center text-[11px] font-semibold text-muted-foreground">{day}</div>)}
+        {days.map((day, index) => {
+          const dateKey = day ? `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}` : "";
+          const dayEvents = byDate.get(dateKey) || [];
+          return <div key={`${dateKey || "blank"}-${index}`} className="min-h-20 border-b border-r border-border p-1.5 sm:min-h-24 sm:p-2"><span className={`text-xs ${dateKey === localDateString(new Date()) ? "font-bold text-primary" : "text-muted-foreground"}`}>{day || ""}</span><div className="mt-1 flex flex-wrap gap-1">{dayEvents.slice(0, 4).map((event) => <span key={event.id} title={`${event.type.replaceAll("_", " ")}: ${event.title}`} className={`h-1.5 w-1.5 rounded-full ${EVENT_COLORS[event.type] || "bg-primary"}`} />)}</div></div>;
+        })}
+      </div>
+      <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_220px]">
+        <div><h3 className="mb-3 text-sm font-semibold">Schedule · {agenda.length}</h3>{agenda.length ? <ul className="divide-y divide-border">{agenda.map((event) => <li key={event.id} className="flex items-start gap-3 py-3"><span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${EVENT_COLORS[event.type] || "bg-primary"}`} /><div className="min-w-0 flex-1"><p className="text-sm font-medium">{event.title}</p><p className="mt-0.5 text-xs capitalize text-muted-foreground">{event.type.replaceAll("_", " ")} · {formatDate(event.date)}</p></div><button onClick={() => onOpenProject(event.projectId)} className="text-xs font-medium text-primary hover:underline">Project</button></li>)}</ul> : <p className="py-4 text-sm text-muted-foreground">No project or task dates this month.</p>}</div>
+        <div className="space-y-2 text-xs text-muted-foreground"><h3 className="mb-3 text-sm font-semibold text-foreground">Key</h3>{[["bg-emerald-500", "Project start"], ["bg-rose-500", "Project end"], ["bg-sky-500", "Task start"], ["bg-amber-500", "Task deadline"]].map(([color, label]) => <p key={label} className="flex items-center gap-2"><span className={`h-2.5 w-2.5 rounded-full ${color}`} />{label}</p>)}</div>
+      </div>
+    </section>
+  );
+}
+
+export function ProjectWorkspace() {
+  const currentUser = readCurrentUser();
+  const role = String(currentUser.role || currentUser.role_name || "").trim().toLowerCase();
+  const mayCreate = MANAGER_ROLES.includes(role);
+  const [view, setView] = useState("projects");
+  const [projects, setProjects] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [filter, setFilter] = useState("All");
+  const [search, setSearch] = useState("");
+  const [taskStatusFilter, setTaskStatusFilter] = useState("All");
+  const [taskPriorityFilter, setTaskPriorityFilter] = useState("All");
+  const [taskSearch, setTaskSearch] = useState("");
+  const [showProjectForm, setShowProjectForm] = useState(false);
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [comments, setComments] = useState({});
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const selectedProject = projects.find((project) => project.id === selectedId) || null;
+  const canManageSelected = !!selectedProject && (mayCreate || selectedProject.leader?.id === currentUser.id);
+
+  const loadProjects = async (preferredId) => {
+    const result = await projectsApi.list();
+    setProjects(result);
+    setSelectedId((previous) => preferredId || (result.some((project) => project.id === previous) ? previous : result[0]?.id || null));
+  };
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([projectsApi.list(), projectsApi.members()]).then(([projectData, memberData]) => {
+      if (active) {
+        setProjects(projectData);
+        setMembers(memberData);
+        setSelectedId(projectData[0]?.id || null);
+      }
+    }).catch((requestError) => {
+      if (active) setError(requestError.message || "Could not load projects.");
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedId) {
+      setTasks([]);
+      return undefined;
+    }
+    let active = true;
+    projectsApi.tasks({ project: selectedId }).then((result) => { if (active) setTasks(result); }).catch((requestError) => { if (active) setError(requestError.message || "Could not load tasks."); });
+    return () => { active = false; };
+  }, [selectedId]);
+
+  const visibleProjects = projects.filter((project) => (filter === "All" || project.status === filter) && `${project.name} ${project.description} ${project.department}`.toLowerCase().includes(search.toLowerCase()));
+  const visibleTasks = tasks.filter((task) => (taskStatusFilter === "All" || task.status === taskStatusFilter) && (taskPriorityFilter === "All" || task.priority === taskPriorityFilter) && `${task.title} ${task.description} ${(task.tags || []).join(" ")}`.toLowerCase().includes(taskSearch.toLowerCase()));
+  const openProjectFromCalendar = (id) => { setView("projects"); setSelectedId(id); };
+  const createProject = async (project) => { await loadProjects(project.id); setShowProjectForm(false); };
+  const reloadTasks = async () => setTasks(await projectsApi.tasks({ project: selectedId }));
+  const updateStatus = async (task, status) => {
+    try {
+      await projectsApi.updateTask(task.id, { status });
+      await reloadTasks();
+      setError("");
+    } catch (requestError) { setError(requestError.message || "Could not update task status."); }
+  };
+  const addComment = async (taskId) => {
+    const body = (comments[taskId] || "").trim();
+    if (!body) return;
+    try {
+      await projectsApi.comment(taskId, body);
+      setComments((previous) => ({ ...previous, [taskId]: "" }));
+      await reloadTasks();
+    } catch (requestError) { setError(requestError.message || "Could not add comment."); }
+  };
+  const uploadFile = async (taskId, file) => {
+    if (!file) return;
+    try { await projectsApi.attach(taskId, file); await reloadTasks(); }
+    catch (requestError) { setError(requestError.message || "Could not upload attachment."); }
+  };
+  const updateProjectStatus = async (status) => {
+    try { const updated = await projectsApi.update(selectedId, { status }); setProjects((previous) => previous.map((project) => project.id === updated.id ? { ...project, ...updated } : project)); }
+    catch (requestError) { setError(requestError.message || "Could not update project status."); }
+  };
+
+  return (
+    <div className="min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-5 py-4">
+        <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded bg-emerald-500/10 text-emerald-600"><FolderKanban size={18} /></div><div><h1 className="text-base font-semibold">Projects</h1><p className="text-xs text-muted-foreground">Projects, tasks and schedules</p></div></div>
+        <div className="flex items-center gap-1 rounded border border-border p-1"><button onClick={() => setView("projects")} className={`rounded px-3 py-1.5 text-xs font-medium ${view === "projects" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}>Projects</button><button onClick={() => setView("calendar")} className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium ${view === "calendar" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}><CalendarDays size={14} />Calendar</button></div>
+      </div>
+      {error && <p role="alert" className="mx-5 mt-4 rounded border border-rose-300/50 bg-rose-500/5 px-3 py-2 text-sm text-rose-600">{error}<button onClick={() => setError("")} className="float-right" aria-label="Dismiss error"><X size={16} /></button></p>}
+      {view === "calendar" ? <div className="p-5"><ProjectCalendar onOpenProject={openProjectFromCalendar} /></div> : <>
+        {showProjectForm && <ProjectForm members={members} currentUser={currentUser} onCancel={() => setShowProjectForm(false)} onCreated={createProject} />}
+        <div className="grid min-h-[500px] lg:grid-cols-[minmax(240px,0.8fr)_minmax(0,1.8fr)]">
+          <aside className="border-b border-border p-4 lg:border-b-0 lg:border-r">
+            <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-semibold">Project list <span className="ml-1 text-xs font-normal text-muted-foreground">{visibleProjects.length}</span></h2>{mayCreate && <button onClick={() => setShowProjectForm((previous) => !previous)} aria-label="Create project" title="Create project" className="rounded border border-border p-1.5 text-primary hover:bg-secondary"><Plus size={16} /></button>}</div>
+            <label className="relative block"><Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search projects" className="w-full rounded border border-border bg-background py-2 pl-8 pr-3 text-xs text-foreground" /></label>
+            <div className="mt-2 flex flex-wrap gap-1">{["All", ...PROJECT_STATUSES].map((status) => <button key={status} onClick={() => setFilter(status)} className={`rounded px-2 py-1 text-[11px] ${filter === status ? "bg-secondary font-semibold text-foreground" : "text-muted-foreground hover:bg-secondary/60"}`}>{status}</button>)}</div>
+            <div className="mt-3 space-y-1">{loading ? <p className="px-2 py-6 text-center text-sm text-muted-foreground">Loading projects...</p> : visibleProjects.map((project) => <button key={project.id} onClick={() => setSelectedId(project.id)} className={`w-full rounded border px-3 py-3 text-left transition-colors ${selectedId === project.id ? "border-primary/40 bg-primary/5" : "border-transparent hover:border-border hover:bg-secondary/40"}`}><div className="flex items-start justify-between gap-2"><span className="text-sm font-medium leading-snug">{project.name}</span><span className="shrink-0 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">{project.status}</span></div><p className="mt-1 text-xs text-muted-foreground">{project.department} · {project.task_count || 0} tasks</p><p className="mt-2 text-[11px] text-muted-foreground">Lead: {fullName(project.leader)}</p></button>)}{!loading && !visibleProjects.length && <p className="px-2 py-8 text-center text-sm text-muted-foreground">No projects found.</p>}</div>
+          </aside>
+          <section className="min-w-0 p-4 sm:p-5">
+            {selectedProject ? <>
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4"><div className="min-w-0"><p className="text-xs text-muted-foreground">{selectedProject.department} · Project {selectedProject.id}</p><h2 className="mt-1 text-xl font-semibold">{selectedProject.name}</h2><p className="mt-2 max-w-2xl whitespace-pre-wrap text-sm text-muted-foreground">{selectedProject.description || "No project description."}</p></div>{canManageSelected && <label className="relative"><span className="sr-only">Project status</span><select value={selectedProject.status} onChange={(event) => updateProjectStatus(event.target.value)} className="appearance-none rounded border border-border bg-background py-2 pl-3 pr-8 text-xs font-medium text-foreground"><option>Active</option><option>On Hold</option><option>Completed</option></select><ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" /></label>}</div>
+              <div className="grid gap-3 border-b border-border py-4 text-xs sm:grid-cols-3"><div><p className="text-muted-foreground">Project lead</p><p className="mt-1 font-medium">{fullName(selectedProject.leader)}</p></div><div><p className="text-muted-foreground">Schedule</p><p className="mt-1 font-medium">{formatDate(selectedProject.start_date)} – {formatDate(selectedProject.end_date)}</p></div><div><p className="text-muted-foreground">Team</p><p className="mt-1 font-medium">{selectedProject.members?.length || 0} members</p></div></div>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><div><h3 className="text-sm font-semibold">Tasks <span className="ml-1 text-xs font-normal text-muted-foreground">{tasks.length}</span></h3><p className="mt-0.5 text-xs text-muted-foreground">{tasks.filter((task) => task.status === "Done").length} completed</p></div>{canManageSelected && <button onClick={() => setShowTaskForm((previous) => !previous)} className="inline-flex items-center gap-1.5 rounded border border-border px-3 py-2 text-xs font-medium hover:bg-secondary"><CirclePlus size={14} />Add task</button>}</div>
+              <div className="mt-3 flex flex-wrap gap-2"><label className="relative"><span className="sr-only">Filter tasks by status</span><select value={taskStatusFilter} onChange={(event) => setTaskStatusFilter(event.target.value)} className="appearance-none rounded border border-border bg-background py-2 pl-2.5 pr-7 text-xs text-foreground"><option>All</option>{["To Do", "In Progress", "Review", "Done"].map((status) => <option key={status}>{status}</option>)}</select><ChevronDown size={12} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" /></label><label className="relative"><span className="sr-only">Filter tasks by priority</span><select value={taskPriorityFilter} onChange={(event) => setTaskPriorityFilter(event.target.value)} className="appearance-none rounded border border-border bg-background py-2 pl-2.5 pr-7 text-xs text-foreground"><option>All</option>{PRIORITIES.map((priority) => <option key={priority}>{priority}</option>)}</select><ChevronDown size={12} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" /></label><label className="relative min-w-44 flex-1"><Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={taskSearch} onChange={(event) => setTaskSearch(event.target.value)} placeholder="Search tasks and tags" className="w-full rounded border border-border bg-background py-2 pl-8 pr-3 text-xs text-foreground" /></label></div>
+              {showTaskForm && <div className="mt-4"><TaskForm project={selectedProject} members={[selectedProject.leader, ...(selectedProject.members || [])].filter((member, index, list) => member && list.findIndex((candidate) => candidate.id === member.id) === index)} onCancel={() => setShowTaskForm(false)} onCreated={async () => { await reloadTasks(); setShowTaskForm(false); }} /></div>}
+              <div className="mt-3 divide-y divide-border">{visibleTasks.map((task) => { const canUpdateTask = canManageSelected || Number(task.assignee?.id) === Number(currentUser.id); const nextStatuses = [...new Set([task.status, ...(NEXT_TASK_STATUSES[task.status] || []).filter((status) => status !== "In Progress" || canManageSelected)])]; return <article key={task.id} className="py-4"><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h4 className="text-sm font-semibold">{task.title}</h4><span className={`rounded px-1.5 py-0.5 text-[10px] ${task.priority === "Urgent" ? "bg-rose-500/10 text-rose-600" : task.priority === "High" ? "bg-orange-500/10 text-orange-600" : "bg-secondary text-muted-foreground"}`}>{task.priority}</span></div><p className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">{task.description || "No description."}</p></div><label className="relative"><span className="sr-only">Status for {task.title}</span><select disabled={!canUpdateTask} value={task.status} onChange={(event) => updateStatus(task, event.target.value)} className="appearance-none rounded border border-border bg-background py-1.5 pl-2.5 pr-7 text-xs text-foreground disabled:opacity-60">{nextStatuses.map((status) => <option key={status}>{status}</option>)}</select><ChevronDown size={12} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" /></label></div>
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground"><span>{fullName(task.assignee)}</span><span className="inline-flex items-center gap-1"><Clock3 size={12} />{formatDate(task.end_date)}</span>{task.tags?.map((tag) => <span key={tag} className="rounded bg-secondary px-1.5 py-0.5">{tag}</span>)}<label className="inline-flex cursor-pointer items-center gap-1 hover:text-foreground"><FileUp size={12} />Attach<input type="file" className="sr-only" onChange={(event) => { void uploadFile(task.id, event.target.files?.[0]); event.target.value = ""; }} /></label></div>
+                {task.attachments?.length > 0 && <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">{task.attachments.map((attachment) => <a key={attachment.id} href={attachment.url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">{attachment.file.split("/").pop()}</a>)}</div>}
+                {task.comments?.length > 0 && <div className="mt-3 space-y-2 border-l-2 border-border pl-3">{task.comments.map((comment) => <p key={comment.id} className="text-xs"><span className="font-medium">{fullName(comment.author)}</span><span className="ml-2 text-muted-foreground">{comment.body}</span></p>)}</div>}
+                <div className="mt-3 flex gap-2"><input value={comments[task.id] || ""} onChange={(event) => setComments((previous) => ({ ...previous, [task.id]: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void addComment(task.id); } }} placeholder="Add a comment" className="min-w-0 flex-1 rounded border border-border bg-background px-2.5 py-1.5 text-xs text-foreground" /><button onClick={() => void addComment(task.id)} aria-label={`Comment on ${task.title}`} title="Add comment" className="rounded border border-border px-2 text-muted-foreground hover:bg-secondary hover:text-foreground"><MessageCircle size={14} /></button></div>
+              </article>; })}{!visibleTasks.length && <p className="py-8 text-center text-sm text-muted-foreground">{tasks.length ? "No tasks match these filters." : "No tasks yet."}</p>}</div>
+            </> : <div className="flex min-h-80 flex-col items-center justify-center text-center"><FolderKanban size={28} className="text-muted-foreground" /><h2 className="mt-3 text-sm font-semibold">No project selected</h2><p className="mt-1 text-xs text-muted-foreground">Projects shared with you will appear here.</p>{mayCreate && <button onClick={() => setShowProjectForm(true)} className="mt-4 inline-flex items-center gap-2 rounded bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"><Plus size={14} />Create project</button>}</div>}
+          </section>
+        </div>
+      </>}
+    </div>
+  );
+}
