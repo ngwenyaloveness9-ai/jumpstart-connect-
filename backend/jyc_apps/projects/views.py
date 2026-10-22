@@ -7,9 +7,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.models import User
-from .models import Project, Task, TaskAttachment, TaskComment
+from .models import ImplementationPlanItem, Project, Task, TaskAttachment, TaskComment
 from .serializers import (
     ProjectSerializer,
+    ImplementationPlanItemSerializer,
     TaskAttachmentSerializer,
     TaskCommentSerializer,
     TaskSerializer,
@@ -42,7 +43,7 @@ def is_department_manager(user):
 def project_queryset(user):
     projects = Project.objects.select_related("leader", "created_by").prefetch_related("members")
     if is_admin(user):
-        return projects.annotate(task_count=Count("tasks", distinct=True), completed_task_count=Count("tasks", filter=Q(tasks__status="Done"), distinct=True))
+        return projects.annotate(task_count=Count("tasks", distinct=True), completed_task_count=Count("tasks", filter=Q(tasks__status="Done"), distinct=True), plan_item_count=Count("implementation_plan", distinct=True))
     department_projects = Q(department__iexact=(user.department or "")) & Q(department__gt="")
     if is_department_manager(user):
         visible = department_projects
@@ -51,6 +52,7 @@ def project_queryset(user):
     return projects.filter(visible).distinct().annotate(
         task_count=Count("tasks", distinct=True),
         completed_task_count=Count("tasks", filter=Q(tasks__status="Done"), distinct=True),
+        plan_item_count=Count("implementation_plan", distinct=True),
     )
 
 
@@ -74,6 +76,61 @@ def get_visible_task(user, task_id):
         )
     except Task.DoesNotExist as exc:
         raise Http404 from exc
+
+
+def get_visible_plan_item(user, item_id):
+    try:
+        return ImplementationPlanItem.objects.select_related("project", "responsible_person", "created_by").get(
+            pk=item_id, project__in=project_queryset(user)
+        )
+    except ImplementationPlanItem.DoesNotExist as exc:
+        raise Http404 from exc
+
+
+class ImplementationPlanListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, project_id):
+        project = get_visible_project(request.user, project_id)
+        items = project.implementation_plan.select_related("responsible_person", "created_by").all()
+        return Response(ImplementationPlanItemSerializer(items, many=True).data)
+
+    def post(self, request, project_id):
+        project = get_visible_project(request.user, project_id)
+        if not can_manage_project(request.user, project):
+            return Response({"error": "Only the project leader or department head can manage the implementation plan."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = ImplementationPlanItemSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        responsible_person = serializer.validated_data.get("responsible_person")
+        if responsible_person and responsible_person.pk not in set(project.members.values_list("pk", flat=True)) | {project.leader_id}:
+            return Response({"error": "The responsible person must be the project leader or a project member."}, status=status.HTTP_400_BAD_REQUEST)
+        item = serializer.save(project=project, created_by=request.user)
+        return Response(ImplementationPlanItemSerializer(item).data, status=status.HTTP_201_CREATED)
+
+
+class ImplementationPlanDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, item_id):
+        item = get_visible_plan_item(request.user, item_id)
+        if not can_manage_project(request.user, item.project):
+            return Response({"error": "Only the project leader or department head can manage the implementation plan."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = ImplementationPlanItemSerializer(item, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        responsible_person = serializer.validated_data.get("responsible_person", item.responsible_person)
+        if responsible_person and responsible_person.pk not in set(item.project.members.values_list("pk", flat=True)) | {item.project.leader_id}:
+            return Response({"error": "The responsible person must be the project leader or a project member."}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(ImplementationPlanItemSerializer(item).data)
+
+    def delete(self, request, item_id):
+        item = get_visible_plan_item(request.user, item_id)
+        if not can_manage_project(request.user, item.project):
+            return Response({"error": "Only the project leader or department head can manage the implementation plan."}, status=status.HTTP_403_FORBIDDEN)
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProjectListView(APIView):
@@ -221,22 +278,22 @@ class ProjectCalendarView(APIView):
 
     def get(self, request):
         projects = project_queryset(request.user)
-        tasks = Task.objects.filter(project__in=projects).select_related("project")
+        plan_items = ImplementationPlanItem.objects.filter(project__in=projects).select_related("project")
         start = request.query_params.get("start")
         end = request.query_params.get("end")
         if start:
             projects = projects.filter(Q(start_date__gte=start) | Q(end_date__gte=start) | Q(end_date__isnull=True, start_date__isnull=True))
-            tasks = tasks.filter(Q(start_date__gte=start) | Q(end_date__gte=start) | Q(start_date__isnull=True, end_date__isnull=True))
+            plan_items = plan_items.filter(Q(start_date__gte=start) | Q(end_date__gte=start) | Q(start_date__isnull=True, end_date__isnull=True))
         if end:
             projects = projects.filter(Q(start_date__lte=end) | Q(end_date__lte=end) | Q(end_date__isnull=True, start_date__isnull=True))
-            tasks = tasks.filter(Q(start_date__lte=end) | Q(end_date__lte=end) | Q(start_date__isnull=True, end_date__isnull=True))
+            plan_items = plan_items.filter(Q(start_date__lte=end) | Q(end_date__lte=end) | Q(start_date__isnull=True, end_date__isnull=True))
         events = []
         for project in projects:
             for kind, event_date in (("project_start", project.start_date), ("project_end", project.end_date)):
                 if event_date:
                     events.append({"id": f"project-{project.id}-{kind}", "type": kind, "title": project.name, "date": event_date.isoformat(), "projectId": project.id})
-        for task in tasks:
-            for kind, event_date in (("task_start", task.start_date), ("task_deadline", task.end_date)):
+        for item in plan_items:
+            for kind, event_date in (("plan_start", item.start_date), ("plan_end", item.end_date)):
                 if event_date:
-                    events.append({"id": f"task-{task.id}-{kind}", "type": kind, "title": task.title, "date": event_date.isoformat(), "projectId": task.project_id, "taskId": task.id, "status": task.status})
+                    events.append({"id": f"plan-{item.id}-{kind}", "type": kind, "title": item.item, "date": event_date.isoformat(), "projectId": item.project_id, "planItemId": item.id, "status": item.status})
         return Response(sorted(events, key=lambda event: (event["date"], event["title"].lower())))

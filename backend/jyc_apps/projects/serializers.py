@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from users.models import User
-from .models import Project, Task, TaskAttachment, TaskComment
+from .models import ImplementationPlanItem, Project, Task, TaskAttachment, TaskComment
 
 
 class UserSummarySerializer(serializers.ModelSerializer):
@@ -23,15 +23,43 @@ class ProjectSerializer(serializers.ModelSerializer):
     created_by = UserSummarySerializer(read_only=True)
     task_count = serializers.IntegerField(read_only=True)
     completed_task_count = serializers.IntegerField(read_only=True)
+    plan_item_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Project
         fields = [
             "id", "name", "description", "department", "start_date", "end_date", "status",
             "leader", "leader_id", "members", "member_ids", "created_by", "task_count",
-            "completed_task_count", "created_at", "updated_at",
+            "completed_task_count", "plan_item_count", "created_at", "updated_at",
         ]
         read_only_fields = ["id", "department", "created_by", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        start_date = attrs.get("start_date", getattr(self.instance, "start_date", None))
+        end_date = attrs.get("end_date", getattr(self.instance, "end_date", None))
+        if start_date and end_date and end_date < start_date:
+            raise serializers.ValidationError({"end_date": "End date must be on or after the start date."})
+        return attrs
+
+
+class ImplementationPlanItemSerializer(serializers.ModelSerializer):
+    responsible_person = UserSummarySerializer(read_only=True)
+    responsible_person_id = serializers.PrimaryKeyRelatedField(
+        source="responsible_person",
+        queryset=User.objects.filter(is_active=True, is_archived=False),
+        allow_null=True,
+        required=False,
+        write_only=True,
+    )
+
+    class Meta:
+        model = ImplementationPlanItem
+        fields = [
+            "id", "project", "item", "description", "start_date", "end_date",
+            "responsible_person", "responsible_person_id", "status", "created_by",
+            "created_at", "updated_at",
+        ]
+        read_only_fields = ["id", "project", "created_by", "created_at", "updated_at"]
 
     def validate(self, attrs):
         start_date = attrs.get("start_date", getattr(self.instance, "start_date", None))

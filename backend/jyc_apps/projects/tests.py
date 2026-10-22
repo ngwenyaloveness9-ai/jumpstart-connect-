@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 
 from users.models import User
-from .models import Project, Task
+from .models import ImplementationPlanItem, Project, Task
 
 
 class ProjectWorkflowTests(APITestCase):
@@ -120,3 +120,51 @@ class ProjectWorkflowTests(APITestCase):
         self.assertEqual(project_response.status_code, 201, project_response.data)
         self.assertEqual(project_response.data["leader"]["id"], self.outsider.id)
         self.assertEqual({member["id"] for member in project_response.data["members"]}, {self.member.id, self.outsider.id})
+
+    def test_project_leader_can_manage_implementation_plan(self):
+        self.client.force_authenticate(self.manager)
+        create_response = self.client.post(f"/api/projects/{self.project.id}/implementation-plan/", {
+            "item": "Install filtration unit",
+            "description": "Install and test the pilot unit",
+            "start_date": "2026-10-20",
+            "end_date": "2026-10-25",
+            "responsible_person_id": self.member.id,
+            "status": "In Progress",
+        }, format="json")
+        self.assertEqual(create_response.status_code, 201, create_response.data)
+        self.assertEqual(create_response.data["responsible_person"]["id"], self.member.id)
+
+        row_id = create_response.data["id"]
+        update_response = self.client.patch(f"/api/implementation-plan/{row_id}/", {"status": "Done"}, format="json")
+        self.assertEqual(update_response.status_code, 200)
+        self.assertEqual(update_response.data["status"], "Done")
+
+        calendar_response = self.client.get("/api/project-calendar/?start=2026-10-01&end=2026-10-31")
+        self.assertEqual(calendar_response.status_code, 200)
+        self.assertIn("plan_start", [event["type"] for event in calendar_response.data])
+        self.assertIn("plan_end", [event["type"] for event in calendar_response.data])
+
+    def test_implementation_plan_rejects_non_member_responsible_person_and_bad_dates(self):
+        self.client.force_authenticate(self.manager)
+        non_member_response = self.client.post(f"/api/projects/{self.project.id}/implementation-plan/", {
+            "item": "Review budget",
+            "responsible_person_id": self.outsider.id,
+        }, format="json")
+        self.assertEqual(non_member_response.status_code, 400)
+
+        date_response = self.client.post(f"/api/projects/{self.project.id}/implementation-plan/", {
+            "item": "Review budget",
+            "start_date": "2026-10-25",
+            "end_date": "2026-10-20",
+        }, format="json")
+        self.assertEqual(date_response.status_code, 400)
+
+    def test_project_member_cannot_edit_implementation_plan(self):
+        row = ImplementationPlanItem.objects.create(
+            project=self.project,
+            item="Prepare materials",
+            created_by=self.manager,
+        )
+        self.client.force_authenticate(self.member)
+        response = self.client.patch(f"/api/implementation-plan/{row.id}/", {"status": "Done"}, format="json")
+        self.assertEqual(response.status_code, 403)

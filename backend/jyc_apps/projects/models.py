@@ -28,6 +28,32 @@ class Project(models.Model):
         return self.name
 
 
+class ImplementationPlanItem(models.Model):
+    STATUS_CHOICES = [
+        ("To Do", "To Do"),
+        ("In Progress", "In Progress"),
+        ("Review", "Review"),
+        ("Done", "Done"),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="implementation_plan")
+    item = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    responsible_person = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="responsible_plan_items")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="To Do")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="created_plan_items")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["start_date", "created_at", "id"]
+
+    def __str__(self):
+        return self.item
+
+
 class Task(models.Model):
     PRIORITY_CHOICES = [
         ("Low", "Low"),
