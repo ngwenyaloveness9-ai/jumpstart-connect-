@@ -42,6 +42,22 @@ class ProjectSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class ProjectDirectorySerializer(serializers.ModelSerializer):
+    leader = UserSummarySerializer(read_only=True)
+    can_access = serializers.SerializerMethodField()
+    plan_item_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Project
+        fields = [
+            "id", "name", "description", "department", "start_date", "end_date",
+            "status", "leader", "plan_item_count", "can_access",
+        ]
+
+    def get_can_access(self, project):
+        return project.pk in self.context["accessible_project_ids"]
+
+
 class ImplementationPlanItemSerializer(serializers.ModelSerializer):
     responsible_person = UserSummarySerializer(read_only=True)
     responsible_person_id = serializers.PrimaryKeyRelatedField(

@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from users.models import User
 from .models import ImplementationPlanItem, Project, Task, TaskAttachment, TaskComment
 from .serializers import (
+    ProjectDirectorySerializer,
     ProjectSerializer,
     ImplementationPlanItemSerializer,
     TaskAttachmentSerializer,
@@ -137,11 +138,19 @@ class ProjectListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        projects = project_queryset(request.user)
+        projects = Project.objects.select_related("leader").annotate(
+            plan_item_count=Count("implementation_plan", distinct=True),
+        )
         status_filter = request.query_params.get("status")
         if status_filter:
             projects = projects.filter(status=status_filter)
-        return Response(ProjectSerializer(projects, many=True).data)
+        accessible_project_ids = set(project_queryset(request.user).values_list("pk", flat=True))
+        serializer = ProjectDirectorySerializer(
+            projects,
+            many=True,
+            context={"accessible_project_ids": accessible_project_ids},
+        )
+        return Response(serializer.data)
 
     def post(self, request):
         if not (is_admin(request.user) or is_department_manager(request.user)):

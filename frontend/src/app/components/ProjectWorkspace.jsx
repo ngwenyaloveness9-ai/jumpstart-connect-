@@ -193,6 +193,7 @@ export function ProjectWorkspace() {
   const [projects, setProjects] = useState([]);
   const [members, setMembers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedProjectDetails, setSelectedProjectDetails] = useState(null);
   const [planItems, setPlanItems] = useState([]);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -200,8 +201,12 @@ export function ProjectWorkspace() {
   const [editingPlanItem, setEditingPlanItem] = useState(undefined);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const selectedProject = projects.find((project) => project.id === selectedId) || null;
-  const canManageSelected = !!selectedProject && (mayCreate || selectedProject.leader?.id === currentUser.id);
+  const selectedSummary = projects.find((project) => project.id === selectedId) || null;
+  const selectedProject = selectedSummary ? {
+    ...selectedSummary,
+    ...(selectedProjectDetails?.id === selectedSummary.id ? selectedProjectDetails : {}),
+  } : null;
+  const canManageSelected = !!selectedProject?.can_access && (mayCreate || Number(selectedProject.leader?.id) === Number(currentUser.id));
   const planMembers = selectedProject ? [selectedProject.leader, ...(selectedProject.members || [])].filter((member, index, list) => member && list.findIndex((candidate) => candidate.id === member.id) === index) : [];
 
   const loadProjects = async (preferredId) => {
@@ -225,14 +230,35 @@ export function ProjectWorkspace() {
   }, []);
 
   useEffect(() => {
+    const projectSummary = projects.find((project) => project.id === selectedId);
+    if (!selectedId || !projectSummary?.can_access) {
+      setSelectedProjectDetails(null);
+      return undefined;
+    }
+    let active = true;
+    setSelectedProjectDetails(null);
+    projectsApi.get(selectedId).then((project) => {
+      if (active) setSelectedProjectDetails(project);
+    }).catch((requestError) => {
+      if (active) setError(requestError.message || "Could not load project details.");
+    });
+    return () => { active = false; };
+  }, [selectedId, projects]);
+
+  useEffect(() => {
+    const projectSummary = projects.find((project) => project.id === selectedId);
     if (!selectedId) {
+      setPlanItems([]);
+      return undefined;
+    }
+    if (!projectSummary?.can_access) {
       setPlanItems([]);
       return undefined;
     }
     let active = true;
     projectsApi.implementationPlan(selectedId).then((result) => { if (active) setPlanItems(result); }).catch((requestError) => { if (active) setError(requestError.message || "Could not load the implementation plan."); });
     return () => { active = false; };
-  }, [selectedId]);
+  }, [selectedId, projects]);
 
   const visibleProjects = projects.filter((project) => (filter === "All" || project.status === filter) && `${project.name} ${project.description} ${project.department}`.toLowerCase().includes(search.toLowerCase()));
   const openProjectFromCalendar = (id) => { setView("projects"); setSelectedId(id); };
@@ -269,10 +295,10 @@ export function ProjectWorkspace() {
             <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-semibold">Project list <span className="ml-1 text-xs font-normal text-muted-foreground">{visibleProjects.length}</span></h2>{mayCreate && <button onClick={() => setShowProjectForm((previous) => !previous)} aria-label="Create project" title="Create project" className="rounded border border-border p-1.5 text-primary hover:bg-secondary"><Plus size={16} /></button>}</div>
             <label className="relative block"><Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search projects" className="w-full rounded border border-border bg-background py-2 pl-8 pr-3 text-xs text-foreground" /></label>
             <div className="mt-2 flex flex-wrap gap-1">{["All", ...PROJECT_STATUSES].map((status) => <button key={status} onClick={() => setFilter(status)} className={`rounded px-2 py-1 text-[11px] ${filter === status ? "bg-secondary font-semibold text-foreground" : "text-muted-foreground hover:bg-secondary/60"}`}>{status}</button>)}</div>
-            <div className="mt-3 space-y-1">{loading ? <p className="px-2 py-6 text-center text-sm text-muted-foreground">Loading projects...</p> : visibleProjects.map((project) => <button key={project.id} onClick={() => setSelectedId(project.id)} className={`w-full rounded border px-3 py-3 text-left transition-colors ${selectedId === project.id ? "border-primary/40 bg-primary/5" : "border-transparent hover:border-border hover:bg-secondary/40"}`}><div className="flex items-start justify-between gap-2"><span className="text-sm font-medium leading-snug">{project.name}</span><span className="shrink-0 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">{project.status}</span></div><p className="mt-1 text-xs text-muted-foreground">{project.department} · {project.plan_item_count || 0} plan items</p><p className="mt-2 text-[11px] text-muted-foreground">Lead: {fullName(project.leader)}</p></button>)}{!loading && !visibleProjects.length && <p className="px-2 py-8 text-center text-sm text-muted-foreground">No projects found.</p>}</div>
+            <div className="mt-3 space-y-1">{loading ? <p className="px-2 py-6 text-center text-sm text-muted-foreground">Loading projects...</p> : visibleProjects.map((project) => <button key={project.id} onClick={() => setSelectedId(project.id)} className={`w-full rounded border px-3 py-3 text-left transition-colors ${selectedId === project.id ? "border-primary/40 bg-primary/5" : "border-transparent hover:border-border hover:bg-secondary/40"}`}><div className="flex items-start justify-between gap-2"><span className="text-sm font-medium leading-snug">{project.name}</span><span className="shrink-0 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">{project.status}</span></div><p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{project.description || "No project description."}</p><p className="mt-2 text-[11px] text-muted-foreground">{project.department}{project.can_access && project.plan_item_count ? ` · ${project.plan_item_count} plan items` : ""}</p></button>)}{!loading && !visibleProjects.length && <p className="px-2 py-8 text-center text-sm text-muted-foreground">No projects found.</p>}</div>
           </aside>
           <section className="min-w-0 p-4 sm:p-5">
-            {selectedProject ? <>
+            {selectedProject ? selectedProject.can_access ? <>
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4"><div className="min-w-0"><p className="text-xs text-muted-foreground">{selectedProject.department} · Project {selectedProject.id}</p><h2 className="mt-1 text-xl font-semibold">{selectedProject.name}</h2><p className="mt-2 max-w-2xl whitespace-pre-wrap text-sm text-muted-foreground">{selectedProject.description || "No project description."}</p></div>{canManageSelected && <label className="relative"><span className="sr-only">Project status</span><select value={selectedProject.status} onChange={(event) => updateProjectStatus(event.target.value)} className="appearance-none rounded border border-border bg-background py-2 pl-3 pr-8 text-xs font-medium text-foreground"><option>Active</option><option>On Hold</option><option>Completed</option></select><ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" /></label>}</div>
               <div className="grid gap-3 border-b border-border py-4 text-xs sm:grid-cols-3"><div><p className="text-muted-foreground">Project lead</p><p className="mt-1 font-medium">{fullName(selectedProject.leader)}</p></div><div><p className="text-muted-foreground">Schedule</p><p className="mt-1 font-medium">{formatDate(selectedProject.start_date)} – {formatDate(selectedProject.end_date)}</p></div><div><p className="text-muted-foreground">Team</p><p className="mt-1 font-medium">{selectedProject.members?.length || 0} members</p></div></div>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3"><div><h3 className="text-sm font-semibold">Implementation plan <span className="ml-1 text-xs font-normal text-muted-foreground">{planItems.length}</span></h3><p className="mt-0.5 text-xs text-muted-foreground">Planned project work and responsibilities</p></div>{canManageSelected && <button onClick={() => setEditingPlanItem(null)} className="inline-flex items-center gap-1.5 rounded border border-border px-3 py-2 text-xs font-medium hover:bg-secondary"><Plus size={14} />Add row</button>}</div>
@@ -286,7 +312,7 @@ export function ProjectWorkspace() {
                   </tbody>
                 </table>
               </div>
-            </> : <div className="flex min-h-80 flex-col items-center justify-center text-center"><FolderKanban size={28} className="text-muted-foreground" /><h2 className="mt-3 text-sm font-semibold">No project selected</h2><p className="mt-1 text-xs text-muted-foreground">Projects shared with you will appear here.</p>{mayCreate && <button onClick={() => setShowProjectForm(true)} className="mt-4 inline-flex items-center gap-2 rounded bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"><Plus size={14} />Create project</button>}</div>}
+            </> : <div className="flex min-h-80 flex-col items-start justify-center"><p className="text-xs text-muted-foreground">{selectedProject.department} · {selectedProject.status}</p><h2 className="mt-2 text-xl font-semibold">{selectedProject.name}</h2><p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm text-muted-foreground">{selectedProject.description || "No project description."}</p><p className="mt-5 border-t border-border pt-3 text-xs text-muted-foreground">Project details and implementation plan are available to the project team and department leads.</p></div> : <div className="flex min-h-80 flex-col items-center justify-center text-center"><FolderKanban size={28} className="text-muted-foreground" /><h2 className="mt-3 text-sm font-semibold">No project selected</h2><p className="mt-1 text-xs text-muted-foreground">Projects shared with you will appear here.</p>{mayCreate && <button onClick={() => setShowProjectForm(true)} className="mt-4 inline-flex items-center gap-2 rounded bg-primary px-3 py-2 text-xs font-medium text-primary-foreground"><Plus size={14} />Create project</button>}</div>}
           </section>
         </div>
       </>}

@@ -60,6 +60,28 @@ class ProjectWorkflowTests(APITestCase):
         response = self.client.get(f"/api/project-tasks/{self.task.id}/")
         self.assertEqual(response.status_code, 404)
 
+    def test_project_directory_lists_summaries_for_all_users(self):
+        other_project = Project.objects.create(
+            name="Finance upgrade",
+            description="Replace the finance reporting system",
+            department="Finance",
+            status="On Hold",
+            created_by=self.outsider,
+            leader=self.outsider,
+        )
+        self.client.force_authenticate(self.member)
+        response = self.client.get("/api/projects/")
+        self.assertEqual(response.status_code, 200)
+        summaries = {item["id"]: item for item in response.data}
+        self.assertIn(other_project.id, summaries)
+        self.assertEqual(summaries[other_project.id]["description"], "Replace the finance reporting system")
+        self.assertEqual(summaries[other_project.id]["status"], "On Hold")
+        self.assertFalse(summaries[other_project.id]["can_access"])
+
+        self.client.force_authenticate(self.outsider)
+        detail_response = self.client.get(f"/api/projects/{self.project.id}/")
+        self.assertEqual(detail_response.status_code, 404)
+
     def test_task_status_follows_review_workflow(self):
         self.client.force_authenticate(self.member)
         self.assertEqual(self.client.patch(f"/api/project-tasks/{self.task.id}/", {"status": "Done"}).status_code, 400)
