@@ -170,7 +170,11 @@ function ProjectCalendar({ onOpenProject }) {
         {days.map((day, index) => {
           const dateKey = day ? `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}` : "";
           const dayEvents = byDate.get(dateKey) || [];
-          return <div key={`${dateKey || "blank"}-${index}`} className="min-h-20 border-b border-r border-border p-1.5 sm:min-h-24 sm:p-2"><span className={`text-xs ${dateKey === localDateString(new Date()) ? "font-bold text-primary" : "text-muted-foreground"}`}>{day || ""}</span><div className="mt-1 flex flex-wrap gap-1">{dayEvents.slice(0, 4).map((event) => <span key={event.id} title={`${event.type.replaceAll("_", " ")}: ${event.title}`} className={`h-1.5 w-1.5 rounded-full ${EVENT_COLORS[event.type] || "bg-primary"}`} />)}</div></div>;
+          return <div key={`${dateKey || "blank"}-${index}`} className="min-h-24 border-b border-r border-border p-1.5 sm:min-h-28 sm:p-2">
+            <span className={`text-xs ${dateKey === localDateString(new Date()) ? "font-bold text-primary" : "text-muted-foreground"}`}>{day || ""}</span>
+            <div className="mt-1 flex flex-wrap gap-1">{dayEvents.slice(0, 4).map((event) => <span key={event.id} title={`${event.type.replaceAll("_", " ")}: ${event.title}`} className={`h-1.5 w-1.5 rounded-full ${EVENT_COLORS[event.type] || "bg-primary"}`} />)}</div>
+            <div className="mt-1 space-y-0.5">{dayEvents.slice(0, 3).map((event) => <p key={event.id} title={`${event.type.replaceAll("_", " ")}: ${event.title}`} className="truncate border-l-2 border-primary/60 pl-1 text-[9px] leading-tight text-foreground sm:text-[10px]">{event.type.replaceAll("_", " ")}: {event.title}</p>)}{dayEvents.length > 3 && <p className="pl-1 text-[9px] leading-tight text-muted-foreground">+{dayEvents.length - 3} more</p>}</div>
+          </div>;
         })}
       </div>
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_220px]">
