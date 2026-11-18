@@ -15,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "department",
             "role",
+            "is_system_admin",
             "is_active",
             "last_login",
             "created_at",
@@ -22,5 +23,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         read_only_fields = (
             "id",
+            "is_system_admin",
             "created_at",
         )

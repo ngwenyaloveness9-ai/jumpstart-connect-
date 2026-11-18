@@ -11,6 +11,7 @@ import {
   Users,
   CalendarDays,
   FolderKanban,
+  Shield,
 } from "lucide-react";
 
 import { useTheme } from "./ThemeProvider";
@@ -239,6 +240,17 @@ export function UserDashboard({ tab = "workspaces" }) {
               />
             )}
           </button>
+
+          {currentUser.is_system_admin && (
+            <button
+              onClick={() => navigate("/admin/users")}
+              className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+              aria-label="Open account administration"
+              title="Account administration"
+            >
+              <Shield size={16} className="text-muted-foreground" />
+            </button>
+          )}
 
           <button onClick={() => navigate("/profile")} className="flex items-center gap-2.5 pl-3 border-l border-border text-left hover:opacity-80 transition-opacity" title="Open profile">
 

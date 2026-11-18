@@ -158,6 +158,12 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+        if not user.is_active or user.is_archived:
+            return Response(
+                {"error": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
         if user.is_first_login:
             return Response({
                 "message": "First login successful. Create a new password to continue.",
@@ -180,6 +186,7 @@ class LoginView(APIView):
                 "id": user.id,
                 "email": user.email,
                 "role": user.role,
+                "is_system_admin": user.is_system_admin,
                 "department": user.department,
                 "first_name": user.first_name,
                 "last_name": user.last_name
@@ -275,7 +282,8 @@ class MeView(APIView):
     "email": user.email,
     "first_name": user.first_name,
     "last_name": user.last_name,
-    "role": user.role
+    "role": user.role,
+    "is_system_admin": user.is_system_admin,
 })
 
     def patch(self, request):
@@ -283,7 +291,7 @@ class MeView(APIView):
         if not user or not user.is_authenticated:
             return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
 
-        allowed_fields = ["first_name", "last_name", "email", "phone", "department", "role"]
+        allowed_fields = ["first_name", "last_name", "email", "phone", "department"]
         for field in allowed_fields:
             if field in request.data:
                 setattr(user, field, request.data[field])
@@ -297,6 +305,7 @@ class MeView(APIView):
             "phone": user.phone,
             "department": user.department,
             "role": user.role,
+            "is_system_admin": user.is_system_admin,
         })
 
 # =====================================================

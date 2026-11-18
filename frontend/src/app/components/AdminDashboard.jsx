@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { LayoutDashboard, Users, Briefcase, Settings, Shield, Bell, Search, Zap, LogOut, Menu, X, Globe, Key, FileText, ChevronDown, Moon, Sun, MessageSquare, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, Settings, Shield, Bell, Search, Zap, LogOut, Menu, X, Globe, Key, FileText, ChevronDown, Moon, Sun, MessageSquare, CalendarDays, ArrowLeft } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { DashboardHome } from "./admin/DashboardHome";
 import { UsersAccess } from "./admin/UsersAccess";
@@ -52,8 +52,18 @@ export function AdminDashboard({ section = "Dashboard" }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [search, setSearch] = useState("");
 
-    const activeSection = section;
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    const isSystemAdmin =
+        currentUser.is_system_admin &&
+        !["superadmin", "admin"].includes(currentUser.role);
+    const activeSection = isSystemAdmin ? "Users" : section;
+    const sidebarItems = isSystemAdmin
+        ? SIDEBAR_ITEMS.filter((item) => item.component === "Users")
+        : SIDEBAR_ITEMS;
     const activeItem = SIDEBAR_ITEMS.find((i) => i.component === activeSection);
+    const userName = [currentUser.first_name, currentUser.last_name]
+        .filter(Boolean)
+        .join(" ") || currentUser.email || "Account";
 
     const handleLogout = () => {
         localStorage.clear();
@@ -87,7 +97,7 @@ export function AdminDashboard({ section = "Dashboard" }) {
       </div>
 
       <div className="text-muted-foreground text-[10px]">
-        Super Admin
+        {isSystemAdmin ? "System Admin" : "Super Admin"}
       </div>
     </div>
   </div>
@@ -101,7 +111,7 @@ export function AdminDashboard({ section = "Dashboard" }) {
 </div>
         {/* Nav items */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {SIDEBAR_ITEMS.map((item) => {
+          {sidebarItems.map((item) => {
             const isActive = activeSection === item.component;
             const route = {
               Dashboard: "/admin",
@@ -130,11 +140,15 @@ export function AdminDashboard({ section = "Dashboard" }) {
         <div className="p-4 border-t border-sidebar-border">
           <div className="flex items-center gap-3 bg-sidebar-accent rounded-xl p-3">
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-foreground font-bold text-xs">WM</span>
+              <span className="text-primary-foreground font-bold text-xs">
+                {userName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
+              </span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sidebar-foreground text-xs font-medium truncate">D. Mathebula</div>
-              <div className="text-muted-foreground text-[10px]">Chairperson</div>
+              <div className="text-sidebar-foreground text-xs font-medium truncate">{userName}</div>
+              <div className="text-muted-foreground text-[10px]">
+                {isSystemAdmin ? "System Admin" : "Super Admin"}
+              </div>
             </div>
             <button onClick={handleLogout} className="text-muted-foreground hover:text-primary transition-colors" title="Sign out">
               <LogOut size={14}/>
@@ -158,6 +172,16 @@ export function AdminDashboard({ section = "Dashboard" }) {
             <span className="text-foreground">{activeItem?.label}</span>
           </div>
 
+          {isSystemAdmin && (
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              <ArrowLeft size={14} />
+              Back to employee dashboard
+            </button>
+          )}
+
           {/* Search */}
           <div className="flex-1 max-w-sm ml-auto md:ml-4">
             <div className="relative">
@@ -170,14 +194,18 @@ export function AdminDashboard({ section = "Dashboard" }) {
             <button onClick={toggleTheme} className="text-muted-foreground hover:text-primary transition-colors p-2" aria-label="Toggle theme">
               {theme === "dark" ? <Sun size={18}/> : <Moon size={18}/>}
             </button>
-            <button onClick={() => navigate("/admin/messages")} className="relative text-muted-foreground hover:text-primary transition-colors p-2" aria-label="Open messages">
-              <Bell size={18}/>
-            </button>
+            {!isSystemAdmin && (
+              <button onClick={() => navigate("/admin/messages")} className="relative text-muted-foreground hover:text-primary transition-colors p-2" aria-label="Open messages">
+                <Bell size={18}/>
+              </button>
+            )}
             <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-1.5 text-xs cursor-pointer hover:border-primary/30 transition-all">
               <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-[9px]">DA</span>
               </div>
-              <span className="text-muted-foreground">Super Admin</span>
+              <span className="text-muted-foreground">
+                {isSystemAdmin ? "System Admin" : "Super Admin"}
+              </span>
               <ChevronDown size={12} className="text-muted-foreground"/>
             </div>
           </div>

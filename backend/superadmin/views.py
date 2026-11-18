@@ -24,6 +24,7 @@ from authentication.models import OTP
 from authentication.email_service import get_logo_data_uri
 from authentication.serializers import EmployeeCreateSerializer
 from jyc_apps.chat.models import Group, GroupMember
+from users.permissions import IsAccountSupportAdmin
 
 
 User = get_user_model()
@@ -83,7 +84,7 @@ def is_employee_account(user):
 class CreateEmployeeView(APIView):
 
     # Require authentication: only Superadmin or HR can onboard employees.
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccountSupportAdmin]
 
     def post(self, request):
 
@@ -100,13 +101,19 @@ class CreateEmployeeView(APIView):
 
         data = serializer.validated_data
 
-        # Authorization: only superadmin may create HR users, HR users may create other employees.
+        # System administrators can onboard employees, but cannot create HR accounts.
         creator = getattr(request, 'user', None)
         creator_role = (getattr(creator, 'role', '') or '').strip().lower() if creator else ''
         creator_department = (getattr(creator, 'department', '') or '').strip().lower() if creator else ''
         new_department = (data.get('department') or '').strip().lower()
 
-        if creator_role == "superadmin":
+        if creator and creator.is_system_admin and creator_role != "superadmin":
+            if (data.get("role") or "employee").strip().lower() != "employee":
+                return Response(
+                    {"error": "System administrators may only onboard employee accounts."},
+                    status=403,
+                )
+        elif creator_role == "superadmin":
            # Superadmin may only onboard HR users
            if new_department != "human resources":
               return Response(
@@ -609,14 +616,14 @@ class UserListView(generics.ListAPIView):
     """
     HR and Superadmin can view users.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccountSupportAdmin]
 
     queryset = User.objects.all().order_by("-created_at")
     serializer_class = UserSerializer
 
     def get(self, request, *args, **kwargs):
 
-        if request.user.role not in ["hr", "superadmin"]:
+        if request.user.role not in ["hr", "superadmin"] and not request.user.is_system_admin:
             return Response(
                 {
                     "error": "Only Human Resources or Superadmin can view users."
@@ -628,16 +635,22 @@ class UserListView(generics.ListAPIView):
 
 
 class UserResetOtpView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccountSupportAdmin]
 
     def post(self, request, pk):
-        if request.user.role not in ["hr", "superadmin"]:
+        if request.user.role not in ["hr", "superadmin"] and not request.user.is_system_admin:
             return Response(
-                {"error": "Only Human Resources or Superadmin can send reset OTPs."},
+                {"error": "You do not have permission to send password reset OTPs."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
         user = get_object_or_404(User, pk=pk)
+        if request.user.is_system_admin and request.user.role != "superadmin":
+            if user.is_system_admin or user.role == "superadmin":
+                return Response(
+                    {"error": "System administrators cannot manage privileged accounts."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
         if request.user.role == "hr" and not is_employee_account(user):
             return Response(
                 {"error": "HR can only manage employee accounts."},
@@ -658,7 +671,7 @@ class UserResetOtpView(APIView):
                 send_mail(
                     subject="Your JumpStart Connect password reset OTP",
                     message=(f"From: {sender}\nTo: {user.email}\n\nHello {user.first_name},\n\n"
-                             f"Your password reset OTP is: {otp_code}\n\nShare this OTP with Human Resources. "
+                             f"Your password reset OTP is: {otp_code}\n\nShare this OTP with the JumpStart Connect support team. "
                              "It expires in 15 minutes."),
                     from_email=sender,
                     recipient_list=[user.email],
@@ -666,12 +679,12 @@ class UserResetOtpView(APIView):
                         user,
                         "Your JumpStart Connect password reset OTP",
                         "Password reset verification",
-                        "Human Resources requested a password reset verification code for your Jumpstart Connect account.",
+                        "The JumpStart Connect support team requested a password reset verification code for your account.",
                         f'''<div style="background:#FFF9E6;border:1px solid #F5C518;border-radius:10px;padding:22px;text-align:center;margin:22px 0;">
                           <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:10px;">Your one-time password reset code</div>
                           <div style="font-size:34px;font-weight:700;letter-spacing:8px;color:#0D0D0D;">{escape(otp_code)}</div>
                         </div>''',
-                        note="Please send this code to Human Resources. Do not share it with anyone else. The code expires in 15 minutes.",
+                        note="Please provide this code only to the JumpStart Connect support person handling your request. The code expires in 15 minutes.",
                     ),
                 )
             except Exception:
@@ -684,16 +697,22 @@ class UserResetOtpView(APIView):
 
 
 class UserResetLinkView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccountSupportAdmin]
 
     def post(self, request, pk):
-        if request.user.role not in ["hr", "superadmin"]:
+        if request.user.role not in ["hr", "superadmin"] and not request.user.is_system_admin:
             return Response(
-                {"error": "Only Human Resources or Superadmin can send reset links."},
+                {"error": "You do not have permission to send password reset links."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
         user = get_object_or_404(User, pk=pk)
+        if request.user.is_system_admin and request.user.role != "superadmin":
+            if user.is_system_admin or user.role == "superadmin":
+                return Response(
+                    {"error": "System administrators cannot manage privileged accounts."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
         if request.user.role == "hr" and not is_employee_account(user):
             return Response(
                 {"error": "HR can only manage employee accounts."},
@@ -722,7 +741,7 @@ class UserResetLinkView(APIView):
                 send_mail(
                     subject="Reset your JumpStart Connect password",
                     message=(f"From: {sender}\nTo: {user.email}\n\nHello {user.first_name},\n\n"
-                             f"Human Resources verified your request. Reset your password here: {reset_url}\n\n"
+                             f"The JumpStart Connect support team verified your request. Reset your password here: {reset_url}\n\n"
                              "This link expires when your account credentials change."),
                     from_email=sender,
                     recipient_list=[user.email],
@@ -730,7 +749,7 @@ class UserResetLinkView(APIView):
                         user,
                         "Reset your JumpStart Connect password",
                         "Reset your password",
-                        "Human Resources verified your password reset request. Use the button below to choose a new password.",
+                        "The JumpStart Connect support team verified your password reset request. Use the button below to choose a new password.",
                         '<div style="background:#f7f7f7;border-left:4px solid #F5C518;padding:14px 16px;margin:22px 0;color:#333;font-size:14px;line-height:1.6;">This link is for your account only.</div>',
                         action_label="Reset my password",
                         action_url=reset_url,
@@ -762,7 +781,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         - Can manage users through this endpoint
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccountSupportAdmin]
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -777,12 +796,19 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
                 raise PermissionDenied(
                     "HR can only manage employee accounts."
                 )
+        elif self.request.user.is_system_admin and self.request.user.role != "superadmin":
+            if user.is_system_admin or user.role == "superadmin":
+                from rest_framework.exceptions import PermissionDenied
+
+                raise PermissionDenied(
+                    "System administrators cannot manage privileged accounts."
+                )
 
         return user
 
     def get(self, request, *args, **kwargs):
 
-        if request.user.role not in ["hr", "superadmin"]:
+        if request.user.role not in ["hr", "superadmin"] and not request.user.is_system_admin:
             return Response(
                 {
                     "error": "Only Human Resources or Superadmin can manage users."
@@ -794,7 +820,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
 
-        if request.user.role not in ["hr", "superadmin"]:
+        if request.user.role not in ["hr", "superadmin"] and not request.user.is_system_admin:
             return Response(
                 {
                     "error": "Only Human Resources or Superadmin can edit users."
@@ -802,9 +828,9 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        if request.user.role == "hr" and str(request.data.get("role", "employee")).lower() not in ["employee", "manager"]:
+        if (request.user.role == "hr" or request.user.is_system_admin) and str(request.data.get("role", "employee")).lower() not in ["employee", "manager"]:
             return Response(
-                {"error": "HR can only assign Employee or Manager roles."},
+                {"error": "HR and System Administrators can only assign Employee or Manager roles."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -812,7 +838,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
 
-        if request.user.role not in ["hr", "superadmin"]:
+        if request.user.role not in ["hr", "superadmin"] and not request.user.is_system_admin:
             return Response(
                 {
                     "error": "Only Human Resources or Superadmin can delete users."
@@ -826,4 +852,3 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 class UserProfileDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
