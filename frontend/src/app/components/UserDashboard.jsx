@@ -122,6 +122,11 @@ export function UserDashboard({ tab = "workspaces" }) {
   const currentUser = JSON.parse(
     localStorage.getItem("currentUser") || "{}"
   );
+  const isSystemAdmin =
+    currentUser.is_system_admin &&
+    !["superadmin", "admin"].includes(
+      (currentUser.role || currentUser.role_name || "").trim().toLowerCase()
+    );
 
 
   /* =======================================================
@@ -806,6 +811,16 @@ export function UserDashboard({ tab = "workspaces" }) {
             )}
           </button>
 
+            {isSystemAdmin && (
+              <button
+                onClick={() => navigate("/admin/users")}
+                className="jyc-icon-button"
+                aria-label="Open account administration"
+                title="System Admin user access"
+              >
+                <Shield size={16} className="text-[#F5C518]" />
+              </button>
+            )}
 
             <div className="hidden sm:block w-px h-8 bg-white/10" />
 

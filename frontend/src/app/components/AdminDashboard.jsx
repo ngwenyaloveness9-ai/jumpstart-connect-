@@ -55,7 +55,9 @@ export function AdminDashboard({ section = "Dashboard" }) {
     const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
     const isSystemAdmin =
         currentUser.is_system_admin &&
-        !["superadmin", "admin"].includes(currentUser.role);
+        !["superadmin", "admin"].includes(
+            (currentUser.role || currentUser.role_name || "").trim().toLowerCase()
+        );
     const activeSection = isSystemAdmin ? "Users" : section;
     const sidebarItems = isSystemAdmin
         ? SIDEBAR_ITEMS.filter((item) => item.component === "Users")
