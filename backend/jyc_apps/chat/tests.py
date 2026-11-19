@@ -35,6 +35,42 @@ class ChatContactsEndpointTests(TestCase):
         self.assertEqual(data["contacts"][0]["id"], self.other.id)
         self.assertEqual(data["contacts"][0]["name"], "Grace Hopper")
 
+    def test_sent_private_message_is_visible_to_both_users(self):
+        send_response = self.client.post(
+            reverse("chat-send"),
+            data=json.dumps({
+                "sender_id": self.user.id,
+                "receiver_id": self.other.id,
+                "message": "Hello from another laptop",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(send_response.status_code, 201)
+        message_id = send_response.json()["message"]["id"]
+
+        inbox_response = self.client.get(
+            reverse("chat-inbox", kwargs={"user_id": self.other.id})
+        )
+        self.assertEqual(inbox_response.status_code, 200)
+        self.assertEqual(inbox_response.json()["inbox"][0]["id"], message_id)
+        self.assertEqual(
+            inbox_response.json()["inbox"][0]["message"],
+            "Hello from another laptop",
+        )
+
+        conversation_response = self.client.get(
+            reverse(
+                "chat-conversation",
+                kwargs={"user1_id": self.other.id, "user2_id": self.user.id},
+            )
+        )
+        self.assertEqual(conversation_response.status_code, 200)
+        self.assertEqual(
+            conversation_response.json()["messages"][0]["id"],
+            message_id,
+        )
+
     def test_send_message_with_attachment_stores_attachment(self):
         uploaded_file = SimpleUploadedFile(
             "test-file.txt",

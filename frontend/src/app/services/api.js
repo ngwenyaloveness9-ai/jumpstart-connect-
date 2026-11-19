@@ -1,7 +1,12 @@
 /* eslint-disable no-unused-vars */
 import axios from "axios";
 
-const DEFAULT_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+const API_HOST = typeof window === "undefined" ? "127.0.0.1" : window.location.hostname;
+const API_PROTOCOL = typeof window === "undefined" || window.location.protocol === "http:"
+  ? "http:"
+  : "https:";
+const DEFAULT_BASE =
+  import.meta.env.VITE_API_BASE_URL || `${API_PROTOCOL}//${API_HOST}:8000/api`;
 
 const api = axios.create({
   baseURL: DEFAULT_BASE,

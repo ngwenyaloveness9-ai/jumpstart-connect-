@@ -27,11 +27,11 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = env.bool("DEBUG", default=True)
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-     "192.168.139.137",
-]
+# Allow LAN host addresses for local development; production hosts must be configured in .env.
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS",
+    default=["*"] if DEBUG else ["127.0.0.1", "localhost"],
+)
 
 # -------------------------------------------------
 # APPLICATION DEFINITION

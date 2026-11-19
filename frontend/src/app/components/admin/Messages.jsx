@@ -472,7 +472,7 @@ export function Messages({
   const inputRef = useRef(null);
 
   // ── Build the conversation list from the inbox ───────────────────────────
-  const loadInbox = useCallback(async () => {
+  const loadInbox = useCallback(async ({ silent = false } = {}) => {
     if (!currentUserId) {
       setError("No logged-in user found.");
       setLoadingInbox(false);
@@ -480,7 +480,7 @@ export function Messages({
     }
 
     try {
-      setLoadingInbox(true);
+      if (!silent) setLoadingInbox(true);
       setError(null);
 
       const data = await messageApi.getThreads(currentUserId);
@@ -535,7 +535,7 @@ export function Messages({
       console.error("Failed to load inbox:", err);
       setError(err.message);
     } finally {
-      setLoadingInbox(false);
+      if (!silent) setLoadingInbox(false);
     }
   }, [currentUserId]);
 
@@ -605,14 +605,14 @@ export function Messages({
   }, [sidebarChannels]);
 
   // ── Load the open conversation's messages ─────────────────────────────────
-  const loadConversation = useCallback(async (partnerId) => {
+  const loadConversation = useCallback(async (partnerId, { silent = false } = {}) => {
     if (!currentUserId || !partnerId) {
       setConversationMessages([]);
       return;
     }
 
     try {
-      setLoadingConversation(true);
+      if (!silent) setLoadingConversation(true);
       const data = await messageApi.getThread(currentUserId, partnerId);
       console.log("getThread response:", data);
 
@@ -658,9 +658,9 @@ export function Messages({
     } catch (err) {
       console.error("Failed to load conversation:", err);
       setError(err.message);
-      setConversationMessages([]);
+      if (!silent) setConversationMessages([]);
     } finally {
-      setLoadingConversation(false);
+      if (!silent) setLoadingConversation(false);
     }
   }, [currentUserId]);
 
@@ -669,6 +669,33 @@ export function Messages({
       loadConversation(activeChannelId);
     }
   }, [activeChannelId, loadConversation]);
+
+  useEffect(() => {
+    if (!activeChannelId) return undefined;
+
+    let refreshInProgress = false;
+    const refreshMessages = async () => {
+      if (document.hidden || refreshInProgress) return;
+
+      refreshInProgress = true;
+      try {
+        await Promise.all([
+          loadInbox({ silent: true }),
+          loadConversation(activeChannelId, { silent: true }),
+        ]);
+      } finally {
+        refreshInProgress = false;
+      }
+    };
+
+    const intervalId = window.setInterval(refreshMessages, 5000);
+    document.addEventListener("visibilitychange", refreshMessages);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", refreshMessages);
+    };
+  }, [activeChannelId, loadConversation, loadInbox]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
