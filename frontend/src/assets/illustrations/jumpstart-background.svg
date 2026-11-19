@@ -1,0 +1,80 @@
+<svg width="1920"
+     height="1080"
+     viewBox="0 0 1920 1080"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+
+    <radialGradient id="goldGlow">
+      <stop offset="0%"
+            stop-color="#F5C518"
+            stop-opacity=".13"/>
+
+      <stop offset="100%"
+            stop-color="#F5C518"
+            stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="wave"
+                    x1="0"
+                    y1="0"
+                    x2="1"
+                    y2="1">
+
+      <stop offset="0%"
+            stop-color="#F5C518"
+            stop-opacity=".15"/>
+
+      <stop offset="100%"
+            stop-color="#F5C518"
+            stop-opacity="0"/>
+    </linearGradient>
+
+  </defs>
+
+  <rect width="1920"
+        height="1080"
+        fill="#0D0D0D"/>
+
+  <!-- Top right glow -->
+  <circle cx="1720"
+          cy="100"
+          r="650"
+          fill="url(#goldGlow)"/>
+
+  <!-- Bottom left glow -->
+  <circle cx="160"
+          cy="970"
+          r="520"
+          fill="url(#goldGlow)"
+          opacity=".45"/>
+
+  <!-- Gold flowing lines -->
+  <path
+    d="M0 825
+       C340 670 570 980 925 820
+       C1260 670 1510 930 1920 725"
+    stroke="#F5C518"
+    stroke-width="2"
+    stroke-opacity=".12"
+    fill="none"
+  />
+
+  <path
+    d="M0 870
+       C390 720 635 1000 985 850
+       C1320 700 1580 950 1920 790"
+    stroke="#F5C518"
+    stroke-width="1.2"
+    stroke-opacity=".08"
+    fill="none"
+  />
+
+  <path
+    d="M1240 0
+       C1420 250 1700 220 1920 390
+       L1920 0 Z"
+    fill="url(#wave)"
+  />
+
+</svg>

@@ -268,7 +268,6 @@ export function UserDashboard({ tab = "workspaces" }) {
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors ml-1"
           >
             <LogOut size={14} />
-
             Sign out
           </button>
 
@@ -277,27 +276,45 @@ export function UserDashboard({ tab = "workspaces" }) {
 
       <main className="max-w-6xl mx-auto px-6 py-10 space-y-8">
 
-        {/* Hero */}
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-card p-8">
+        {/* Professional JumpStart Hero */}
+<section className="jyc-hero">
+  <div className="jyc-hero-content min-h-[210px] flex items-center px-8 md:px-10 py-10">
 
-          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+    <div className="max-w-2xl">
 
-          <div className="relative">
+      <div className="jyc-badge mb-5">
+        {isHR ? "Human Resources Workspace" : "JumpStart Connect"}
+      </div>
 
-            <h1 className="text-2xl font-bold text-foreground mb-1">
-              {getGreeting()}
-              {userName ? `, ${userName}` : ""}
-            </h1>
+      <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">
+        {getGreeting()}
+        {userName ? `, ${userName}` : ""}
+      </h1>
 
-            <p className="text-muted-foreground text-sm">
-              {isHR
-                ? "Manage employees and company workspaces."
-                : "Here's what's happening across your workspaces today."}
-            </p>
+      <p className="text-white/70 text-sm md:text-base leading-relaxed max-w-xl">
+        {isHR
+          ? "Manage employees, company workspaces and people operations across JumpStart Connect."
+          : "Manage your workspaces, collaborate with your teams and drive impact across JumpStart Connect."}
+      </p>
 
-          </div>
+      <div className="flex flex-wrap gap-3 mt-6">
 
+        <div className="inline-flex items-center gap-2 rounded-xl bg-black/30 border border-white/10 px-4 py-2 text-xs text-white/80 backdrop-blur-md">
+          <Layers size={15} className="text-[#F5C518]" />
+          Connected Workspace
         </div>
+
+        <div className="inline-flex items-center gap-2 rounded-xl bg-black/30 border border-white/10 px-4 py-2 text-xs text-white/80 backdrop-blur-md">
+          <Users size={15} className="text-[#F5C518]" />
+          {isHR ? "Human Resources" : "Member"}
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
         {/* Tabs */}
         <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1 w-fit">
@@ -396,7 +413,6 @@ export function UserDashboard({ tab = "workspaces" }) {
             </div>
 
           </div>
-
         </div>
 
       </main>

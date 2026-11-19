@@ -1,0 +1,135 @@
+﻿<svg width="1600" height="420" viewBox="0 0 1600 420"
+     fill="none"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+
+    <linearGradient id="sky" x1="0" y1="0" x2="1600" y2="420">
+      <stop offset="0%" stop-color="#151515"/>
+      <stop offset="40%" stop-color="#33230B"/>
+      <stop offset="75%" stop-color="#C67D08"/>
+      <stop offset="100%" stop-color="#F5C518"/>
+    </linearGradient>
+
+    <radialGradient id="sunGlow">
+      <stop offset="0%" stop-color="#FFF6B0" stop-opacity="1"/>
+      <stop offset="40%" stop-color="#F5C518" stop-opacity=".7"/>
+      <stop offset="100%" stop-color="#F5C518" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#292016"/>
+      <stop offset="100%" stop-color="#111111"/>
+    </linearGradient>
+
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="25"/>
+    </filter>
+
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1600" height="420" rx="32" fill="url(#sky)"/>
+
+  <!-- Golden glow -->
+  <circle
+    cx="1280"
+    cy="210"
+    r="145"
+    fill="url(#sunGlow)"
+    filter="url(#blur)"
+  />
+
+  <!-- Sun -->
+  <circle
+    cx="1280"
+    cy="215"
+    r="58"
+    fill="#FFD84D"
+  />
+
+  <!-- Far mountains -->
+  <path
+    d="M0 285
+       C120 245 200 260 310 235
+       C420 205 520 255 630 228
+       C760 196 850 240 960 218
+       C1080 198 1180 234 1290 218
+       C1420 200 1500 230 1600 205
+       V420 H0 Z"
+    fill="#342719"
+    fill-opacity=".75"
+  />
+
+  <!-- Front mountains -->
+  <path
+    d="M0 325
+       C160 288 270 310 395 275
+       C530 238 675 300 805 275
+       C955 245 1100 300 1230 270
+       C1375 240 1495 285 1600 260
+       V420 H0 Z"
+    fill="url(#hill1)"
+  />
+
+  <!-- Ground -->
+  <path
+    d="M0 360
+       C220 335 420 370 600 350
+       C820 325 1000 372 1190 346
+       C1400 320 1520 350 1600 340
+       V420 H0 Z"
+    fill="#080808"
+  />
+
+  <!-- Acacia tree -->
+
+  <g transform="translate(1135 102)" fill="#080808">
+
+    <!-- trunk -->
+    <path
+      d="M115 118
+         C102 166 108 212 84 274
+         H127
+         C122 210 135 164 127 118
+         Z"
+    />
+
+    <!-- branches -->
+    <path d="M120 135 L70 92 L78 84 L128 120 Z"/>
+    <path d="M122 142 L170 96 L178 104 L130 151 Z"/>
+    <path d="M116 157 L48 122 L53 113 L123 143 Z"/>
+    <path d="M126 154 L195 125 L201 135 L132 166 Z"/>
+
+    <!-- canopy -->
+    <ellipse cx="115" cy="78" rx="138" ry="34"/>
+    <ellipse cx="36" cy="95" rx="82" ry="26"/>
+    <ellipse cx="195" cy="93" rx="88" ry="28"/>
+    <ellipse cx="93" cy="57" rx="82" ry="26"/>
+    <ellipse cx="152" cy="57" rx="85" ry="25"/>
+
+  </g>
+
+  <!-- Grass silhouettes -->
+  <g stroke="#080808" stroke-width="3" opacity=".95">
+    <path d="M970 420 L982 344"/>
+    <path d="M992 420 L1000 356"/>
+    <path d="M1024 420 L1018 350"/>
+    <path d="M1060 420 L1070 347"/>
+    <path d="M1100 420 L1092 365"/>
+    <path d="M1450 420 L1442 350"/>
+    <path d="M1480 420 L1490 362"/>
+    <path d="M1520 420 L1515 345"/>
+  </g>
+
+  <!-- Golden decorative line -->
+  <path
+    d="M0 90
+       C300 10 520 160 820 80
+       C1100 5 1320 80 1600 20"
+    stroke="#F5C518"
+    stroke-width="2"
+    stroke-opacity=".18"
+  />
+
+</svg>

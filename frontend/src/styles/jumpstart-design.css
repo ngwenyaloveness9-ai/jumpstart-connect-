@@ -1,0 +1,950 @@
+:root {
+  --jyc-gold: #F5C518;
+  --jyc-gold-light: #FFD84D;
+  --jyc-gold-dark: #CFA414;
+
+  --jyc-black: #0D0D0D;
+  --jyc-surface: #121212;
+  --jyc-card: #171717;
+  --jyc-card-light: #1D1D1D;
+
+  --jyc-border: rgba(255, 255, 255, 0.09);
+
+  --jyc-text: #FFFFFF;
+  --jyc-muted: #A0A0A0;
+
+  --jyc-success: #4ADE80;
+  --jyc-warning: #F59E0B;
+  --jyc-danger: #EF4444;
+}
+
+
+/* =========================================================
+   GLOBAL PAGE
+========================================================= */
+
+body {
+  margin: 0;
+
+  background:
+    #0D0D0D
+    url("../assets/illustrations/jumpstart-background.svg")
+    center top / cover fixed no-repeat;
+
+  color: white;
+}
+
+
+/* =========================================================
+   MAIN APP CANVAS
+========================================================= */
+
+.jyc-page {
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 78% 18%,
+      rgba(245, 197, 24, 0.07),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 8% 85%,
+      rgba(245, 197, 24, 0.035),
+      transparent 25%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(13, 13, 13, 0.82),
+      rgba(13, 13, 13, 0.97)
+    );
+}
+
+
+/* =========================================================
+   STANDARD CONTAINER
+========================================================= */
+
+.jyc-container {
+  width: min(1500px, calc(100% - 48px));
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* =========================================================
+   STANDARD CARD
+========================================================= */
+
+.jyc-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30, 30, 30, 0.96),
+      rgba(18, 18, 18, 0.98)
+    );
+
+  border: 1px solid var(--jyc-border);
+
+  border-radius: 22px;
+
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.28);
+}
+
+
+/* =========================================================
+   GLASS CARD
+========================================================= */
+
+.jyc-glass {
+  background:
+    rgba(18, 18, 18, 0.78);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  backdrop-filter:
+    blur(20px);
+
+  -webkit-backdrop-filter:
+    blur(20px);
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+
+/* =========================================================
+   PRIMARY GOLD BUTTON
+========================================================= */
+
+.jyc-primary-button {
+  background:
+    linear-gradient(
+      135deg,
+      #FFD84D,
+      #F5C518
+    );
+
+  color:
+    #0D0D0D;
+
+  border:
+    none;
+
+  border-radius:
+    12px;
+
+  font-weight:
+    700;
+
+  box-shadow:
+    0 8px 30px rgba(245, 197, 24, 0.14);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.jyc-primary-button:hover {
+  transform:
+    translateY(-1px);
+
+  filter:
+    brightness(1.05);
+
+  box-shadow:
+    0 12px 38px rgba(245, 197, 24, 0.28);
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.jyc-input {
+  background:
+    rgba(10, 10, 10, 0.65);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.10);
+
+  border-radius:
+    12px;
+
+  color:
+    white;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.jyc-input:focus {
+  outline:
+    none;
+
+  border-color:
+    rgba(245, 197, 24, 0.70);
+
+  box-shadow:
+    0 0 0 3px rgba(245, 197, 24, 0.08);
+}
+
+
+/* =========================================================
+   PROFESSIONAL HERO
+========================================================= */
+
+.jyc-hero {
+  position:
+    relative;
+
+  overflow:
+    hidden;
+
+  min-height:
+    210px;
+
+  border-radius:
+    26px;
+
+  border:
+    1px solid rgba(245, 197, 24, 0.16);
+
+  background:
+    #151515
+    url("../assets/illustrations/jumpstart-hero.png")
+    center right / cover no-repeat;
+
+  box-shadow:
+    0 0 0 1px rgba(245, 197, 24, 0.04),
+    0 0 28px rgba(245, 197, 24, 0.07),
+    0 20px 60px rgba(0, 0, 0, 0.50);
+
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+
+/* Optional subtle hover enhancement */
+
+.jyc-hero:hover {
+  border-color:
+    rgba(245, 197, 24, 0.24);
+
+  box-shadow:
+    0 0 0 1px rgba(245, 197, 24, 0.06),
+    0 0 36px rgba(245, 197, 24, 0.09),
+    0 22px 65px rgba(0, 0, 0, 0.55);
+}
+
+
+/* =========================================================
+   HERO DARK READABILITY OVERLAY
+========================================================= */
+
+.jyc-hero::before {
+  content:
+    "";
+
+  position:
+    absolute;
+
+  inset:
+    0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 8, 8, 0.96) 0%,
+      rgba(8, 8, 8, 0.80) 33%,
+      rgba(8, 8, 8, 0.42) 55%,
+      rgba(8, 8, 8, 0.14) 72%,
+      rgba(8, 8, 8, 0.03) 100%
+    );
+
+  z-index:
+    1;
+
+  pointer-events:
+    none;
+}
+
+
+/* =========================================================
+   HERO GOLDEN LIGHT BLOOM
+========================================================= */
+
+.jyc-hero::after {
+  content:
+    "";
+
+  position:
+    absolute;
+
+  width:
+    460px;
+
+  height:
+    460px;
+
+  right:
+    2%;
+
+  top:
+    50%;
+
+  transform:
+    translateY(-50%);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 216, 77, 0.38) 0%,
+      rgba(245, 197, 24, 0.23) 22%,
+      rgba(245, 197, 24, 0.12) 40%,
+      rgba(245, 197, 24, 0.04) 56%,
+      transparent 72%
+    );
+
+  filter:
+    blur(20px);
+
+  pointer-events:
+    none;
+
+  z-index:
+    0;
+}
+
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.jyc-hero-content {
+  position:
+    relative;
+
+  z-index:
+    3;
+}
+
+
+/* =========================================================
+   GOLD GLOW UTILITY
+========================================================= */
+
+.jyc-gold-glow {
+  box-shadow:
+    0 0 0 1px rgba(245, 197, 24, 0.10),
+    0 0 24px rgba(245, 197, 24, 0.10),
+    0 15px 40px rgba(245, 197, 24, 0.08);
+}
+
+
+/* =========================================================
+   GOLD TEXT
+========================================================= */
+
+.jyc-gold {
+  color:
+    var(--jyc-gold);
+}
+
+
+/* =========================================================
+   MUTED TEXT
+========================================================= */
+
+.jyc-muted {
+  color:
+    var(--jyc-muted);
+}
+
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.jyc-section-title {
+  font-size:
+    1.5rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    -0.02em;
+}
+
+
+/* =========================================================
+   GOLD BADGE
+========================================================= */
+
+.jyc-badge {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    6px;
+
+  padding:
+    6px 12px;
+
+  border-radius:
+    999px;
+
+  border:
+    1px solid rgba(245, 197, 24, 0.38);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(245, 197, 24, 0.13),
+      rgba(245, 197, 24, 0.05)
+    );
+
+  color:
+    #F5C518;
+
+  font-size:
+    12px;
+
+  font-weight:
+    600;
+
+  box-shadow:
+    0 0 18px rgba(245, 197, 24, 0.12),
+    inset 0 0 12px rgba(245, 197, 24, 0.04);
+}
+
+
+/* =========================================================
+   HERO SMALL INFO PILLS
+========================================================= */
+
+.jyc-hero-pill {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  padding:
+    9px 14px;
+
+  border-radius:
+    12px;
+
+  border:
+    1px solid rgba(245, 197, 24, 0.20);
+
+  background:
+    rgba(0, 0, 0, 0.40);
+
+  color:
+    rgba(255, 255, 255, 0.82);
+
+  font-size:
+    12px;
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+
+  box-shadow:
+    0 0 20px rgba(245, 197, 24, 0.06);
+}
+
+
+/* =========================================================
+   DARK HEADER / NAVIGATION
+========================================================= */
+
+.jyc-header {
+  position:
+    sticky;
+
+  top:
+    0;
+
+  z-index:
+    50;
+
+  background:
+    rgba(10, 10, 10, 0.88);
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.07);
+
+  backdrop-filter:
+    blur(18px);
+
+  -webkit-backdrop-filter:
+    blur(18px);
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.22);
+}
+
+
+/* =========================================================
+   ICON BUTTON
+========================================================= */
+
+.jyc-icon-button {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  width:
+    38px;
+
+  height:
+    38px;
+
+  border-radius:
+    12px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+
+  background:
+    rgba(255, 255, 255, 0.05);
+
+  color:
+    rgba(255, 255, 255, 0.72);
+
+  transition:
+    0.2s ease;
+}
+
+.jyc-icon-button:hover {
+  color:
+    #F5C518;
+
+  border-color:
+    rgba(245, 197, 24, 0.22);
+
+  background:
+    rgba(245, 197, 24, 0.07);
+
+  box-shadow:
+    0 0 18px rgba(245, 197, 24, 0.06);
+}
+
+
+/* =========================================================
+   TAB BAR
+========================================================= */
+
+.jyc-tabs {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    4px;
+
+  padding:
+    5px;
+
+  border-radius:
+    15px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  background:
+    rgba(24, 24, 24, 0.90);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================================
+   ACTIVE TAB
+========================================================= */
+
+.jyc-tab-active {
+  color:
+    #F5C518;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(245, 197, 24, 0.16),
+      rgba(245, 197, 24, 0.08)
+    );
+
+  border:
+    1px solid rgba(245, 197, 24, 0.16);
+
+  box-shadow:
+    0 0 16px rgba(245, 197, 24, 0.05);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1024px) {
+
+  .jyc-hero::after {
+    width:
+      360px;
+
+    height:
+      360px;
+
+    right:
+      -5%;
+  }
+}
+
+
+@media (max-width: 768px) {
+
+  .jyc-container {
+    width:
+      calc(100% - 24px);
+  }
+
+  .jyc-hero {
+    min-height:
+      230px;
+
+    background-position:
+      62% center;
+  }
+
+  .jyc-hero::before {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(8, 8, 8, 0.96) 0%,
+        rgba(8, 8, 8, 0.82) 58%,
+        rgba(8, 8, 8, 0.45) 100%
+      );
+  }
+
+  .jyc-hero::after {
+    width:
+      300px;
+
+    height:
+      300px;
+
+    right:
+      -18%;
+  }
+}
+
+
+@media (max-width: 520px) {
+
+  .jyc-container {
+    width:
+      calc(100% - 18px);
+  }
+
+  .jyc-hero {
+    min-height:
+      260px;
+
+    border-radius:
+      20px;
+
+    background-position:
+      68% center;
+  }
+
+  .jyc-hero::before {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(8, 8, 8, 0.98) 0%,
+        rgba(8, 8, 8, 0.88) 70%,
+        rgba(8, 8, 8, 0.58) 100%
+      );
+  }
+
+  .jyc-badge {
+    font-size:
+      11px;
+  }
+
+  .jyc-hero-pill {
+    padding:
+      8px 11px;
+
+    font-size:
+      11px;
+  }
+}
+
+/* =========================================================
+   PREMIUM GLASS CARD REFINEMENT
+========================================================= */
+
+.jyc-page .bg-card,
+.jyc-card,
+.jyc-glass,
+.jyc-content-panel,
+.jyc-panel,
+.jyc-stat-card,
+.jyc-glass-medium,
+.jyc-glass-soft,
+.jyc-glass-strong {
+  position: relative;
+  overflow: hidden;
+}
+
+.jyc-page .bg-card::before,
+.jyc-card::before,
+.jyc-glass::before,
+.jyc-content-panel::before,
+.jyc-panel::before,
+.jyc-stat-card::before,
+.jyc-glass-medium::before,
+.jyc-glass-soft::before,
+.jyc-glass-strong::before {
+  content: "";
+
+  position: absolute;
+
+  left: 1px;
+  right: 1px;
+  top: 1px;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,0.04) 15%,
+      rgba(255,255,255,0.10) 50%,
+      rgba(255,255,255,0.04) 85%,
+      transparent 100%
+    );
+
+  pointer-events: none;
+}
+
+.jyc-page .bg-card:hover,
+.jyc-card:hover,
+.jyc-glass-medium:hover,
+.jyc-stat-card:hover {
+  border-color:
+    rgba(245, 197, 24, 0.20) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(245,197,24,0.025),
+    0 0 28px rgba(245,197,24,0.045),
+    0 18px 48px rgba(0,0,0,0.28) !important;
+}
+
+
+/* Workspace cards specifically */
+
+.jyc-page .rounded-xl.border,
+.jyc-page .rounded-2xl.border,
+.jyc-page .rounded-3xl.border {
+  backdrop-filter:
+    blur(18px) saturate(120%);
+
+  -webkit-backdrop-filter:
+    blur(18px) saturate(120%);
+}
+
+
+/* Stat cards slightly brighter */
+
+.jyc-page .grid .bg-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(36,36,36,0.38),
+      rgba(11,11,11,0.46)
+    ) !important;
+}
+
+
+/* Buttons stay crisp above glass */
+
+.jyc-page button {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* =========================================================
+   RESTORE GOLD BACKGROUND LINES WITH GLASS CARDS
+========================================================= */
+
+.jyc-page {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow-x: hidden !important;
+}
+
+
+/* Gold lines stay above base background,
+   but below dashboard content */
+
+.jyc-background-strings {
+  position: absolute !important;
+
+  inset: 0 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  min-height: 100% !important;
+
+  display: block !important;
+  visibility: visible !important;
+
+  overflow: hidden !important;
+
+  pointer-events: none !important;
+
+  z-index: 2 !important;
+
+  opacity: 0.82 !important;
+
+  filter:
+    drop-shadow(
+      0 0 5px rgba(245, 197, 24, 0.28)
+    ) !important;
+}
+
+
+.jyc-background-strings svg {
+  display: block !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  min-height: 100% !important;
+}
+
+
+/* Keep main UI above the strings */
+
+.jyc-page > main {
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+
+/* Header stays highest */
+
+.jyc-header {
+  position: sticky !important;
+  top: 0 !important;
+
+  z-index: 50 !important;
+}
+
+
+/* Keep glass transparent enough for gold lines */
+
+.jyc-card,
+.jyc-glass,
+.jyc-content-panel,
+.jyc-panel,
+.jyc-stat-card,
+.jyc-glass-medium,
+.jyc-glass-soft {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(28, 28, 28, 0.32),
+      rgba(8, 8, 8, 0.42)
+    ) !important;
+
+  backdrop-filter:
+    blur(18px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(18px) saturate(120%) !important;
+}
+
+
+/* Existing Tailwind bg-card surfaces */
+
+.jyc-page .bg-card,
+.jyc-page [class~="bg-card"] {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30, 30, 30, 0.30),
+      rgba(8, 8, 8, 0.40)
+    ) !important;
+
+  backdrop-filter:
+    blur(18px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(18px) saturate(120%) !important;
+}
+
+
+/* Secondary surfaces */
+
+.jyc-page .bg-secondary,
+.jyc-page [class~="bg-secondary"] {
+  background:
+    rgba(25, 25, 25, 0.34) !important;
+
+  backdrop-filter:
+    blur(16px) !important;
+
+  -webkit-backdrop-filter:
+    blur(16px) !important;
+}
+
+
+/* Gold line visibility boost */
+
+.jyc-background-strings path {
+  vector-effect: non-scaling-stroke;
+}
+
+
+/* Keep the decorative gold glow */
+
+.jyc-background-strings::before {
+  opacity: 1 !important;
+}
+
+.jyc-background-strings::after {
+  opacity: 1 !important;
+}
+
