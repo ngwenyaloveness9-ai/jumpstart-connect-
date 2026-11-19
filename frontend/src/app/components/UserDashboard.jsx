@@ -11,6 +11,7 @@ import {
   Users,
   CalendarDays,
   FolderKanban,
+  Shield,
 } from "lucide-react";
 
 import { useTheme } from "./ThemeProvider";
@@ -787,32 +788,23 @@ export function UserDashboard({ tab = "workspaces" }) {
 
             </button>
 
-
-            {/* Theme */}
-
-            <button
-              onClick={toggleTheme}
-              className="jyc-icon-button"
-              aria-label="Toggle theme"
-            >
-
-              {theme === "dark" ? (
-
-                <Sun
-                  size={16}
-                  className="text-[#F5C518]"
-                />
-
-              ) : (
-
-                <Moon
-                  size={16}
-                  className="text-[#F5C518]"
-                />
-
-              )}
-
-            </button>
+          <button
+            onClick={toggleTheme}
+            className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun
+                size={16}
+                className="text-muted-foreground"
+              />
+            ) : (
+              <Moon
+                size={16}
+                className="text-muted-foreground"
+              />
+            )}
+          </button>
 
 
             <div className="hidden sm:block w-px h-8 bg-white/10" />
@@ -870,32 +862,14 @@ export function UserDashboard({ tab = "workspaces" }) {
 
             </button>
 
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors ml-1"
+          >
+            <LogOut size={14} />
 
-            {/* Logout */}
-
-            <button
-              onClick={handleLogout}
-              className="
-                hidden
-                md:flex
-
-                items-center
-                gap-1.5
-
-                text-xs
-                text-white/50
-
-                hover:text-[#F5C518]
-
-                transition-colors
-              "
-            >
-
-              <LogOut size={14} />
-
-              Sign out
-
-            </button>
+            Sign out
+          </button>
 
           </div>
 
@@ -903,128 +877,29 @@ export function UserDashboard({ tab = "workspaces" }) {
 
       </header>
 
+      <main className="max-w-6xl mx-auto px-6 py-10 space-y-8">
 
-      {/* =====================================================
-          DASHBOARD
-      ====================================================== */}
+        {/* Hero */}
+        <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-card p-8">
 
-      <main className="jyc-container py-8 md:py-10 space-y-8">
+          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
 
+          <div className="relative">
 
-        {/* ===================================================
-            HERO
-        ==================================================== */}
+            <h1 className="text-2xl font-bold text-foreground mb-1">
+              {getGreeting()}
+              {userName ? `, ${userName}` : ""}
+            </h1>
 
-        <section className="jyc-hero">
-
-          <div
-            className="
-              jyc-hero-content
-
-              min-h-[225px]
-
-              flex
-              items-center
-
-              px-8
-              md:px-10
-
-              py-10
-            "
-          >
-
-            <div className="max-w-2xl">
-
-
-              <div className="jyc-badge mb-5">
-
-                {isHR
-                  ? "Human Resources Workspace"
-                  : "JumpStart Connect"}
-
-              </div>
-
-
-              <h1
-                className="
-                  text-3xl
-                  md:text-4xl
-
-                  font-bold
-
-                  text-white
-
-                  tracking-tight
-
-                  mb-3
-                "
-              >
-
-                {getGreeting()}
-
-                {userName
-                  ? `, ${userName}`
-                  : ""}
-
-              </h1>
-
-
-              <p
-                className="
-                  text-white/70
-
-                  text-sm
-                  md:text-base
-
-                  leading-relaxed
-
-                  max-w-xl
-                "
-              >
-
-                {isHR
-                  ? "Manage employees, company workspaces and people operations across JumpStart Connect."
-                  : "Manage your workspaces, collaborate with your teams and drive impact across JumpStart Connect."}
-
-              </p>
-
-
-              <div className="flex flex-wrap gap-3 mt-6">
-
-
-                <div className="jyc-hero-pill">
-
-                  <Layers
-                    size={15}
-                    className="text-[#F5C518]"
-                  />
-
-                  Connected Workspace
-
-                </div>
-
-
-                <div className="jyc-hero-pill">
-
-                  <Users
-                    size={15}
-                    className="text-[#F5C518]"
-                  />
-
-                  {isHR
-                    ? "Human Resources"
-                    : "Member"}
-
-                </div>
-
-
-              </div>
-
-            </div>
+            <p className="text-muted-foreground text-sm">
+              {isHR
+                ? "Manage employees and company workspaces."
+                : "Here's what's happening across your workspaces today."}
+            </p>
 
           </div>
 
-        </section>
+        </div>
 
 
         {/* ===================================================
@@ -1230,7 +1105,6 @@ export function UserDashboard({ tab = "workspaces" }) {
             </div>
 
           </div>
-
 
         </div>
 

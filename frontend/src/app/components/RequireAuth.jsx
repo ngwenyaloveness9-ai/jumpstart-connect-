@@ -25,6 +25,18 @@ export function RequireAuth({ children }) {
           JSON.stringify(user)
         );
 
+        const hasFullAdminAccess = ["superadmin", "admin"].includes(user.role);
+        const hasSystemAdminAccess =
+          user.is_system_admin && location.pathname === "/admin/users";
+        if (
+          location.pathname.startsWith("/admin") &&
+          !hasFullAdminAccess &&
+          !hasSystemAdminAccess
+        ) {
+          setStatus("unauthorized");
+          return;
+        }
+
         setStatus("authenticated");
       } catch (error) {
         console.error("Authentication check failed:", error);
@@ -38,7 +50,7 @@ export function RequireAuth({ children }) {
     };
 
     verifyAuth();
-  }, []);
+  }, [location.pathname]);
 
   if (status === "checking") {
     return (
@@ -61,6 +73,10 @@ export function RequireAuth({ children }) {
     }
 
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (status === "unauthorized") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

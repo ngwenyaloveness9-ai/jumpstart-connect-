@@ -1,0 +1,69 @@
+﻿<svg width="1920" height="1080"
+     viewBox="0 0 1920 1080"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+
+    <radialGradient id="goldGlow">
+      <stop offset="0%" stop-color="#F5C518" stop-opacity=".14"/>
+      <stop offset="100%" stop-color="#F5C518" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="wave"
+      x1="0"
+      y1="0"
+      x2="1"
+      y2="1">
+
+      <stop offset="0%" stop-color="#F5C518" stop-opacity=".18"/>
+      <stop offset="100%" stop-color="#F5C518" stop-opacity="0"/>
+
+    </linearGradient>
+
+  </defs>
+
+  <rect width="1920" height="1080" fill="#0D0D0D"/>
+
+  <circle
+    cx="1700"
+    cy="100"
+    r="650"
+    fill="url(#goldGlow)"
+  />
+
+  <circle
+    cx="180"
+    cy="950"
+    r="500"
+    fill="url(#goldGlow)"
+    opacity=".45"
+  />
+
+  <path
+    d="M0 820
+       C350 670 570 980 920 820
+       C1260 670 1500 930 1920 730"
+    stroke="#F5C518"
+    stroke-width="2"
+    stroke-opacity=".13"
+    fill="none"
+  />
+
+  <path
+    d="M0 865
+       C390 715 640 1010 980 850
+       C1310 695 1590 950 1920 790"
+    stroke="#F5C518"
+    stroke-width="1"
+    stroke-opacity=".09"
+    fill="none"
+  />
+
+  <path
+    d="M1220 0
+       C1400 260 1680 220 1920 390
+       L1920 0 Z"
+    fill="url(#wave)"
+  />
+
+</svg>

@@ -28,6 +28,10 @@ const ROLE_COLORS = {
     "Viewer": "text-[#666]",
 };
 export function UsersAccess() {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    const isSystemAdmin =
+      currentUser.is_system_admin &&
+      !["superadmin", "admin"].includes(currentUser.role);
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("All Roles");
     const [deptFilter, setDeptFilter] = useState("All Departments");
@@ -70,6 +74,7 @@ const loadUsers = async () => {
       name: `${u.first_name} ${u.last_name}`,
       email: u.email,
       role: u.role || "Employee",
+      isSystemAdmin: u.is_system_admin,
       dept: u.department || "",
       status: u.is_active ? "active" : "inactive",
       joined: new Date(u.created_at).toLocaleDateString(),
@@ -249,6 +254,9 @@ useEffect(() => {
                   </td>
                   <td className="px-4 py-3">
                     <span className={`font-medium ${ROLE_COLORS[user.role] || "text-[#888]"}`}>{user.role}</span>
+                    {user.isSystemAdmin && (
+                      <span className="ml-2 text-[10px] text-red-400">System Admin</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-[#888]">{user.dept}</td>
                   <td className="px-4 py-3">
@@ -263,20 +271,22 @@ useEffect(() => {
                   <td className="px-4 py-3 text-[#555]">{user.joined}</td>
                   <td className="px-4 py-3">
                     <div className="relative">
+                      {(!isSystemAdmin || (!user.isSystemAdmin && user.role.toLowerCase() !== "superadmin")) && (
                       <button onClick={() => setOpenMenu(openMenu === user.id ? null : user.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-[#444] hover:text-white p-1">
                         <MoreHorizontal size={14}/>
                       </button>
+                      )}
                       {openMenu === user.id && (<div className="absolute right-0 top-7 z-20 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-1 w-44 shadow-xl">
                           {[
                     { icon: Edit2, label: "Edit User", color: "text-white", onClick: () => openEditUser(user) },
-                    { icon: Mail, label: "Send Reset OTP", employeeOnly: true, color: "text-white", onClick: () => runUserAction(() => usersApi.sendResetOtp(user.id), "Reset OTP sent to the employee.") },
-                    { icon: Mail, label: "Verify OTP & Send Link", employeeOnly: true, color: "text-white", onClick: async () => {
-                      const otp = window.prompt(`Enter the reset OTP ${user.name} shared with HR:`)?.trim();
+                    { icon: Mail, label: "Send Reset OTP", employeeOnly: true, systemAdminOnly: true, color: "text-white", onClick: () => runUserAction(() => usersApi.sendResetOtp(user.id), "Reset OTP sent to the employee.") },
+                    { icon: Mail, label: "Verify OTP & Send Link", employeeOnly: true, systemAdminOnly: true, color: "text-white", onClick: async () => {
+                      const otp = window.prompt(`Enter the reset OTP ${user.name} shared with the support team:`)?.trim();
                       if (otp) await runUserAction(() => usersApi.sendResetLink(user.id, otp), "Password reset link sent.");
                     } },
                     { icon: user.status === "active" ? UserX : UserCheck, label: user.status === "active" ? "Deactivate" : "Activate", color: user.status === "active" ? "text-orange-400" : "text-green-400", onClick: () => runUserAction(() => usersApi.update(user.id, { is_active: user.status !== "active" }), `User ${user.status === "active" ? "deactivated" : "activated"}.`) },
                     { icon: Trash2, label: "Remove User", color: "text-red-400", onClick: () => { if (window.confirm(`Remove ${user.name}? This cannot be undone.`)) runUserAction(() => usersApi.remove(user.id), "User removed successfully."); } },
-                ].filter((action) => !action.employeeOnly || !["hr", "superadmin"].includes(user.role.toLowerCase())).map((action) => (<button key={action.label} disabled={actionLoading} onClick={action.onClick} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all disabled:opacity-50 ${action.color}`}>
+                ].filter((action) => Boolean(action.systemAdminOnly) === isSystemAdmin).filter((action) => !action.employeeOnly || !["hr", "superadmin"].includes(user.role.toLowerCase())).filter(() => !isSystemAdmin || (!user.isSystemAdmin && user.role.toLowerCase() !== "superadmin")).map((action) => (<button key={action.label} disabled={actionLoading} onClick={action.onClick} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs hover:bg-[#2A2A2A] transition-all disabled:opacity-50 ${action.color}`}>
                               <action.icon size={13}/> {action.label}
                             </button>))}
                         </div>)}
