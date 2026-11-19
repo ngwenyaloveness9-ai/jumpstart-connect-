@@ -1,0 +1,1498 @@
+
+
+/* =========================================================
+   JUMPSTART CONNECT — LOGIN REFERENCE DESIGN
+========================================================= */
+
+.jyc-login-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  padding: 32px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0,0,0,.15),
+      rgba(0,0,0,.10)
+    ),
+    url("../assets/illustrations/jyc-login-background.png")
+      center center / cover no-repeat;
+
+  color: #fff;
+}
+
+.jyc-login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 48%,
+      transparent 16%,
+      rgba(0,0,0,.08) 42%,
+      rgba(0,0,0,.34) 100%
+    );
+
+  pointer-events: none;
+}
+
+.jyc-login-page::after {
+  content: "";
+  position: absolute;
+
+  width: 720px;
+  height: 720px;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%,-50%);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(245,197,24,.075),
+      transparent 67%
+    );
+
+  filter: blur(22px);
+
+  pointer-events: none;
+}
+
+.jyc-login-page > * {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* =========================================================
+   JUMPSTART CONNECT — LOGIN REFERENCE DESIGN
+========================================================= */
+
+.jyc-login-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  padding: 32px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0,0,0,.15),
+      rgba(0,0,0,.10)
+    ),
+    url("../assets/illustrations/jyc-login-background.png")
+      center center / cover no-repeat;
+
+  color: #fff;
+}
+
+.jyc-login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 48%,
+      transparent 16%,
+      rgba(0,0,0,.08) 42%,
+      rgba(0,0,0,.34) 100%
+    );
+
+  pointer-events: none;
+}
+
+.jyc-login-page::after {
+  content: "";
+  position: absolute;
+
+  width: 720px;
+  height: 720px;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%,-50%);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(245,197,24,.075),
+      transparent 67%
+    );
+
+  filter: blur(22px);
+
+  pointer-events: none;
+}
+
+.jyc-login-page > * {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* =========================================================
+   GLASS CARD
+========================================================= */
+
+.jyc-login-card {
+  position: relative;
+
+  width: min(635px, 100%);
+
+  padding: 36px 52px 38px;
+
+  border-radius: 30px;
+
+  border:
+    1px solid rgba(245,197,24,.46);
+
+  background:
+    linear-gradient(
+      150deg,
+      rgba(22,22,22,.91),
+      rgba(7,7,7,.88)
+    );
+
+  backdrop-filter:
+    blur(26px) saturate(114%);
+
+  -webkit-backdrop-filter:
+    blur(26px) saturate(114%);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 0 40px rgba(245,197,24,.085),
+    0 34px 90px rgba(0,0,0,.55);
+
+  overflow: hidden;
+}
+
+.jyc-login-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 16%;
+  right: 16%;
+
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #F5C518,
+      #FFD764,
+      #F5C518,
+      transparent
+    );
+
+  box-shadow:
+    0 0 20px rgba(245,197,24,.75);
+}
+
+.jyc-login-card::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: 0;
+  left: 27%;
+  right: 27%;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(245,197,24,.65),
+      transparent
+    );
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.jyc-login-brand {
+  text-align: center;
+}
+
+.jyc-login-logo {
+  width: 130px;
+  height: 130px;
+
+  margin: 0 auto 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #FFBF38,
+      #FF9F20
+    );
+
+  box-shadow:
+    0 12px 35px rgba(244,158,25,.19);
+}
+
+.jyc-login-logo img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  border-radius: 50%;
+}
+
+.jyc-login-brand-title {
+  margin: 0;
+
+  color: white;
+
+  font-size: 38px;
+  line-height: 1.08;
+
+  font-weight: 820;
+
+  letter-spacing: -.035em;
+}
+
+.jyc-login-brand-title span {
+  color: #F5C518;
+}
+
+.jyc-login-brand-subtitle {
+  margin-top: 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 14px;
+
+  color: rgba(255,255,255,.80);
+
+  font-size: 11px;
+
+  font-weight: 650;
+
+  text-transform: uppercase;
+
+  letter-spacing: .28em;
+}
+
+.jyc-login-brand-subtitle i {
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+
+  background: #F5C518;
+}
+
+.jyc-login-divider {
+  width: 72%;
+  height: 1px;
+
+  margin: 25px auto 24px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(245,197,24,.60),
+      transparent
+    );
+}
+
+.jyc-login-welcome {
+  text-align: center;
+
+  margin-bottom: 28px;
+}
+
+.jyc-login-welcome h2 {
+  margin: 0 0 8px;
+
+  font-size: 32px;
+
+  font-weight: 780;
+
+  color: #fff;
+}
+
+.jyc-login-welcome p {
+  margin: 0;
+
+  color: rgba(255,255,255,.76);
+
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.jyc-login-fields {
+  display: flex;
+  flex-direction: column;
+
+  gap: 17px;
+}
+
+.jyc-login-field {
+  position: relative;
+}
+
+.jyc-login-field input {
+  width: 100%;
+  height: 58px;
+
+  padding:
+    0 50px 0 52px;
+
+  border-radius: 14px !important;
+
+  border:
+    1px solid rgba(255,255,255,.30) !important;
+
+  outline: none !important;
+
+  color:
+    white !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(29,31,34,.82),
+      rgba(17,18,20,.78)
+    ) !important;
+
+  font-size: 15px;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035);
+
+  transition:
+    border-color .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+
+.jyc-login-field input::placeholder {
+  color: rgba(255,255,255,.77);
+}
+
+.jyc-login-field input:focus {
+  border-color:
+    rgba(245,197,24,.72) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(245,197,24,.07),
+    0 0 20px rgba(245,197,24,.055);
+}
+
+.jyc-login-field-icon {
+  position: absolute;
+
+  left: 18px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: rgba(255,255,255,.85);
+
+  pointer-events: none;
+}
+
+.jyc-login-password-toggle {
+  position: absolute;
+
+  right: 16px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 34px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0 !important;
+
+  color:
+    rgba(255,255,255,.78);
+
+  background:
+    transparent !important;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.jyc-login-submit {
+  width: 100%;
+  height: 58px;
+
+  margin-top: 26px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 16px;
+
+  border-radius: 14px !important;
+
+  border:
+    1px solid rgba(255,224,106,.80) !important;
+
+  color:
+    #151007 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #FFD85B,
+      #F5C518 54%,
+      #FFB70A
+    ) !important;
+
+  font-size: 18px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.55),
+    0 12px 28px rgba(213,151,0,.23);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+.jyc-login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.58),
+    0 15px 34px rgba(213,151,0,.30);
+}
+
+.jyc-login-submit:disabled {
+  opacity: .60;
+
+  cursor: not-allowed;
+}
+
+.jyc-login-forgot {
+  display: block;
+
+  margin:
+    20px auto 27px;
+
+  border: 0;
+
+  color:
+    #F5C518;
+
+  background:
+    transparent;
+
+  font-size:
+    14px;
+
+  font-weight:
+    600;
+
+  text-decoration:
+    underline;
+
+  text-underline-offset:
+    4px;
+
+  cursor: pointer;
+}
+
+.jyc-login-error {
+  margin-bottom: 18px;
+
+  padding:
+    11px 14px;
+
+  border-radius:
+    12px;
+
+  border:
+    1px solid rgba(239,68,68,.30);
+
+  background:
+    rgba(239,68,68,.10);
+
+  color:
+    #fca5a5;
+
+  font-size:
+    13px;
+}
+
+.jyc-login-spinner {
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+
+  border:
+    2px solid rgba(0,0,0,.20);
+
+  border-top-color:
+    rgba(0,0,0,.80);
+
+  animation:
+    jyc-login-spin .75s linear infinite;
+}
+
+@keyframes jyc-login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   SECURITY
+========================================================= */
+
+.jyc-login-security {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding:
+    16px 20px;
+
+  border-radius: 16px;
+
+  border:
+    1px solid rgba(255,255,255,.16);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.070),
+      rgba(255,255,255,.025)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.jyc-login-security-icon {
+  width: 43px;
+  height: 43px;
+
+  flex: 0 0 43px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color:
+    #F5C518;
+}
+
+.jyc-login-security strong {
+  display: block;
+
+  margin-bottom:
+    2px;
+
+  color:
+    white;
+
+  font-size:
+    13px;
+
+  font-weight:
+    760;
+}
+
+.jyc-login-security span {
+  display: block;
+
+  color:
+    rgba(255,255,255,.66);
+
+  font-size:
+    11px;
+
+  line-height:
+    1.42;
+}
+
+
+/* =========================================================
+   FLOATING CONTROLS
+========================================================= */
+
+.jyc-login-back {
+  position: fixed;
+
+  top: 30px;
+  left: 32px;
+
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  color:
+    white;
+
+  border:
+    1px solid rgba(255,255,255,.24);
+
+  background:
+    rgba(13,13,13,.56);
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+
+  cursor: pointer;
+}
+
+.jyc-login-theme {
+  position: fixed;
+
+  top: 30px;
+  right: 34px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  padding: 4px;
+
+  border-radius: 999px;
+
+  border:
+    1px solid rgba(255,255,255,.20);
+
+  background:
+    rgba(8,8,8,.60);
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+}
+
+.jyc-login-theme button {
+  width: 51px;
+  height: 40px;
+
+  border: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  color:
+    rgba(255,255,255,.82);
+
+  background:
+    transparent;
+
+  cursor: pointer;
+}
+
+.jyc-login-theme button.active {
+  color:
+    white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #D1A318,
+      #9B7407
+    );
+
+  box-shadow:
+    0 4px 15px rgba(245,197,24,.16);
+}
+
+
+/* =========================================================
+   FLOATING CONTROLS
+========================================================= */
+
+.jyc-login-back {
+  position: fixed;
+
+  top: 30px;
+  left: 32px;
+
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  color:
+    white;
+
+  border:
+    1px solid rgba(255,255,255,.24);
+
+  background:
+    rgba(13,13,13,.56);
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+
+  cursor: pointer;
+}
+
+.jyc-login-theme {
+  position: fixed;
+
+  top: 30px;
+  right: 34px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  padding: 4px;
+
+  border-radius: 999px;
+
+  border:
+    1px solid rgba(255,255,255,.20);
+
+  background:
+    rgba(8,8,8,.60);
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+}
+
+.jyc-login-theme button {
+  width: 51px;
+  height: 40px;
+
+  border: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  color:
+    rgba(255,255,255,.82);
+
+  background:
+    transparent;
+
+  cursor: pointer;
+}
+
+.jyc-login-theme button.active {
+  color:
+    white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #D1A318,
+      #9B7407
+    );
+
+  box-shadow:
+    0 4px 15px rgba(245,197,24,.16);
+}
+
+
+/* =========================================================
+   LIGHT MODE
+========================================================= */
+
+html.light .jyc-login-page,
+.light .jyc-login-page {
+  background:
+    linear-gradient(
+      rgba(255,250,239,.18),
+      rgba(255,248,232,.18)
+    ),
+    url("../assets/illustrations/jyc-login-background.png")
+      center center / cover no-repeat;
+}
+
+html.light .jyc-login-card,
+.light .jyc-login-card {
+  border-color:
+    rgba(174,123,8,.32);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,251,240,.86),
+      rgba(235,222,192,.78)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.90),
+    0 30px 75px rgba(66,43,5,.20);
+}
+
+html.light .jyc-login-brand-title,
+html.light .jyc-login-welcome h2,
+html.light .jyc-login-security strong,
+.light .jyc-login-brand-title,
+.light .jyc-login-welcome h2,
+.light .jyc-login-security strong {
+  color:
+    #17130D;
+}
+
+html.light .jyc-login-brand-subtitle,
+html.light .jyc-login-welcome p,
+.light .jyc-login-brand-subtitle,
+.light .jyc-login-welcome p {
+  color:
+    rgba(31,25,15,.69);
+}
+
+html.light .jyc-login-field input,
+.light .jyc-login-field input {
+  color:
+    #17130D !important;
+
+  border-color:
+    rgba(96,68,13,.23) !important;
+
+  background:
+    rgba(255,255,255,.60) !important;
+}
+
+html.light .jyc-login-field input::placeholder,
+.light .jyc-login-field input::placeholder {
+  color:
+    rgba(31,25,15,.60);
+}
+
+html.light .jyc-login-field-icon,
+html.light .jyc-login-password-toggle,
+.light .jyc-login-field-icon,
+.light .jyc-login-password-toggle {
+  color:
+    rgba(42,31,13,.68);
+}
+
+html.light .jyc-login-security,
+.light .jyc-login-security {
+  border-color:
+    rgba(95,67,13,.16);
+
+  background:
+    rgba(255,255,255,.37);
+}
+
+html.light .jyc-login-security span,
+.light .jyc-login-security span {
+  color:
+    rgba(38,30,17,.64);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-height: 900px) {
+
+  .jyc-login-card {
+    padding:
+      26px 46px 28px;
+  }
+
+  .jyc-login-logo {
+    width:
+      100px;
+
+    height:
+      100px;
+  }
+
+  .jyc-login-divider {
+    margin:
+      19px auto;
+  }
+
+  .jyc-login-welcome {
+    margin-bottom:
+      21px;
+  }
+
+}
+
+@media (max-width: 720px) {
+
+  .jyc-login-page {
+    padding:
+      84px 18px 28px;
+  }
+
+  .jyc-login-card {
+    padding:
+      30px 24px;
+
+    border-radius:
+      23px;
+  }
+
+  .jyc-login-brand-title {
+    font-size:
+      30px;
+  }
+
+  .jyc-login-brand-subtitle {
+    font-size:
+      9px;
+
+    gap:
+      9px;
+  }
+
+  .jyc-login-welcome h2 {
+    font-size:
+      27px;
+  }
+
+  .jyc-login-back {
+    top:
+      18px;
+
+    left:
+      18px;
+  }
+
+  .jyc-login-theme {
+    top:
+      18px;
+
+    right:
+      18px;
+  }
+
+}
+
+
+/* =========================================================
+   LIGHT MODE — PREMIUM CHAMPAGNE GLASS REFINEMENT
+========================================================= */
+
+html.light .jyc-login-page,
+.light .jyc-login-page {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,248,232,.10),
+      rgba(255,248,232,.06)
+    ),
+    url("../assets/illustrations/jyc-login-background.png")
+      center center / cover no-repeat;
+}
+
+
+/* Main glass card */
+html.light .jyc-login-card,
+.light .jyc-login-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,252,244,.68),
+      rgba(239,226,196,.50)
+    ) !important;
+
+  border:
+    1px solid rgba(190,137,0,.34) !important;
+
+  backdrop-filter:
+    blur(22px) saturate(118%) !important;
+
+  -webkit-backdrop-filter:
+    blur(22px) saturate(118%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.92),
+    0 0 34px rgba(245,197,24,.10),
+    0 28px 70px rgba(77,53,8,.18) !important;
+}
+
+
+/* Stronger gold glow on card edge */
+html.light .jyc-login-card::before,
+.light .jyc-login-card::before {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #D7A600,
+      #FFD95B,
+      #D7A600,
+      transparent
+    ) !important;
+
+  box-shadow:
+    0 0 20px rgba(245,197,24,.42) !important;
+}
+
+
+/* Main title */
+html.light .jyc-login-brand-title,
+.light .jyc-login-brand-title {
+  color:
+    #17130C !important;
+}
+
+
+/* Subtitle */
+html.light .jyc-login-brand-subtitle,
+.light .jyc-login-brand-subtitle {
+  color:
+    rgba(42,31,14,.68) !important;
+}
+
+
+/* Welcome */
+html.light .jyc-login-welcome h2,
+.light .jyc-login-welcome h2 {
+  color:
+    #17130C !important;
+}
+
+html.light .jyc-login-welcome p,
+.light .jyc-login-welcome p {
+  color:
+    rgba(46,35,18,.68) !important;
+}
+
+
+/* Inputs */
+html.light .jyc-login-field input,
+.light .jyc-login-field input {
+  color:
+    #18130B !important;
+
+  background:
+    rgba(255,255,255,.58) !important;
+
+  border:
+    1px solid rgba(105,75,14,.20) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.78),
+    0 8px 20px rgba(75,52,8,.045);
+}
+
+html.light .jyc-login-field input::placeholder,
+.light .jyc-login-field input::placeholder {
+  color:
+    rgba(64,49,25,.60) !important;
+}
+
+html.light .jyc-login-field input:focus,
+.light .jyc-login-field input:focus {
+  border-color:
+    rgba(189,136,0,.48) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(245,197,24,.08),
+    0 10px 24px rgba(75,52,8,.055) !important;
+}
+
+
+/* Icons */
+html.light .jyc-login-field-icon,
+html.light .jyc-login-password-toggle,
+.light .jyc-login-field-icon,
+.light .jyc-login-password-toggle {
+  color:
+    rgba(58,42,19,.68) !important;
+}
+
+
+/* Forgot password */
+html.light .jyc-login-forgot,
+.light .jyc-login-forgot {
+  color:
+    #A77800 !important;
+}
+
+
+/* Security card */
+html.light .jyc-login-security,
+.light .jyc-login-security {
+  background:
+    rgba(255,255,255,.35) !important;
+
+  border:
+    1px solid rgba(103,74,14,.16) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    0 8px 22px rgba(75,52,8,.05) !important;
+}
+
+html.light .jyc-login-security strong,
+.light .jyc-login-security strong {
+  color:
+    #17130C !important;
+}
+
+html.light .jyc-login-security span,
+.light .jyc-login-security span {
+  color:
+    rgba(55,42,22,.64) !important;
+}
+
+
+/* Back button */
+html.light .jyc-login-back,
+.light .jyc-login-back {
+  color:
+    #2A2113 !important;
+
+  background:
+    rgba(255,255,255,.38) !important;
+
+  border:
+    1px solid rgba(95,67,12,.18) !important;
+
+  box-shadow:
+    0 8px 20px rgba(75,52,8,.06);
+}
+
+
+/* Theme control shell */
+html.light .jyc-login-theme,
+.light .jyc-login-theme {
+  background:
+    rgba(255,255,255,.40) !important;
+
+  border:
+    1px solid rgba(101,72,13,.17) !important;
+
+  box-shadow:
+    0 8px 22px rgba(75,52,8,.06);
+}
+
+
+/* Theme inactive buttons */
+html.light .jyc-login-theme button,
+.light .jyc-login-theme button {
+  color:
+    #4B3D27 !important;
+}
+
+
+/* Active light button */
+html.light .jyc-login-theme button.active,
+.light .jyc-login-theme button.active {
+  color:
+    #181108 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #FFD95B,
+      #EAB800
+    ) !important;
+
+  box-shadow:
+    0 5px 16px rgba(193,138,0,.18) !important;
+}
+
+
+/* =========================================================
+   LIGHT MODE — FINAL GLASS TUNING
+========================================================= */
+
+html.light .jyc-login-card,
+.light .jyc-login-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.48),
+      rgba(237,222,190,.28)
+    ) !important;
+
+  border:
+    1px solid rgba(212,156,15,.34) !important;
+
+  backdrop-filter:
+    blur(18px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(18px) saturate(120%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.88),
+    0 0 36px rgba(245,197,24,.08),
+    0 28px 70px rgba(55,38,6,.16) !important;
+}
+
+
+/* Inputs more glass-like */
+html.light .jyc-login-field input,
+.light .jyc-login-field input {
+  background:
+    rgba(255,255,255,.48) !important;
+
+  border:
+    1px solid rgba(111,78,15,.18) !important;
+
+  color:
+    #17130D !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.74),
+    0 8px 18px rgba(68,47,8,.04) !important;
+}
+
+
+/* Security card transparent */
+html.light .jyc-login-security,
+.light .jyc-login-security {
+  background:
+    rgba(255,255,255,.28) !important;
+
+  border:
+    1px solid rgba(109,78,16,.14) !important;
+}
+
+
+/* Slightly warmer page overlay */
+html.light .jyc-login-page,
+.light .jyc-login-page {
+  background:
+    linear-gradient(
+      rgba(255,247,225,.06),
+      rgba(255,247,225,.06)
+    ),
+    url("../assets/illustrations/jyc-login-background.png")
+      center center / cover no-repeat !important;
+}
+
+
+/* Stronger visual separation for headings */
+html.light .jyc-login-brand-title,
+html.light .jyc-login-welcome h2,
+.light .jyc-login-brand-title,
+.light .jyc-login-welcome h2 {
+  color:
+    #151109 !important;
+}
+
+
+/* Softer secondary text */
+html.light .jyc-login-welcome p,
+html.light .jyc-login-brand-subtitle,
+.light .jyc-login-welcome p,
+.light .jyc-login-brand-subtitle {
+  color:
+    rgba(52,39,18,.66) !important;
+}
+
+
+/* =========================================================
+   LOGIN CARD — BLEND INTO BACKGROUND
+   FINAL GLASS OVERRIDES
+========================================================= */
+
+/* Base card blend */
+.jyc-login-card {
+  position: relative !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(22px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(135%) !important;
+  border-radius: 32px !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.22) !important;
+}
+
+/* soft inner glow so the card melts into the scene */
+.jyc-login-card::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.14) 0%,
+      rgba(255,255,255,.03) 28%,
+      rgba(255,255,255,.01) 100%
+    ) !important;
+}
+
+/* =========================
+   DARK MODE CARD
+========================= */
+html.dark .jyc-login-card,
+.dark .jyc-login-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(13,16,23,.52),
+      rgba(11,13,18,.38)
+    ) !important;
+
+  border: 1px solid rgba(241,186,20,.32) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 0 0 1px rgba(255,200,60,.06),
+    0 24px 70px rgba(0,0,0,.42),
+    0 0 42px rgba(255,189,19,.10) !important;
+}
+
+/* =========================
+   LIGHT MODE CARD
+========================= */
+html.light .jyc-login-card,
+.light .jyc-login-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.18),
+      rgba(248,236,210,.10)
+    ) !important;
+
+  border: 1px solid rgba(214,166,43,.30) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.50),
+    0 12px 38px rgba(80,57,9,.08),
+    0 0 28px rgba(241,186,20,.06) !important;
+}
+
+/* =========================
+   INPUTS — blend with card
+========================= */
+html.dark .jyc-login-field input,
+.dark .jyc-login-field input {
+  background: rgba(255,255,255,.05) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  color: #F5F1E8 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+html.light .jyc-login-field input,
+.light .jyc-login-field input {
+  background: rgba(255,255,255,.34) !important;
+  border: 1px solid rgba(111,78,15,.14) !important;
+  color: #1B1711 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.55),
+    0 6px 16px rgba(76,54,11,.04) !important;
+}
+
+/* Placeholder text */
+html.dark .jyc-login-field input::placeholder,
+.dark .jyc-login-field input::placeholder {
+  color: rgba(240,233,220,.62) !important;
+}
+
+html.light .jyc-login-field input::placeholder,
+.light .jyc-login-field input::placeholder {
+  color: rgba(72,55,25,.58) !important;
+}
+
+/* security/info card also blend */
+html.dark .jyc-login-security,
+.dark .jyc-login-security {
+  background: rgba(255,255,255,.05) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+}
+
+html.light .jyc-login-security,
+.light .jyc-login-security {
+  background: rgba(255,255,255,.22) !important;
+  border: 1px solid rgba(130,96,26,.12) !important;
+}
+
+/* Slightly soften text in light mode */
+html.light .jyc-login-subtitle,
+html.light .jyc-login-brand-subtitle,
+.light .jyc-login-subtitle,
+.light .jyc-login-brand-subtitle {
+  color: rgba(60,45,20,.72) !important;
+}
+

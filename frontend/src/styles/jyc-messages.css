@@ -1,0 +1,1133 @@
+
+/* =========================================================
+   JUMPSTART CONNECT
+   MESSAGES — REFERENCE UI
+========================================================= */
+
+.jyc-messages-page {
+  --msg-gold: #F5C518;
+  --msg-gold-bright: #FFD75A;
+  --msg-brown: #966A00;
+
+  width: 100%;
+  height: 650px !important;
+  min-height: 650px;
+
+  position: relative;
+}
+
+
+/* Remove old breadcrumb */
+.jyc-message-breadcrumb {
+  display: none !important;
+}
+
+
+/* =========================================================
+   MAIN FRAME
+========================================================= */
+
+.jyc-message-shell {
+  height: 100%;
+  min-height: 0;
+
+  border-radius: 26px !important;
+
+  overflow: hidden;
+
+  backdrop-filter:
+    blur(5px) saturate(108%);
+
+  -webkit-backdrop-filter:
+    blur(5px) saturate(108%);
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.jyc-message-sidebar {
+  width: 330px !important;
+  min-width: 330px !important;
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+
+.jyc-sidebar-title {
+  min-height: 86px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding:
+    18px 18px 14px;
+
+  border-bottom:
+    1px solid rgba(128,92,17,.10);
+}
+
+
+.jyc-sidebar-title-icon {
+  width: 46px;
+  height: 46px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  color:
+    #B07800;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,217,93,.25),
+      rgba(245,197,24,.10)
+    );
+
+  border:
+    1px solid rgba(245,197,24,.28);
+
+  box-shadow:
+    0 8px 24px rgba(175,124,0,.08);
+}
+
+
+.jyc-sidebar-title h2 {
+  margin: 0;
+
+  font-size: 17px;
+  line-height: 1.2;
+
+  font-weight: 750;
+}
+
+
+.jyc-sidebar-title p {
+  margin:
+    4px 0 0;
+
+  font-size: 12px;
+
+  opacity: .62;
+}
+
+
+/* Search region */
+.jyc-message-sidebar > div:nth-child(2) {
+  padding:
+    12px 15px !important;
+}
+
+
+.jyc-message-sidebar input {
+  height: 42px;
+
+  border-radius:
+    14px !important;
+
+  padding-left:
+    36px !important;
+
+  font-size:
+    12px !important;
+}
+
+
+/* Sidebar rows */
+.jyc-message-sidebar button {
+  min-height: 46px;
+
+  border-radius:
+    13px !important;
+
+  transition:
+    background .18s ease,
+    color .18s ease,
+    transform .18s ease,
+    border-color .18s ease;
+}
+
+
+.jyc-message-sidebar button:hover {
+  transform:
+    translateX(2px);
+}
+
+
+.jyc-dm-content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.jyc-dm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+}
+
+
+.jyc-dm-name {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+
+.jyc-dm-time {
+  flex-shrink: 0;
+
+  font-size:
+    9px;
+
+  opacity:
+    .55;
+}
+
+
+.jyc-dm-preview {
+  display: block;
+
+  max-width: 190px;
+
+  font-size:
+    10px;
+
+  opacity:
+    .58;
+
+  font-weight:
+    400;
+}
+
+
+/* =========================================================
+   MAIN CONVERSATION
+========================================================= */
+
+.jyc-message-main {
+  min-width: 0;
+
+  position: relative;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.jyc-message-header {
+  height: 78px !important;
+  min-height: 78px;
+
+  padding:
+    0 20px !important;
+
+  backdrop-filter:
+    blur(14px) saturate(110%);
+
+  -webkit-backdrop-filter:
+    blur(14px) saturate(110%);
+}
+
+
+.jyc-message-header > div:first-child > div:first-child {
+  width: 42px !important;
+  height: 42px !important;
+
+  font-size:
+    12px !important;
+
+  border-radius:
+    50% !important;
+}
+
+
+.jyc-chat-person {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.jyc-chat-person > span:first-child {
+  font-size:
+    15px !important;
+
+  font-weight:
+    750 !important;
+}
+
+
+.jyc-online-status {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  font-size:
+    10px;
+
+  opacity:
+    .66;
+}
+
+
+.jyc-online-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius:
+    50%;
+
+  background:
+    #4BC245;
+
+  box-shadow:
+    0 0 0 3px rgba(75,194,69,.11);
+}
+
+
+/* Action buttons */
+.jyc-message-header button {
+  width: 40px !important;
+  height: 40px !important;
+
+  border-radius:
+    13px !important;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+  justify-content:
+    center;
+
+  transition:
+    transform .18s ease,
+    color .18s ease,
+    border-color .18s ease,
+    background .18s ease;
+}
+
+
+.jyc-message-header button:hover {
+  color:
+    var(--msg-gold) !important;
+
+  transform:
+    translateY(-1px);
+}
+
+
+/* =========================================================
+   TODAY DIVIDER
+========================================================= */
+
+.jyc-today-divider {
+  position: sticky;
+  top: 8px;
+
+  z-index: 5;
+
+  display: flex;
+  justify-content: center;
+
+  pointer-events: none;
+
+  padding:
+    4px 0 14px;
+}
+
+
+.jyc-today-divider span {
+  min-width: 58px;
+
+  padding:
+    6px 14px;
+
+  text-align:
+    center;
+
+  font-size:
+    11px;
+
+  font-weight:
+    600;
+
+  border-radius:
+    999px;
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+}
+
+
+/* =========================================================
+   MESSAGE CANVAS
+========================================================= */
+
+.jyc-message-canvas {
+  padding:
+    12px 16px 22px !important;
+
+  scroll-behavior:
+    smooth;
+}
+
+
+.jyc-message-row {
+  padding:
+    7px 8px !important;
+
+  margin:
+    2px 0;
+
+  background:
+    transparent !important;
+}
+
+
+/* Incoming avatar */
+.jyc-message-row > div:first-child:not(:last-child) {
+  width: 34px;
+  height: 34px;
+}
+
+
+/* Bubble common */
+.jyc-message-outgoing,
+.jyc-message-incoming {
+  padding:
+    11px 15px !important;
+
+  border-radius:
+    19px !important;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.45;
+
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease;
+}
+
+
+.jyc-message-outgoing:hover,
+.jyc-message-incoming:hover {
+  transform:
+    translateY(-1px);
+}
+
+
+/* Outgoing */
+.jyc-message-outgoing {
+  color:
+    #171109 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #FFD965 0%,
+      #FFC72C 100%
+    ) !important;
+
+  border:
+    1px solid rgba(188,134,0,.20);
+
+  box-shadow:
+    0 10px 30px rgba(190,135,0,.16) !important;
+}
+
+
+/* =========================================================
+   COMPOSER
+========================================================= */
+
+.jyc-message-composer {
+  padding:
+    12px 16px 14px !important;
+
+  backdrop-filter:
+    blur(16px);
+
+  -webkit-backdrop-filter:
+    blur(16px);
+}
+
+
+.jyc-message-composer > div {
+  min-height:
+    106px;
+
+  border-radius:
+    20px !important;
+
+  overflow:
+    visible !important;
+}
+
+
+.jyc-message-composer textarea {
+  min-height:
+    54px !important;
+
+  padding:
+    15px 16px 6px !important;
+
+  border:
+    0 !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    none !important;
+
+  font-size:
+    13px !important;
+}
+
+
+.jyc-message-composer button,
+.jyc-message-composer label {
+  transition:
+    background .18s ease,
+    color .18s ease,
+    transform .18s ease;
+}
+
+
+.jyc-message-composer button:hover,
+.jyc-message-composer label:hover {
+  color:
+    var(--msg-gold) !important;
+
+  transform:
+    translateY(-1px);
+}
+
+
+/* Send */
+.jyc-message-composer button:last-child {
+  min-width:
+    94px;
+
+  height:
+    40px;
+
+  padding:
+    0 18px !important;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+  justify-content:
+    center;
+
+  border-radius:
+    13px !important;
+
+  color:
+    #161107 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #FFD95B,
+      #F5C518
+    ) !important;
+
+  border:
+    1px solid rgba(197,143,0,.20) !important;
+
+  font-weight:
+    700 !important;
+
+  box-shadow:
+    0 9px 25px rgba(184,130,0,.18);
+}
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+html:not(.light) .jyc-message-shell {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14,14,14,.24),
+      rgba(2,2,2,.30)
+    ) !important;
+
+  border:
+    1px solid rgba(245,197,24,.17) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 22px 55px rgba(0,0,0,.30) !important;
+}
+
+
+html:not(.light) .jyc-message-sidebar {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(17,17,17,.34),
+      rgba(4,4,4,.25)
+    ) !important;
+
+  border-color:
+    rgba(255,255,255,.07) !important;
+}
+
+
+html:not(.light) .jyc-sidebar-title {
+  border-color:
+    rgba(255,255,255,.07);
+}
+
+
+html:not(.light) .jyc-message-sidebar input {
+  color:
+    white !important;
+
+  background:
+    rgba(0,0,0,.24) !important;
+
+  border:
+    1px solid rgba(255,255,255,.09) !important;
+}
+
+
+html:not(.light) .jyc-message-sidebar button:hover {
+  background:
+    rgba(245,197,24,.055) !important;
+}
+
+
+html:not(.light) .jyc-message-sidebar button[data-active="true"] {
+  color:
+    var(--msg-gold) !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(245,197,24,.17),
+      rgba(245,197,24,.07)
+    ) !important;
+
+  border:
+    1px solid rgba(245,197,24,.24) !important;
+}
+
+
+html:not(.light) .jyc-message-main {
+  background:
+    rgba(0,0,0,.05) !important;
+}
+
+
+html:not(.light) .jyc-message-header {
+  background:
+    rgba(8,8,8,.27) !important;
+
+  border-color:
+    rgba(255,255,255,.07) !important;
+}
+
+
+html:not(.light) .jyc-message-header button {
+  background:
+    rgba(255,255,255,.035) !important;
+
+  border:
+    1px solid rgba(255,255,255,.075) !important;
+}
+
+
+html:not(.light) .jyc-message-canvas {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(8,8,8,.08),
+      rgba(0,0,0,.14)
+    ) !important;
+}
+
+
+html:not(.light) .jyc-today-divider span {
+  color:
+    rgba(255,255,255,.72);
+
+  background:
+    rgba(20,20,20,.82);
+
+  border:
+    1px solid rgba(255,255,255,.07);
+
+  box-shadow:
+    0 5px 18px rgba(0,0,0,.20);
+}
+
+
+html:not(.light) .jyc-message-incoming {
+  color:
+    #fff !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(38,40,42,.90),
+      rgba(24,26,28,.90)
+    ) !important;
+
+  border:
+    1px solid rgba(255,255,255,.065);
+
+  box-shadow:
+    0 9px 24px rgba(0,0,0,.22) !important;
+}
+
+
+html:not(.light) .jyc-message-composer {
+  background:
+    rgba(7,7,7,.23) !important;
+
+  border-color:
+    rgba(255,255,255,.07) !important;
+}
+
+
+html:not(.light) .jyc-message-composer > div {
+  background:
+    rgba(4,4,4,.30) !important;
+
+  border:
+    1px solid rgba(255,255,255,.09) !important;
+}
+
+
+/* =========================================================
+   LIGHT MODE
+========================================================= */
+
+html.light .jyc-message-shell,
+.light .jyc-message-shell {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.29),
+      rgba(245,237,218,.12)
+    ) !important;
+
+  border:
+    1px solid rgba(126,90,12,.15) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    0 20px 48px rgba(72,50,7,.08) !important;
+}
+
+
+html.light .jyc-message-sidebar,
+.light .jyc-message-sidebar {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.33),
+      rgba(241,232,212,.17)
+    ) !important;
+
+  border-color:
+    rgba(106,76,13,.12) !important;
+}
+
+
+html.light .jyc-message-sidebar input,
+.light .jyc-message-sidebar input {
+  color:
+    #18140D !important;
+
+  background:
+    rgba(255,255,255,.46) !important;
+
+  border:
+    1px solid rgba(103,74,13,.13) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.72);
+}
+
+
+html.light .jyc-message-sidebar button:hover,
+.light .jyc-message-sidebar button:hover {
+  background:
+    rgba(245,197,24,.10) !important;
+}
+
+
+html.light .jyc-message-sidebar button[data-active="true"],
+.light .jyc-message-sidebar button[data-active="true"] {
+  color:
+    #9B6D00 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,216,85,.34),
+      rgba(245,197,24,.13)
+    ) !important;
+
+  border:
+    1px solid rgba(185,132,0,.19) !important;
+}
+
+
+html.light .jyc-message-main,
+.light .jyc-message-main {
+  background:
+    rgba(255,255,255,.03) !important;
+}
+
+
+html.light .jyc-message-header,
+.light .jyc-message-header {
+  background:
+    rgba(255,255,255,.31) !important;
+
+  border-color:
+    rgba(103,74,13,.11) !important;
+}
+
+
+html.light .jyc-message-header button,
+.light .jyc-message-header button {
+  color:
+    #514A3E !important;
+
+  background:
+    rgba(255,255,255,.45) !important;
+
+  border:
+    1px solid rgba(103,74,13,.11) !important;
+
+  box-shadow:
+    0 5px 16px rgba(75,53,8,.05);
+}
+
+
+html.light .jyc-message-canvas,
+.light .jyc-message-canvas {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.12),
+      rgba(246,239,221,.045)
+    ) !important;
+}
+
+
+html.light .jyc-today-divider span,
+.light .jyc-today-divider span {
+  color:
+    #5C5344;
+
+  background:
+    rgba(255,255,255,.72);
+
+  border:
+    1px solid rgba(103,74,13,.10);
+
+  box-shadow:
+    0 5px 18px rgba(74,52,8,.07);
+}
+
+
+html.light .jyc-message-incoming,
+.light .jyc-message-incoming {
+  color:
+    #19150F !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.78),
+      rgba(246,239,221,.60)
+    ) !important;
+
+  border:
+    1px solid rgba(101,73,14,.10);
+
+  box-shadow:
+    0 10px 26px rgba(76,53,8,.07) !important;
+}
+
+
+html.light .jyc-message-composer,
+.light .jyc-message-composer {
+  background:
+    rgba(255,255,255,.21) !important;
+
+  border-color:
+    rgba(102,73,13,.10) !important;
+}
+
+
+html.light .jyc-message-composer > div,
+.light .jyc-message-composer > div {
+  background:
+    rgba(255,255,255,.44) !important;
+
+  border:
+    1px solid rgba(102,74,14,.12) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.72),
+    0 7px 20px rgba(72,51,8,.04);
+}
+
+
+/* =========================================================
+   SCROLLBARS
+========================================================= */
+
+.jyc-message-sidebar ::-webkit-scrollbar,
+.jyc-message-canvas::-webkit-scrollbar {
+  width:
+    6px;
+}
+
+
+.jyc-message-sidebar ::-webkit-scrollbar-thumb,
+.jyc-message-canvas::-webkit-scrollbar-thumb {
+  border-radius:
+    999px;
+
+  background:
+    rgba(245,197,24,.23);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .jyc-message-sidebar {
+    width:
+      285px !important;
+
+    min-width:
+      285px !important;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .jyc-messages-page {
+    height:
+      auto !important;
+
+    min-height:
+      720px;
+  }
+
+  .jyc-message-shell {
+    flex-direction:
+      column;
+  }
+
+  .jyc-message-sidebar {
+    width:
+      100% !important;
+
+    min-width:
+      100% !important;
+
+    max-height:
+      300px;
+  }
+
+}
+
+
+/* =========================================================
+   MESSAGES — HORIZONTAL OVERFLOW FIX
+========================================================= */
+
+.jyc-message-main,
+.jyc-message-canvas,
+.jyc-message-row {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.jyc-message-canvas {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.jyc-message-row {
+  width: 100% !important;
+  overflow: visible !important;
+  box-sizing: border-box;
+}
+
+
+/* Keep the message column inside the chat width */
+.jyc-message-row > div[class*="flex"][class*="min-w-0"] {
+  max-width: min(76%, 720px) !important;
+  min-width: 0 !important;
+}
+
+
+/* Outgoing messages stay aligned right */
+.jyc-message-row.justify-end > div[class*="flex"][class*="min-w-0"] {
+  margin-left: auto !important;
+}
+
+
+/* Message bubbles must wrap */
+.jyc-message-outgoing,
+.jyc-message-incoming {
+  width: auto !important;
+  max-width: 100% !important;
+
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+
+  white-space: normal !important;
+
+  box-sizing: border-box;
+}
+
+
+/* Text inside messages */
+.jyc-message-outgoing p,
+.jyc-message-incoming p {
+  max-width: 100% !important;
+
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+
+  white-space: pre-wrap !important;
+}
+
+
+/* File cards cannot force horizontal scrolling */
+.jyc-message-row .max-w-xs {
+  max-width: min(320px, 100%) !important;
+  width: 100% !important;
+}
+
+
+/* Hover actions stay inside chat */
+.jyc-message-row > .absolute {
+  right: 8px !important;
+  max-width: calc(100% - 16px) !important;
+
+  flex-wrap: wrap !important;
+
+  z-index: 20;
+}
+
+
+/* Composer must also stay inside width */
+.jyc-message-composer,
+.jyc-message-composer > div {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+
+  box-sizing: border-box;
+}
+
+
+/* Prevent the entire Messages shell from horizontal scrolling */
+.jyc-messages-page,
+.jyc-message-shell {
+  overflow-x: hidden !important;
+}
+
+
+/* Sidebar stays fixed, chat takes remaining space */
+.jyc-message-sidebar {
+  flex-shrink: 0 !important;
+}
+
+.jyc-message-main {
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+}
+
+
+/* Message action toolbar */
+.jyc-message-actions {
+  max-width: calc(100% - 24px) !important;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+
+/* Do not let toolbar create overflow */
+.jyc-message-row:hover {
+  overflow: visible !important;
+}
+
+
+/* On narrower screens use smaller bubbles */
+@media (max-width: 900px) {
+
+  .jyc-message-row > div[class*="flex"][class*="min-w-0"] {
+    max-width: 82% !important;
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .jyc-message-row > div[class*="flex"][class*="min-w-0"] {
+    max-width: 90% !important;
+  }
+
+  .jyc-message-actions {
+    transform: scale(.92);
+    transform-origin: right top;
+  }
+
+}
+

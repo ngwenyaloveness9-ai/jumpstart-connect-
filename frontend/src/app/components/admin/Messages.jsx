@@ -250,7 +250,7 @@ function MessageRow({ msg, onReact, onShare, onEdit, onDelete, currentUserId }) 
 
   return (
     <div
-      className={`group/msg flex gap-3 px-4 py-2 rounded-xl transition-all relative ${
+      className={`jyc-message-row group/msg flex gap-3 px-4 py-2 rounded-xl transition-all relative ${
         isMine ? "justify-end" : "justify-start"
       } ${hovered ? "bg-muted/40" : ""}`}
       onMouseEnter={() => setHovered(true)}
@@ -274,7 +274,7 @@ function MessageRow({ msg, onReact, onShare, onEdit, onDelete, currentUserId }) 
           </div>
         )}
 
-        <div className={`rounded-2xl px-4 py-3 shadow-lg relative ${isMine ? "bg-[#F7C948] text-black rounded-br-md ml-auto" : "bg-[#1B222C] text-white rounded-bl-md"}`}>
+        <div className={`rounded-2xl px-4 py-3 shadow-lg relative ${isMine ? "jyc-message-outgoing rounded-br-md ml-auto" : "jyc-message-incoming rounded-bl-md"}`}>
           <p className={`text-sm leading-relaxed whitespace-pre-wrap break-words ${msg.deleted ? "italic opacity-60" : ""}`}>
             {msg.deleted ? "This message was deleted" : msg.text}
             {msg.edited && !msg.deleted && <span className="ml-2 text-[10px] opacity-70">(edited)</span>}
@@ -313,7 +313,7 @@ function MessageRow({ msg, onReact, onShare, onEdit, onDelete, currentUserId }) 
       </div>
 
       {hovered && (
-        <div className="absolute right-4 top-1 flex items-center gap-1 bg-muted border border-border rounded-lg px-1.5 py-1 shadow-xl">
+        <div className={`jyc-message-actions absolute top-1 flex items-center gap-1 bg-muted border border-border rounded-lg px-1.5 py-1 shadow-xl ${isMine ? "right-3" : "right-3"}`}>
           {["👍", "❤️", "😄"].map((e) => (
             <button
               key={e}
@@ -361,6 +361,7 @@ function DMItem({ dm, isActive, onSelect }) {
     <button
       type="button"
       onClick={() => onSelect(dm.id)}
+      data-active={isActive ? "true" : "false"}
       className={`w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-all ${
         isActive
           ? "bg-primary/15 text-primary font-semibold"
@@ -381,7 +382,21 @@ function DMItem({ dm, isActive, onSelect }) {
           />
         )}
       </div>
-      <span className="flex-1 text-left truncate">{dm.name}</span>
+      <div className="jyc-dm-content flex-1 min-w-0 text-left">
+  <div className="jyc-dm-top">
+    <span className="jyc-dm-name truncate">{dm.name}</span>
+
+    {dm.lastTimestamp && (
+      <span className="jyc-dm-time">
+        {formatTime(dm.lastTimestamp)}
+      </span>
+    )}
+  </div>
+
+  <span className="jyc-dm-preview truncate">
+    {dm.lastMessage || (dm.isContact ? "Start a conversation" : "")}
+  </span>
+</div>
       {dm.unreadCount > 0 && (
         <span
           className="bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
@@ -864,9 +879,9 @@ export function Messages({
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-9rem)]">
+    <div className="jyc-messages-page flex flex-col h-[calc(100vh-9rem)]">
       {/* Breadcrumb bar */}
-      <div className="flex items-center justify-between mb-3 px-1">
+      <div className="jyc-message-breadcrumb flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-1.5 text-sm">
           <span className="text-muted-foreground">{orgName}</span>
           <ChevronRight size={13} className="text-muted-foreground" />
@@ -874,9 +889,19 @@ export function Messages({
         </div>
       </div>
 
-      <div className="flex flex-1 bg-background rounded-2xl border border-border overflow-hidden">
+      <div className="jyc-message-shell flex flex-1 bg-background rounded-2xl border border-border overflow-hidden">
         {/* ── Left panel ── */}
-        <div className="w-60 flex-shrink-0 border-r border-border flex flex-col bg-card">
+        <div className="jyc-message-sidebar w-60 flex-shrink-0 border-r border-border flex flex-col bg-card">
+
+          <div className="jyc-sidebar-title">
+            <div className="jyc-sidebar-title-icon">
+              <MessageSquare size={20} />
+            </div>
+            <div>
+              <h2>Messages</h2>
+              <p>Your conversations</p>
+            </div>
+          </div>
           {/* Search */}
           <div className="p-3 border-b border-border">
             <div className="relative">
@@ -939,14 +964,23 @@ export function Messages({
         </div>
 
         {/* ── Main area ── */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="jyc-message-main flex-1 flex flex-col min-w-0">
           {/* Channel header */}
-          <div className="h-12 border-b border-border flex items-center justify-between px-4 flex-shrink-0 bg-card">
+          <div className="jyc-message-header h-12 border-b border-border flex items-center justify-between px-4 flex-shrink-0 bg-card">
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-7 h-7 rounded-full bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 text-[10px] font-bold">
                 {getInitials(selectedChannel.name)}
               </div>
-              <span className="text-sm font-semibold text-foreground truncate">{selectedChannel.name}</span>
+              <div className="jyc-chat-person min-w-0">
+  <span className="text-sm font-semibold text-foreground truncate">
+    {selectedChannel.name}
+  </span>
+
+  <span className="jyc-online-status">
+    <span className="jyc-online-dot"></span>
+    Online
+  </span>
+</div>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
               <button className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
@@ -962,7 +996,7 @@ export function Messages({
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto py-2 space-y-0.5 bg-background">
+          <div className="jyc-message-canvas flex-1 overflow-y-auto py-2 space-y-0.5 bg-background">
             {loadingConversation && conversationMessages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-8">
                 <div className="w-12 h-12 rounded-2xl bg-muted border border-border flex items-center justify-center">
@@ -1013,7 +1047,7 @@ export function Messages({
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-border flex-shrink-0 bg-card">
+          <div className="jyc-message-composer p-3 border-t border-border flex-shrink-0 bg-card">
             <div className="bg-muted border border-border rounded-xl overflow-hidden focus-within:border-[#F5C518]/30 transition-all">
               <textarea
                 ref={inputRef}
@@ -1170,3 +1204,14 @@ function PencilIcon() {
 function TrashIcon() {
   return <Trash2 size={12} />;
 }
+
+
+
+
+
+
+
+
+
+
+

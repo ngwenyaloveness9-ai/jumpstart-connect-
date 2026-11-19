@@ -1,0 +1,3247 @@
+/* =========================================================
+   JUMPSTART CONNECT
+   FINAL SYSTEM-WIDE GLASS OVERRIDE
+   Loaded last so it wins over component/Tailwind backgrounds
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   MAIN DASHBOARD GLASS WRAPPER
+--------------------------------------------------------- */
+
+.jyc-page .jyc-card,
+.jyc-page .jyc-glass,
+.jyc-page .jyc-content-panel,
+.jyc-page .jyc-panel {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25, 25, 25, 0.36),
+      rgba(7, 7, 7, 0.48)
+    ) !important;
+
+  background-color: transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.10) !important;
+
+  backdrop-filter:
+    blur(20px) saturate(125%) !important;
+
+  -webkit-backdrop-filter:
+    blur(20px) saturate(125%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 18px 50px rgba(0, 0, 0, 0.24) !important;
+}
+
+
+/* ---------------------------------------------------------
+   TAILWIND bg-card PANELS
+--------------------------------------------------------- */
+
+.jyc-page main .bg-card,
+.jyc-page main [class~="bg-card"] {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(28, 28, 28, 0.34),
+      rgba(8, 8, 8, 0.44)
+    ) !important;
+
+  background-color: transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.09) !important;
+
+  backdrop-filter:
+    blur(20px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(20px) saturate(120%) !important;
+}
+
+
+/* ---------------------------------------------------------
+   COMMON LARGE ROUNDED CARDS
+   Targets Workspaces, Projects, Employees, Messages, Leave
+--------------------------------------------------------- */
+
+.jyc-page main div.rounded-xl.border,
+.jyc-page main div.rounded-2xl.border,
+.jyc-page main div.rounded-3xl.border,
+.jyc-page main div[class*="rounded-xl"][class*="border"],
+.jyc-page main div[class*="rounded-2xl"][class*="border"],
+.jyc-page main div[class*="rounded-3xl"][class*="border"] {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(27, 27, 27, 0.32),
+      rgba(8, 8, 8, 0.42)
+    ) !important;
+
+  background-color: transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.09) !important;
+
+  backdrop-filter:
+    blur(18px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(18px) saturate(120%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 12px 34px rgba(0, 0, 0, 0.18) !important;
+}
+
+
+/* ---------------------------------------------------------
+   STAT / KPI CARDS
+--------------------------------------------------------- */
+
+.jyc-page .jyc-stat-card,
+.jyc-page main .grid > div.border,
+.jyc-page main .grid > div[class*="border"] {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(34, 34, 34, 0.28),
+      rgba(7, 7, 7, 0.38)
+    ) !important;
+
+  background-color: transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.09) !important;
+
+  backdrop-filter:
+    blur(17px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(17px) saturate(120%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 10px 28px rgba(0, 0, 0, 0.17) !important;
+}
+
+
+/* ---------------------------------------------------------
+   SECONDARY / MUTED SURFACES
+--------------------------------------------------------- */
+
+.jyc-page main .bg-secondary,
+.jyc-page main [class~="bg-secondary"],
+.jyc-page main .bg-muted,
+.jyc-page main [class~="bg-muted"] {
+  background:
+    rgba(24, 24, 24, 0.30) !important;
+
+  background-color: transparent !important;
+
+  backdrop-filter:
+    blur(15px) !important;
+
+  -webkit-backdrop-filter:
+    blur(15px) !important;
+}
+
+
+/* ---------------------------------------------------------
+   SEARCH / INPUT / SELECT
+--------------------------------------------------------- */
+
+.jyc-page main input,
+.jyc-page main textarea,
+.jyc-page main select {
+  background:
+    rgba(5, 5, 5, 0.30) !important;
+
+  background-color:
+    rgba(5, 5, 5, 0.30) !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.10) !important;
+
+  backdrop-filter:
+    blur(15px) !important;
+
+  -webkit-backdrop-filter:
+    blur(15px) !important;
+}
+
+.jyc-page main input:focus,
+.jyc-page main textarea:focus,
+.jyc-page main select:focus {
+  border-color:
+    rgba(245, 197, 24, 0.58) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(245, 197, 24, 0.08) !important;
+}
+
+
+/* ---------------------------------------------------------
+   GLASS TOOLBAR
+--------------------------------------------------------- */
+
+.jyc-page .jyc-toolbar {
+  background:
+    rgba(20, 20, 20, 0.30) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.08) !important;
+
+  backdrop-filter:
+    blur(18px) !important;
+
+  -webkit-backdrop-filter:
+    blur(18px) !important;
+}
+
+
+/* ---------------------------------------------------------
+   WORKSPACE / PROJECT CARDS
+--------------------------------------------------------- */
+
+.jyc-page .jyc-glass-medium {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(27, 27, 27, 0.29),
+      rgba(7, 7, 7, 0.39)
+    ) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.09) !important;
+
+  backdrop-filter:
+    blur(19px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(19px) saturate(120%) !important;
+}
+
+
+/* ---------------------------------------------------------
+   SOFT GLASS
+--------------------------------------------------------- */
+
+.jyc-page .jyc-glass-soft {
+  background:
+    rgba(20, 20, 20, 0.27) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.08) !important;
+
+  backdrop-filter:
+    blur(16px) !important;
+
+  -webkit-backdrop-filter:
+    blur(16px) !important;
+}
+
+
+/* ---------------------------------------------------------
+   STRONG GLASS
+--------------------------------------------------------- */
+
+.jyc-page .jyc-glass-strong {
+  background:
+    rgba(11, 11, 11, 0.50) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.10) !important;
+
+  backdrop-filter:
+    blur(24px) saturate(125%) !important;
+
+  -webkit-backdrop-filter:
+    blur(24px) saturate(125%) !important;
+}
+
+
+/* ---------------------------------------------------------
+   CARD TOP GLASS REFLECTION
+--------------------------------------------------------- */
+
+.jyc-page main div.rounded-xl.border,
+.jyc-page main div.rounded-2xl.border,
+.jyc-page main div.rounded-3xl.border,
+.jyc-page .jyc-card,
+.jyc-page .jyc-stat-card {
+  position: relative;
+}
+
+.jyc-page main div.rounded-xl.border::before,
+.jyc-page main div.rounded-2xl.border::before,
+.jyc-page main div.rounded-3xl.border::before,
+.jyc-page .jyc-card::before,
+.jyc-page .jyc-stat-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 8%;
+  right: 8%;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.11),
+      transparent
+    );
+
+  pointer-events: none;
+
+  z-index: 2;
+}
+
+
+/* ---------------------------------------------------------
+   GOLD HOVER
+--------------------------------------------------------- */
+
+.jyc-page main div.rounded-xl.border:hover,
+.jyc-page main div.rounded-2xl.border:hover,
+.jyc-page main div.rounded-3xl.border:hover,
+.jyc-page .jyc-card:hover,
+.jyc-page .jyc-stat-card:hover {
+  border-color:
+    rgba(245, 197, 24, 0.24) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(245, 197, 24, 0.025),
+    0 0 25px rgba(245, 197, 24, 0.05),
+    0 16px 42px rgba(0, 0, 0, 0.22) !important;
+}
+
+
+/* ---------------------------------------------------------
+   KEEP HERO IMAGE SOLID
+--------------------------------------------------------- */
+
+.jyc-page .jyc-hero {
+  background:
+    #151515
+    url("../assets/illustrations/jumpstart-hero.png")
+    center center / cover no-repeat !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   KEEP GOLD BACKGROUND STRINGS
+--------------------------------------------------------- */
+
+.jyc-background-strings {
+  display: block !important;
+  visibility: visible !important;
+
+  opacity: 0.72 !important;
+
+  z-index: 1 !important;
+}
+
+.jyc-page > main {
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+
+/* ---------------------------------------------------------
+   BUTTONS STAY CRISP
+--------------------------------------------------------- */
+
+.jyc-page button {
+  position: relative;
+  z-index: 4;
+}
+
+
+/* ---------------------------------------------------------
+   TABLES
+--------------------------------------------------------- */
+
+.jyc-page table {
+  background:
+    rgba(10, 10, 10, 0.22) !important;
+
+  backdrop-filter:
+    blur(16px) !important;
+
+  -webkit-backdrop-filter:
+    blur(16px) !important;
+}
+
+.jyc-page thead {
+  background:
+    rgba(255, 255, 255, 0.035) !important;
+}
+
+.jyc-page tbody tr {
+  background:
+    rgba(255, 255, 255, 0.012) !important;
+}
+
+.jyc-page tbody tr:hover {
+  background:
+    rgba(245, 197, 24, 0.035) !important;
+}
+
+/* =========================================================
+   LIGHTER SMOKED GLASS PASS
+   Keeps readability but reveals background lines more clearly
+========================================================= */
+
+.jyc-page .jyc-card,
+.jyc-page .jyc-content-panel,
+.jyc-page .jyc-panel,
+.jyc-page main .bg-card,
+.jyc-page main [class~="bg-card"],
+.jyc-page main div.rounded-xl.border,
+.jyc-page main div.rounded-2xl.border,
+.jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(26, 26, 26, 0.24),
+      rgba(6, 6, 6, 0.34)
+    ) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.10) !important;
+
+  backdrop-filter:
+    blur(16px) saturate(118%) !important;
+
+  -webkit-backdrop-filter:
+    blur(16px) saturate(118%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 14px 38px rgba(0, 0, 0, 0.20) !important;
+}
+
+
+/* KPI cards */
+
+.jyc-page main .grid > div.border,
+.jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(32, 32, 32, 0.22),
+      rgba(7, 7, 7, 0.30)
+    ) !important;
+
+  backdrop-filter:
+    blur(14px) saturate(115%) !important;
+
+  -webkit-backdrop-filter:
+    blur(14px) saturate(115%) !important;
+}
+
+
+/* Workspace item cards */
+
+.jyc-page .jyc-glass-medium {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(26, 26, 26, 0.23),
+      rgba(6, 6, 6, 0.32)
+    ) !important;
+}
+
+
+/* Search / filters */
+
+.jyc-page main input,
+.jyc-page main textarea,
+.jyc-page main select {
+  background:
+    rgba(5, 5, 5, 0.22) !important;
+
+  backdrop-filter:
+    blur(12px) !important;
+
+  -webkit-backdrop-filter:
+    blur(12px) !important;
+}
+
+
+/* Keep text readable */
+
+.jyc-page .text-muted-foreground {
+  color:
+    rgba(255, 255, 255, 0.58) !important;
+}
+
+
+/* Gold hover remains subtle */
+
+.jyc-page main div.rounded-xl.border:hover,
+.jyc-page main div.rounded-2xl.border:hover,
+.jyc-page main div.rounded-3xl.border:hover,
+.jyc-page .jyc-card:hover,
+.jyc-page .jyc-stat-card:hover {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(32, 32, 32, 0.30),
+      rgba(9, 9, 9, 0.38)
+    ) !important;
+
+  border-color:
+    rgba(245, 197, 24, 0.24) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(245, 197, 24, 0.025),
+    0 0 24px rgba(245, 197, 24, 0.045),
+    0 14px 36px rgba(0, 0, 0, 0.22) !important;
+}
+
+
+/* =========================================================
+   FINAL GLASS TRANSPARENCY TUNING
+========================================================= */
+
+/* Large workspace / project / employee panels */
+.jyc-page .jyc-card,
+.jyc-page .jyc-content-panel,
+.jyc-page main .bg-card,
+.jyc-page main [class~="bg-card"],
+.jyc-page main div.rounded-xl.border,
+.jyc-page main div.rounded-2xl.border,
+.jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(24, 24, 24, 0.18),
+      rgba(5, 5, 5, 0.26)
+    ) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.10) !important;
+
+  backdrop-filter:
+    blur(14px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(14px) saturate(120%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.035),
+    0 14px 38px rgba(0,0,0,0.18) !important;
+}
+
+
+/* KPI cards */
+.jyc-page main .grid > div.border,
+.jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(28, 28, 28, 0.16),
+      rgba(6, 6, 6, 0.22)
+    ) !important;
+
+  backdrop-filter:
+    blur(12px) saturate(115%) !important;
+
+  -webkit-backdrop-filter:
+    blur(12px) saturate(115%) !important;
+}
+
+
+/* Workspace cards */
+.jyc-page .jyc-glass-medium {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25, 25, 25, 0.17),
+      rgba(5, 5, 5, 0.24)
+    ) !important;
+
+  backdrop-filter:
+    blur(13px) saturate(118%) !important;
+
+  -webkit-backdrop-filter:
+    blur(13px) saturate(118%) !important;
+}
+
+
+/* Search bars */
+.jyc-page main input,
+.jyc-page main textarea,
+.jyc-page main select {
+  background:
+    rgba(4, 4, 4, 0.18) !important;
+
+  border-color:
+    rgba(255,255,255,0.10) !important;
+
+  backdrop-filter:
+    blur(10px) !important;
+
+  -webkit-backdrop-filter:
+    blur(10px) !important;
+}
+
+
+/* Preserve readable text */
+.jyc-page .text-muted-foreground {
+  color:
+    rgba(255,255,255,0.60) !important;
+}
+
+
+/* Keep gold lines clearly visible */
+.jyc-background-strings {
+  opacity:
+    0.82 !important;
+}
+
+
+/* =========================================================
+   GLASS POLISH - MORE TRANSPARENT CARD SURFACES
+========================================================= */
+
+.jyc-page main div.rounded-xl.border,
+.jyc-page main div.rounded-2xl.border,
+.jyc-page main div.rounded-3xl.border,
+.jyc-page .jyc-card,
+.jyc-page .jyc-content-panel {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(24, 24, 24, 0.13),
+      rgba(5, 5, 5, 0.20)
+    ) !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.10) !important;
+
+  backdrop-filter:
+    blur(12px) saturate(120%) !important;
+
+  -webkit-backdrop-filter:
+    blur(12px) saturate(120%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 12px 34px rgba(0, 0, 0, 0.16) !important;
+}
+
+
+/* KPI cards */
+
+.jyc-page main .grid > div.border,
+.jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(28, 28, 28, 0.12),
+      rgba(6, 6, 6, 0.18)
+    ) !important;
+}
+
+
+/* Search field */
+
+.jyc-page main input,
+.jyc-page main textarea,
+.jyc-page main select {
+  background:
+    rgba(4, 4, 4, 0.15) !important;
+}
+
+
+/* Slightly stronger glass edge */
+
+.jyc-page main div.rounded-xl.border,
+.jyc-page main div.rounded-2xl.border,
+.jyc-page main div.rounded-3xl.border {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 0 1px rgba(245,197,24,0.015),
+    0 12px 34px rgba(0,0,0,0.16) !important;
+}
+
+
+/* =========================================================
+   FINAL GLASS DEPTH BALANCE
+========================================================= */
+
+/* Individual workspace/project cards */
+.jyc-page main div.rounded-xl.border,
+.jyc-page main div.rounded-2xl.border,
+.jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(22, 22, 22, 0.10),
+      rgba(4, 4, 4, 0.18)
+    ) !important;
+
+  backdrop-filter:
+    blur(11px) saturate(118%) !important;
+
+  -webkit-backdrop-filter:
+    blur(11px) saturate(118%) !important;
+
+  border-color:
+    rgba(255,255,255,0.095) !important;
+}
+
+
+/* KPI cards remain slightly stronger for hierarchy */
+.jyc-page main .grid > div.border,
+.jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(32, 32, 32, 0.16),
+      rgba(7, 7, 7, 0.24)
+    ) !important;
+
+  backdrop-filter:
+    blur(13px) saturate(116%) !important;
+
+  -webkit-backdrop-filter:
+    blur(13px) saturate(116%) !important;
+}
+
+
+/* Outer large panel remains smoked glass */
+.jyc-page .jyc-card,
+.jyc-page .jyc-content-panel {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25, 25, 25, 0.16),
+      rgba(5, 5, 5, 0.24)
+    ) !important;
+}
+
+
+/* Slight gold edge on active/hover cards */
+.jyc-page main div.rounded-xl.border:hover,
+.jyc-page main div.rounded-2xl.border:hover,
+.jyc-page main div.rounded-3xl.border:hover {
+  border-color:
+    rgba(245,197,24,0.30) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(245,197,24,0.025),
+    0 0 22px rgba(245,197,24,0.05),
+    0 12px 30px rgba(0,0,0,0.18) !important;
+}
+
+
+/* =========================================================
+   CLEAR GLASS PASS
+   Keep cards readable while showing gold lines clearly
+========================================================= */
+
+/* Main panels and workspace cards */
+.jyc-page .jyc-card,
+.jyc-page .jyc-content-panel,
+.jyc-page .jyc-panel,
+.jyc-page .jyc-glass,
+.jyc-page .jyc-glass-medium,
+.jyc-page .jyc-glass-soft,
+.jyc-page main .bg-card,
+.jyc-page main [class~="bg-card"],
+.jyc-page main div.rounded-xl.border,
+.jyc-page main div.rounded-2xl.border,
+.jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 18, 18, 0.07),
+      rgba(3, 3, 3, 0.12)
+    ) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.11) !important;
+
+  /* IMPORTANT:
+     remove strong frosting so gold lines stay sharp */
+  backdrop-filter:
+    blur(2px) saturate(105%) !important;
+
+  -webkit-backdrop-filter:
+    blur(2px) saturate(105%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 10px 28px rgba(0,0,0,0.14) !important;
+}
+
+
+/* KPI / stats cards */
+.jyc-page main .grid > div.border,
+.jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(22, 22, 22, 0.08),
+      rgba(4, 4, 4, 0.13)
+    ) !important;
+
+  backdrop-filter:
+    blur(1px) !important;
+
+  -webkit-backdrop-filter:
+    blur(1px) !important;
+}
+
+
+/* Secondary / muted surfaces */
+.jyc-page main .bg-secondary,
+.jyc-page main [class~="bg-secondary"],
+.jyc-page main .bg-muted,
+.jyc-page main [class~="bg-muted"] {
+  background:
+    rgba(10, 10, 10, 0.08) !important;
+
+  backdrop-filter:
+    none !important;
+
+  -webkit-backdrop-filter:
+    none !important;
+}
+
+
+/* Search bars */
+.jyc-page main input,
+.jyc-page main textarea,
+.jyc-page main select {
+  background:
+    rgba(4, 4, 4, 0.14) !important;
+
+  backdrop-filter:
+    blur(1px) !important;
+
+  -webkit-backdrop-filter:
+    blur(1px) !important;
+}
+
+
+/* Keep gold lines sharp and visible */
+.jyc-background-strings {
+  opacity:
+    1 !important;
+
+  filter:
+    drop-shadow(
+      0 0 5px rgba(245, 197, 24, 0.30)
+    ) !important;
+}
+
+
+/* Keep gold lines underneath the UI */
+.jyc-background-strings {
+  z-index:
+    1 !important;
+}
+
+.jyc-page > main {
+  position:
+    relative !important;
+
+  z-index:
+    3 !important;
+}
+
+
+/* Thin glass reflection */
+.jyc-page .jyc-card::before,
+.jyc-page .jyc-stat-card::before,
+.jyc-page main div.rounded-xl.border::before,
+.jyc-page main div.rounded-2xl.border::before,
+.jyc-page main div.rounded-3xl.border::before {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,0.10),
+      transparent
+    ) !important;
+}
+
+
+/* Hover still gets premium gold edge */
+.jyc-page .jyc-card:hover,
+.jyc-page .jyc-stat-card:hover,
+.jyc-page main div.rounded-xl.border:hover,
+.jyc-page main div.rounded-2xl.border:hover,
+.jyc-page main div.rounded-3xl.border:hover {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25,25,25,0.10),
+      rgba(5,5,5,0.15)
+    ) !important;
+
+  border-color:
+    rgba(245,197,24,0.30) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(245,197,24,0.03),
+    0 0 22px rgba(245,197,24,0.05),
+    0 12px 30px rgba(0,0,0,0.16) !important;
+}
+
+
+/* =========================================================
+   LIGHT MODE RESTORATION
+   Keeps glassmorphism while allowing the theme toggle to work
+========================================================= */
+
+/* Support common theme implementations:
+   html.light
+   body.light
+   .light
+   [data-theme="light"]
+*/
+
+html.light .jyc-page,
+body.light .jyc-page,
+.light .jyc-page,
+[data-theme="light"] .jyc-page {
+  background:
+    radial-gradient(
+      circle at 88% 7%,
+      rgba(245, 197, 24, 0.12),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 5% 85%,
+      rgba(245, 197, 24, 0.07),
+      transparent 26%
+    ),
+    linear-gradient(
+      180deg,
+      #F8F6EF 0%,
+      #F3F0E8 48%,
+      #FAF8F3 100%
+    ) !important;
+
+  color: #161616 !important;
+}
+
+
+/* =========================================================
+   LIGHT HEADER
+========================================================= */
+
+html.light .jyc-header,
+body.light .jyc-header,
+.light .jyc-header,
+[data-theme="light"] .jyc-header {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.78),
+      rgba(248, 246, 239, 0.66)
+    ) !important;
+
+  border-bottom:
+    1px solid rgba(0, 0, 0, 0.08) !important;
+
+  backdrop-filter:
+    blur(22px) saturate(125%) !important;
+
+  -webkit-backdrop-filter:
+    blur(22px) saturate(125%) !important;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+
+/* =========================================================
+   LIGHT GLASS PANELS
+========================================================= */
+
+html.light .jyc-page .jyc-card,
+html.light .jyc-page .jyc-glass,
+html.light .jyc-page .jyc-content-panel,
+html.light .jyc-page .jyc-panel,
+html.light .jyc-page .jyc-glass-medium,
+html.light .jyc-page .jyc-glass-soft,
+body.light .jyc-page .jyc-card,
+body.light .jyc-page .jyc-glass,
+body.light .jyc-page .jyc-content-panel,
+body.light .jyc-page .jyc-panel,
+body.light .jyc-page .jyc-glass-medium,
+body.light .jyc-page .jyc-glass-soft,
+.light .jyc-page .jyc-card,
+.light .jyc-page .jyc-glass,
+.light .jyc-page .jyc-content-panel,
+.light .jyc-page .jyc-panel,
+.light .jyc-page .jyc-glass-medium,
+.light .jyc-page .jyc-glass-soft,
+[data-theme="light"] .jyc-page .jyc-card,
+[data-theme="light"] .jyc-page .jyc-glass,
+[data-theme="light"] .jyc-page .jyc-content-panel,
+[data-theme="light"] .jyc-page .jyc-panel,
+[data-theme="light"] .jyc-page .jyc-glass-medium,
+[data-theme="light"] .jyc-page .jyc-glass-soft {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.30),
+      rgba(246, 242, 232, 0.42)
+    ) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(0, 0, 0, 0.10) !important;
+
+  backdrop-filter:
+    blur(8px) saturate(112%) !important;
+
+  -webkit-backdrop-filter:
+    blur(8px) saturate(112%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 14px 35px rgba(0, 0, 0, 0.08) !important;
+}
+
+
+/* =========================================================
+   LIGHT TAILWIND CARD SURFACES
+========================================================= */
+
+html.light .jyc-page main .bg-card,
+html.light .jyc-page main [class~="bg-card"],
+body.light .jyc-page main .bg-card,
+body.light .jyc-page main [class~="bg-card"],
+.light .jyc-page main .bg-card,
+.light .jyc-page main [class~="bg-card"],
+[data-theme="light"] .jyc-page main .bg-card,
+[data-theme="light"] .jyc-page main [class~="bg-card"] {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.28),
+      rgba(246, 242, 232, 0.40)
+    ) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(0, 0, 0, 0.10) !important;
+
+  backdrop-filter:
+    blur(7px) saturate(110%) !important;
+
+  -webkit-backdrop-filter:
+    blur(7px) saturate(110%) !important;
+}
+
+
+/* =========================================================
+   LIGHT ROUNDED CARDS
+========================================================= */
+
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.26),
+      rgba(245, 241, 231, 0.36)
+    ) !important;
+
+  border-color:
+    rgba(0, 0, 0, 0.10) !important;
+
+  backdrop-filter:
+    blur(6px) saturate(110%) !important;
+
+  -webkit-backdrop-filter:
+    blur(6px) saturate(110%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72),
+    0 10px 28px rgba(0,0,0,0.07) !important;
+}
+
+
+/* =========================================================
+   LIGHT KPI CARDS
+========================================================= */
+
+html.light .jyc-page main .grid > div.border,
+html.light .jyc-page .jyc-stat-card,
+body.light .jyc-page main .grid > div.border,
+body.light .jyc-page .jyc-stat-card,
+.light .jyc-page main .grid > div.border,
+.light .jyc-page .jyc-stat-card,
+[data-theme="light"] .jyc-page main .grid > div.border,
+[data-theme="light"] .jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.34),
+      rgba(245, 241, 231, 0.44)
+    ) !important;
+
+  border-color:
+    rgba(0, 0, 0, 0.09) !important;
+
+  color:
+    #171717 !important;
+
+  backdrop-filter:
+    blur(5px) !important;
+
+  -webkit-backdrop-filter:
+    blur(5px) !important;
+}
+
+
+/* =========================================================
+   LIGHT TAB BAR
+========================================================= */
+
+html.light .jyc-tabs,
+body.light .jyc-tabs,
+.light .jyc-tabs,
+[data-theme="light"] .jyc-tabs {
+  background:
+    rgba(255, 255, 255, 0.40) !important;
+
+  border-color:
+    rgba(0, 0, 0, 0.09) !important;
+
+  backdrop-filter:
+    blur(10px) saturate(115%) !important;
+
+  -webkit-backdrop-filter:
+    blur(10px) saturate(115%) !important;
+
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.06) !important;
+}
+
+
+/* =========================================================
+   LIGHT INPUTS
+========================================================= */
+
+html.light .jyc-page main input,
+html.light .jyc-page main textarea,
+html.light .jyc-page main select,
+body.light .jyc-page main input,
+body.light .jyc-page main textarea,
+body.light .jyc-page main select,
+.light .jyc-page main input,
+.light .jyc-page main textarea,
+.light .jyc-page main select,
+[data-theme="light"] .jyc-page main input,
+[data-theme="light"] .jyc-page main textarea,
+[data-theme="light"] .jyc-page main select {
+  background:
+    rgba(255, 255, 255, 0.42) !important;
+
+  color:
+    #171717 !important;
+
+  border-color:
+    rgba(0, 0, 0, 0.12) !important;
+
+  backdrop-filter:
+    blur(5px) !important;
+
+  -webkit-backdrop-filter:
+    blur(5px) !important;
+}
+
+
+/* =========================================================
+   LIGHT TEXT FIXES
+========================================================= */
+
+html.light .jyc-page .text-white,
+body.light .jyc-page .text-white,
+.light .jyc-page .text-white,
+[data-theme="light"] .jyc-page .text-white {
+  color:
+    #171717 !important;
+}
+
+html.light .jyc-page .text-white\/70,
+body.light .jyc-page .text-white\/70,
+.light .jyc-page .text-white\/70,
+[data-theme="light"] .jyc-page .text-white\/70 {
+  color:
+    rgba(20, 20, 20, 0.68) !important;
+}
+
+html.light .jyc-page .text-white\/50,
+body.light .jyc-page .text-white\/50,
+.light .jyc-page .text-white\/50,
+[data-theme="light"] .jyc-page .text-white\/50 {
+  color:
+    rgba(20, 20, 20, 0.56) !important;
+}
+
+html.light .jyc-page .text-muted-foreground,
+body.light .jyc-page .text-muted-foreground,
+.light .jyc-page .text-muted-foreground,
+[data-theme="light"] .jyc-page .text-muted-foreground {
+  color:
+    rgba(20, 20, 20, 0.62) !important;
+}
+
+
+/* =========================================================
+   KEEP GOLD ACCENTS IN LIGHT MODE
+========================================================= */
+
+html.light .jyc-background-strings,
+body.light .jyc-background-strings,
+.light .jyc-background-strings,
+[data-theme="light"] .jyc-background-strings {
+  opacity:
+    0.50 !important;
+
+  filter:
+    drop-shadow(
+      0 0 3px rgba(245, 197, 24, 0.18)
+    ) !important;
+}
+
+
+/* Hero remains image-based in both modes */
+html.light .jyc-hero,
+body.light .jyc-hero,
+.light .jyc-hero,
+[data-theme="light"] .jyc-hero {
+  color:
+    white !important;
+}
+
+html.light .jyc-hero .text-white,
+body.light .jyc-hero .text-white,
+.light .jyc-hero .text-white,
+[data-theme="light"] .jyc-hero .text-white {
+  color:
+    white !important;
+}
+
+
+/* =========================================================
+   PREMIUM LIGHT MODE
+   Warm ivory + champagne glass
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   LIGHT PAGE BACKGROUND
+--------------------------------------------------------- */
+
+html.light .jyc-page,
+body.light .jyc-page,
+.light .jyc-page,
+[data-theme="light"] .jyc-page {
+  background:
+    radial-gradient(
+      circle at 88% 8%,
+      rgba(245, 197, 24, 0.14),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 8% 82%,
+      rgba(212, 167, 44, 0.09),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #F3EFE4 0%,
+      #EDE7D8 48%,
+      #F7F3E9 100%
+    ) !important;
+
+  color:
+    #18150F !important;
+}
+
+
+/* ---------------------------------------------------------
+   GOLD BACKGROUND LINES IN LIGHT MODE
+--------------------------------------------------------- */
+
+html.light .jyc-background-strings,
+body.light .jyc-background-strings,
+.light .jyc-background-strings,
+[data-theme="light"] .jyc-background-strings {
+  opacity:
+    0.42 !important;
+
+  filter:
+    drop-shadow(
+      0 0 3px rgba(177, 128, 0, 0.24)
+    ) !important;
+}
+
+html.light .jyc-background-strings path,
+body.light .jyc-background-strings path,
+.light .jyc-background-strings path,
+[data-theme="light"] .jyc-background-strings path {
+  vector-effect:
+    non-scaling-stroke;
+}
+
+
+/* ---------------------------------------------------------
+   PREMIUM LIGHT GLASS MAIN PANELS
+--------------------------------------------------------- */
+
+html.light .jyc-page .jyc-card,
+html.light .jyc-page .jyc-glass,
+html.light .jyc-page .jyc-content-panel,
+html.light .jyc-page .jyc-panel,
+body.light .jyc-page .jyc-card,
+body.light .jyc-page .jyc-glass,
+body.light .jyc-page .jyc-content-panel,
+body.light .jyc-page .jyc-panel,
+.light .jyc-page .jyc-card,
+.light .jyc-page .jyc-glass,
+.light .jyc-page .jyc-content-panel,
+.light .jyc-page .jyc-panel,
+[data-theme="light"] .jyc-page .jyc-card,
+[data-theme="light"] .jyc-page .jyc-glass,
+[data-theme="light"] .jyc-page .jyc-content-panel,
+[data-theme="light"] .jyc-page .jyc-panel {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.56),
+      rgba(244, 237, 220, 0.42)
+    ) !important;
+
+  border:
+    1px solid rgba(161, 116, 0, 0.16) !important;
+
+  backdrop-filter:
+    blur(12px) saturate(115%) !important;
+
+  -webkit-backdrop-filter:
+    blur(12px) saturate(115%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 18px 45px rgba(78, 57, 8, 0.10),
+    0 0 0 1px rgba(245, 197, 24, 0.025) !important;
+}
+
+
+/* ---------------------------------------------------------
+   INDIVIDUAL WORKSPACE / PROJECT CARDS
+--------------------------------------------------------- */
+
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.48),
+      rgba(241, 234, 216, 0.34)
+    ) !important;
+
+  border-color:
+    rgba(95, 72, 20, 0.13) !important;
+
+  backdrop-filter:
+    blur(8px) saturate(110%) !important;
+
+  -webkit-backdrop-filter:
+    blur(8px) saturate(110%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.85),
+    0 12px 32px rgba(63,47,12,0.08) !important;
+}
+
+
+/* ---------------------------------------------------------
+   WORKSPACE CARD HOVER
+--------------------------------------------------------- */
+
+html.light .jyc-page main div.rounded-xl.border:hover,
+html.light .jyc-page main div.rounded-2xl.border:hover,
+html.light .jyc-page main div.rounded-3xl.border:hover,
+body.light .jyc-page main div.rounded-xl.border:hover,
+body.light .jyc-page main div.rounded-2xl.border:hover,
+body.light .jyc-page main div.rounded-3xl.border:hover,
+.light .jyc-page main div.rounded-xl.border:hover,
+.light .jyc-page main div.rounded-2xl.border:hover,
+.light .jyc-page main div.rounded-3xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border:hover {
+  border-color:
+    rgba(196, 145, 0, 0.40) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.62),
+      rgba(246, 235, 205, 0.44)
+    ) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(245,197,24,0.05),
+    0 0 24px rgba(191,137,0,0.08),
+    0 15px 38px rgba(70,50,8,0.10) !important;
+}
+
+
+/* ---------------------------------------------------------
+   KPI CARDS
+--------------------------------------------------------- */
+
+html.light .jyc-page main .grid > div.border,
+html.light .jyc-page .jyc-stat-card,
+body.light .jyc-page main .grid > div.border,
+body.light .jyc-page .jyc-stat-card,
+.light .jyc-page main .grid > div.border,
+.light .jyc-page .jyc-stat-card,
+[data-theme="light"] .jyc-page main .grid > div.border,
+[data-theme="light"] .jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.64),
+      rgba(242,234,214,0.44)
+    ) !important;
+
+  border-color:
+    rgba(91,70,18,0.12) !important;
+
+  backdrop-filter:
+    blur(7px) !important;
+
+  -webkit-backdrop-filter:
+    blur(7px) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.90),
+    0 10px 28px rgba(55,41,10,0.07) !important;
+}
+
+
+/* ---------------------------------------------------------
+   LIGHT HEADER
+--------------------------------------------------------- */
+
+html.light .jyc-header,
+body.light .jyc-header,
+.light .jyc-header,
+[data-theme="light"] .jyc-header {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(250,247,239,0.88),
+      rgba(241,235,220,0.78)
+    ) !important;
+
+  border-bottom:
+    1px solid rgba(120,87,8,0.12) !important;
+
+  backdrop-filter:
+    blur(18px) saturate(115%) !important;
+
+  -webkit-backdrop-filter:
+    blur(18px) saturate(115%) !important;
+
+  box-shadow:
+    0 10px 30px rgba(62,45,8,0.08) !important;
+}
+
+
+/* ---------------------------------------------------------
+   LIGHT TAB BAR
+--------------------------------------------------------- */
+
+html.light .jyc-tabs,
+body.light .jyc-tabs,
+.light .jyc-tabs,
+[data-theme="light"] .jyc-tabs {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.60),
+      rgba(239,232,215,0.48)
+    ) !important;
+
+  border-color:
+    rgba(89,67,17,0.12) !important;
+
+  backdrop-filter:
+    blur(10px) !important;
+
+  -webkit-backdrop-filter:
+    blur(10px) !important;
+
+  box-shadow:
+    0 8px 26px rgba(58,43,10,0.07) !important;
+}
+
+
+/* Active light tab */
+html.light .jyc-tab-active,
+body.light .jyc-tab-active,
+.light .jyc-tab-active,
+[data-theme="light"] .jyc-tab-active {
+  color:
+    #8D6500 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,214,70,0.24),
+      rgba(245,197,24,0.12)
+    ) !important;
+
+  border-color:
+    rgba(201,151,0,0.32) !important;
+
+  box-shadow:
+    0 0 18px rgba(191,141,0,0.07) !important;
+}
+
+
+/* ---------------------------------------------------------
+   SEARCH / INPUTS
+--------------------------------------------------------- */
+
+html.light .jyc-page main input,
+html.light .jyc-page main textarea,
+html.light .jyc-page main select,
+body.light .jyc-page main input,
+body.light .jyc-page main textarea,
+body.light .jyc-page main select,
+.light .jyc-page main input,
+.light .jyc-page main textarea,
+.light .jyc-page main select,
+[data-theme="light"] .jyc-page main input,
+[data-theme="light"] .jyc-page main textarea,
+[data-theme="light"] .jyc-page main select {
+  background:
+    rgba(255,255,255,0.58) !important;
+
+  color:
+    #1B1811 !important;
+
+  border-color:
+    rgba(73,57,18,0.14) !important;
+
+  backdrop-filter:
+    blur(6px) !important;
+
+  -webkit-backdrop-filter:
+    blur(6px) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+
+/* ---------------------------------------------------------
+   TEXT CONTRAST
+--------------------------------------------------------- */
+
+html.light .jyc-page,
+body.light .jyc-page,
+.light .jyc-page,
+[data-theme="light"] .jyc-page {
+  --foreground:
+    #17140E;
+}
+
+html.light .jyc-page .text-white,
+body.light .jyc-page .text-white,
+.light .jyc-page .text-white,
+[data-theme="light"] .jyc-page .text-white {
+  color:
+    #17140E !important;
+}
+
+html.light .jyc-page .text-muted-foreground,
+body.light .jyc-page .text-muted-foreground,
+.light .jyc-page .text-muted-foreground,
+[data-theme="light"] .jyc-page .text-muted-foreground {
+  color:
+    #716B5D !important;
+}
+
+html.light .jyc-page .text-white\/45,
+body.light .jyc-page .text-white\/45,
+.light .jyc-page .text-white\/45,
+[data-theme="light"] .jyc-page .text-white\/45 {
+  color:
+    #776F60 !important;
+}
+
+html.light .jyc-page .text-white\/50,
+body.light .jyc-page .text-white\/50,
+.light .jyc-page .text-white\/50,
+[data-theme="light"] .jyc-page .text-white\/50 {
+  color:
+    #6D675B !important;
+}
+
+html.light .jyc-page .text-white\/70,
+body.light .jyc-page .text-white\/70,
+.light .jyc-page .text-white\/70,
+[data-theme="light"] .jyc-page .text-white\/70 {
+  color:
+    #595448 !important;
+}
+
+
+/* ---------------------------------------------------------
+   SECTION LABELS
+--------------------------------------------------------- */
+
+html.light .jyc-page h1,
+html.light .jyc-page h2,
+html.light .jyc-page h3,
+body.light .jyc-page h1,
+body.light .jyc-page h2,
+body.light .jyc-page h3,
+.light .jyc-page h1,
+.light .jyc-page h2,
+.light .jyc-page h3,
+[data-theme="light"] .jyc-page h1,
+[data-theme="light"] .jyc-page h2,
+[data-theme="light"] .jyc-page h3 {
+  color:
+    #17140E;
+}
+
+
+/* ---------------------------------------------------------
+   HERO REMAINS DARK / CINEMATIC
+--------------------------------------------------------- */
+
+html.light .jyc-hero,
+body.light .jyc-hero,
+.light .jyc-hero,
+[data-theme="light"] .jyc-hero {
+  border-color:
+    rgba(189,137,0,0.30) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(245,197,24,0.05),
+    0 20px 50px rgba(65,45,0,0.18) !important;
+}
+
+html.light .jyc-hero h1,
+html.light .jyc-hero h2,
+html.light .jyc-hero h3,
+html.light .jyc-hero .text-white,
+body.light .jyc-hero h1,
+body.light .jyc-hero h2,
+body.light .jyc-hero h3,
+body.light .jyc-hero .text-white,
+.light .jyc-hero h1,
+.light .jyc-hero h2,
+.light .jyc-hero h3,
+.light .jyc-hero .text-white,
+[data-theme="light"] .jyc-hero h1,
+[data-theme="light"] .jyc-hero h2,
+[data-theme="light"] .jyc-hero h3,
+[data-theme="light"] .jyc-hero .text-white {
+  color:
+    #FFFFFF !important;
+}
+
+html.light .jyc-hero p,
+body.light .jyc-hero p,
+.light .jyc-hero p,
+[data-theme="light"] .jyc-hero p {
+  color:
+    rgba(255,255,255,0.76) !important;
+}
+
+
+/* ---------------------------------------------------------
+   LIGHT BUTTON / GOLD BUTTON
+--------------------------------------------------------- */
+
+html.light .jyc-primary-button,
+body.light .jyc-primary-button,
+.light .jyc-primary-button,
+[data-theme="light"] .jyc-primary-button {
+  color:
+    #16120A !important;
+
+  box-shadow:
+    0 8px 25px rgba(176,127,0,0.18) !important;
+}
+
+
+/* =========================================================
+   FINAL LIGHT MODE POLISH
+   - premium ivory background
+   - clearer glass cards
+   - stronger depth
+   - visible gold background lines
+   - hero blends better with light mode
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   LIGHT PAGE BACKGROUND
+--------------------------------------------------------- */
+
+html.light .jyc-page,
+body.light .jyc-page,
+.light .jyc-page,
+[data-theme="light"] .jyc-page {
+  background:
+    radial-gradient(
+      circle at 88% 7%,
+      rgba(245, 197, 24, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 10% 84%,
+      rgba(214, 169, 45, 0.10),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      #F4EFE3 0%,
+      #ECE5D5 52%,
+      #F7F2E7 100%
+    ) !important;
+
+  color: #17140E !important;
+}
+
+
+/* ---------------------------------------------------------
+   LIGHT GOLD BACKGROUND STRINGS
+--------------------------------------------------------- */
+
+html.light .jyc-background-strings,
+body.light .jyc-background-strings,
+.light .jyc-background-strings,
+[data-theme="light"] .jyc-background-strings {
+  opacity: 0.48 !important;
+  z-index: 1 !important;
+  filter: drop-shadow(0 0 3px rgba(184, 136, 0, 0.20)) !important;
+}
+
+html.light .jyc-page > main,
+body.light .jyc-page > main,
+.light .jyc-page > main,
+[data-theme="light"] .jyc-page > main {
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+
+/* ---------------------------------------------------------
+   HERO BLENDING FOR LIGHT MODE
+--------------------------------------------------------- */
+
+html.light .jyc-hero,
+body.light .jyc-hero,
+.light .jyc-hero,
+[data-theme="light"] .jyc-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(191, 144, 10, 0.28) !important;
+  box-shadow:
+    0 0 0 1px rgba(245, 197, 24, 0.04),
+    0 22px 48px rgba(86, 61, 7, 0.16) !important;
+}
+
+html.light .jyc-hero::before,
+body.light .jyc-hero::before,
+.light .jyc-hero::before,
+[data-theme="light"] .jyc-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(18, 13, 5, 0.72) 0%,
+      rgba(18, 13, 5, 0.46) 36%,
+      rgba(18, 13, 5, 0.14) 68%,
+      rgba(18, 13, 5, 0.03) 100%
+    ) !important;
+  z-index: 1;
+}
+
+html.light .jyc-hero::after,
+body.light .jyc-hero::after,
+.light .jyc-hero::after,
+[data-theme="light"] .jyc-hero::after {
+  opacity: 0.72 !important;
+}
+
+html.light .jyc-hero-content,
+body.light .jyc-hero-content,
+.light .jyc-hero-content,
+[data-theme="light"] .jyc-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+html.light .jyc-hero h1,
+html.light .jyc-hero h2,
+html.light .jyc-hero h3,
+html.light .jyc-hero .text-white,
+body.light .jyc-hero h1,
+body.light .jyc-hero h2,
+body.light .jyc-hero h3,
+body.light .jyc-hero .text-white,
+.light .jyc-hero h1,
+.light .jyc-hero h2,
+.light .jyc-hero h3,
+.light .jyc-hero .text-white,
+[data-theme="light"] .jyc-hero h1,
+[data-theme="light"] .jyc-hero h2,
+[data-theme="light"] .jyc-hero h3,
+[data-theme="light"] .jyc-hero .text-white {
+  color: #FFFFFF !important;
+}
+
+html.light .jyc-hero p,
+body.light .jyc-hero p,
+.light .jyc-hero p,
+[data-theme="light"] .jyc-hero p {
+  color: rgba(255,255,255,0.82) !important;
+}
+
+
+/* ---------------------------------------------------------
+   MAIN GLASS PANELS
+--------------------------------------------------------- */
+
+html.light .jyc-page .jyc-card,
+html.light .jyc-page .jyc-glass,
+html.light .jyc-page .jyc-content-panel,
+html.light .jyc-page .jyc-panel,
+body.light .jyc-page .jyc-card,
+body.light .jyc-page .jyc-glass,
+body.light .jyc-page .jyc-content-panel,
+body.light .jyc-page .jyc-panel,
+.light .jyc-page .jyc-card,
+.light .jyc-page .jyc-glass,
+.light .jyc-page .jyc-content-panel,
+.light .jyc-page .jyc-panel,
+[data-theme="light"] .jyc-page .jyc-card,
+[data-theme="light"] .jyc-page .jyc-glass,
+[data-theme="light"] .jyc-page .jyc-content-panel,
+[data-theme="light"] .jyc-page .jyc-panel {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.30),
+      rgba(243,236,220,0.20)
+    ) !important;
+
+  background-color: transparent !important;
+
+  border: 1px solid rgba(127, 93, 14, 0.16) !important;
+
+  backdrop-filter: blur(10px) saturate(112%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(112%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.82),
+    0 18px 42px rgba(70, 50, 8, 0.09),
+    0 0 0 1px rgba(245,197,24,0.02) !important;
+}
+
+
+/* ---------------------------------------------------------
+   INNER WORKSPACE / PROJECT / MESSAGE / LEAVE CARDS
+--------------------------------------------------------- */
+
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.24),
+      rgba(243,235,219,0.14)
+    ) !important;
+
+  background-color: transparent !important;
+
+  border-color: rgba(110, 81, 18, 0.15) !important;
+
+  backdrop-filter: blur(8px) saturate(108%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(108%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.88),
+    0 12px 30px rgba(65, 48, 12, 0.08) !important;
+}
+
+
+/* ---------------------------------------------------------
+   CARD HOVER / ACTIVE POLISH
+--------------------------------------------------------- */
+
+html.light .jyc-page main div.rounded-xl.border:hover,
+html.light .jyc-page main div.rounded-2xl.border:hover,
+html.light .jyc-page main div.rounded-3xl.border:hover,
+body.light .jyc-page main div.rounded-xl.border:hover,
+body.light .jyc-page main div.rounded-2xl.border:hover,
+body.light .jyc-page main div.rounded-3xl.border:hover,
+.light .jyc-page main div.rounded-xl.border:hover,
+.light .jyc-page main div.rounded-2xl.border:hover,
+.light .jyc-page main div.rounded-3xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border:hover {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.34),
+      rgba(246,236,205,0.18)
+    ) !important;
+
+  border-color: rgba(194, 144, 0, 0.32) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.92),
+    0 0 0 1px rgba(245,197,24,0.03),
+    0 0 20px rgba(196,147,0,0.05),
+    0 14px 34px rgba(73,53,10,0.10) !important;
+}
+
+
+/* ---------------------------------------------------------
+   KPI / STAT CARDS
+--------------------------------------------------------- */
+
+html.light .jyc-page main .grid > div.border,
+html.light .jyc-page .jyc-stat-card,
+body.light .jyc-page main .grid > div.border,
+body.light .jyc-page .jyc-stat-card,
+.light .jyc-page main .grid > div.border,
+.light .jyc-page .jyc-stat-card,
+[data-theme="light"] .jyc-page main .grid > div.border,
+[data-theme="light"] .jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.38),
+      rgba(243,235,219,0.22)
+    ) !important;
+
+  border-color: rgba(102, 76, 15, 0.13) !important;
+
+  backdrop-filter: blur(7px) saturate(108%) !important;
+  -webkit-backdrop-filter: blur(7px) saturate(108%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.95),
+    0 10px 26px rgba(66,48,10,0.07) !important;
+}
+
+
+/* ---------------------------------------------------------
+   HEADER
+--------------------------------------------------------- */
+
+html.light .jyc-header,
+body.light .jyc-header,
+.light .jyc-header,
+[data-theme="light"] .jyc-header {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(249,245,236,0.82),
+      rgba(239,233,219,0.68)
+    ) !important;
+
+  border-bottom: 1px solid rgba(110,81,18,0.10) !important;
+
+  backdrop-filter: blur(16px) saturate(112%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(112%) !important;
+
+  box-shadow:
+    0 8px 26px rgba(67,48,10,0.07) !important;
+}
+
+
+/* ---------------------------------------------------------
+   TAB BAR
+--------------------------------------------------------- */
+
+html.light .jyc-tabs,
+body.light .jyc-tabs,
+.light .jyc-tabs,
+[data-theme="light"] .jyc-tabs {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.36),
+      rgba(241,234,217,0.24)
+    ) !important;
+
+  border-color: rgba(103,76,15,0.12) !important;
+
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+
+  box-shadow:
+    0 8px 22px rgba(72,50,8,0.06) !important;
+}
+
+
+/* ---------------------------------------------------------
+   INPUTS
+--------------------------------------------------------- */
+
+html.light .jyc-page main input,
+html.light .jyc-page main textarea,
+html.light .jyc-page main select,
+body.light .jyc-page main input,
+body.light .jyc-page main textarea,
+body.light .jyc-page main select,
+.light .jyc-page main input,
+.light .jyc-page main textarea,
+.light .jyc-page main select,
+[data-theme="light"] .jyc-page main input,
+[data-theme="light"] .jyc-page main textarea,
+[data-theme="light"] .jyc-page main select {
+  background:
+    rgba(255,255,255,0.34) !important;
+
+  color: #18140F !important;
+  border-color: rgba(93,69,16,0.14) !important;
+
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72) !important;
+}
+
+
+/* ---------------------------------------------------------
+   BETTER TEXT CONTRAST
+--------------------------------------------------------- */
+
+html.light .jyc-page .text-white,
+body.light .jyc-page .text-white,
+.light .jyc-page .text-white,
+[data-theme="light"] .jyc-page .text-white {
+  color: #17140E !important;
+}
+
+html.light .jyc-page .text-muted-foreground,
+body.light .jyc-page .text-muted-foreground,
+.light .jyc-page .text-muted-foreground,
+[data-theme="light"] .jyc-page .text-muted-foreground {
+  color: #6B6558 !important;
+}
+
+html.light .jyc-page .text-white\/45,
+body.light .jyc-page .text-white\/45,
+.light .jyc-page .text-white\/45,
+[data-theme="light"] .jyc-page .text-white\/45 {
+  color: #746D5F !important;
+}
+
+html.light .jyc-page .text-white\/50,
+body.light .jyc-page .text-white\/50,
+.light .jyc-page .text-white\/50,
+[data-theme="light"] .jyc-page .text-white\/50 {
+  color: #6C6558 !important;
+}
+
+html.light .jyc-page .text-white\/70,
+body.light .jyc-page .text-white\/70,
+.light .jyc-page .text-white\/70,
+[data-theme="light"] .jyc-page .text-white\/70 {
+  color: #575145 !important;
+}
+
+
+/* ---------------------------------------------------------
+   SECTION HEADINGS
+--------------------------------------------------------- */
+
+html.light .jyc-page h1,
+html.light .jyc-page h2,
+html.light .jyc-page h3,
+body.light .jyc-page h1,
+body.light .jyc-page h2,
+body.light .jyc-page h3,
+.light .jyc-page h1,
+.light .jyc-page h2,
+.light .jyc-page h3,
+[data-theme="light"] .jyc-page h1,
+[data-theme="light"] .jyc-page h2,
+[data-theme="light"] .jyc-page h3 {
+  color: #17140E !important;
+}
+
+
+/* ---------------------------------------------------------
+   GOLD BUTTON SHADOW IN LIGHT MODE
+--------------------------------------------------------- */
+
+html.light .jyc-primary-button,
+body.light .jyc-primary-button,
+.light .jyc-primary-button,
+[data-theme="light"] .jyc-primary-button {
+  color: #17120B !important;
+  box-shadow:
+    0 10px 24px rgba(180, 131, 0, 0.18) !important;
+}
+
+
+/* =========================================================
+   FIX LIGHT MODE HERO TEXT CONTRAST
+========================================================= */
+
+html.light .jyc-hero h1,
+html.light .jyc-hero h2,
+html.light .jyc-hero h3,
+html.light .jyc-hero p,
+html.light .jyc-hero span,
+html.light .jyc-hero .text-white,
+body.light .jyc-hero h1,
+body.light .jyc-hero h2,
+body.light .jyc-hero h3,
+body.light .jyc-hero p,
+body.light .jyc-hero span,
+body.light .jyc-hero .text-white,
+.light .jyc-hero h1,
+.light .jyc-hero h2,
+.light .jyc-hero h3,
+.light .jyc-hero p,
+.light .jyc-hero span,
+.light .jyc-hero .text-white,
+[data-theme="light"] .jyc-hero h1,
+[data-theme="light"] .jyc-hero h2,
+[data-theme="light"] .jyc-hero h3,
+[data-theme="light"] .jyc-hero p,
+[data-theme="light"] .jyc-hero span,
+[data-theme="light"] .jyc-hero .text-white {
+  color: #ffffff !important;
+}
+
+html.light .jyc-hero p,
+body.light .jyc-hero p,
+.light .jyc-hero p,
+[data-theme="light"] .jyc-hero p {
+  color: rgba(255,255,255,0.82) !important;
+}
+
+html.light .jyc-hero::before,
+body.light .jyc-hero::before,
+.light .jyc-hero::before,
+[data-theme="light"] .jyc-hero::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(10,7,2,0.78) 0%,
+      rgba(10,7,2,0.55) 36%,
+      rgba(10,7,2,0.20) 68%,
+      rgba(10,7,2,0.04) 100%
+    ) !important;
+}
+
+
+/* =========================================================
+   FIX LIGHT MODE HERO TEXT CONTRAST
+========================================================= */
+
+html.light .jyc-hero h1,
+html.light .jyc-hero h2,
+html.light .jyc-hero h3,
+html.light .jyc-hero p,
+html.light .jyc-hero span,
+html.light .jyc-hero .text-white,
+body.light .jyc-hero h1,
+body.light .jyc-hero h2,
+body.light .jyc-hero h3,
+body.light .jyc-hero p,
+body.light .jyc-hero span,
+body.light .jyc-hero .text-white,
+.light .jyc-hero h1,
+.light .jyc-hero h2,
+.light .jyc-hero h3,
+.light .jyc-hero p,
+.light .jyc-hero span,
+.light .jyc-hero .text-white,
+[data-theme="light"] .jyc-hero h1,
+[data-theme="light"] .jyc-hero h2,
+[data-theme="light"] .jyc-hero h3,
+[data-theme="light"] .jyc-hero p,
+[data-theme="light"] .jyc-hero span,
+[data-theme="light"] .jyc-hero .text-white {
+  color: #ffffff !important;
+}
+
+html.light .jyc-hero p,
+body.light .jyc-hero p,
+.light .jyc-hero p,
+[data-theme="light"] .jyc-hero p {
+  color: rgba(255,255,255,0.82) !important;
+}
+
+html.light .jyc-hero::before,
+body.light .jyc-hero::before,
+.light .jyc-hero::before,
+[data-theme="light"] .jyc-hero::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(10,7,2,0.78) 0%,
+      rgba(10,7,2,0.55) 36%,
+      rgba(10,7,2,0.20) 68%,
+      rgba(10,7,2,0.04) 100%
+    ) !important;
+}
+
+
+/* =========================================================
+   LIGHT MODE — CLEAR CHAMPAGNE GLASS FINAL PASS
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   HERO TEXT — KEEP ALL HERO COPY LIGHT
+--------------------------------------------------------- */
+
+html.light .jyc-hero p,
+body.light .jyc-hero p,
+.light .jyc-hero p,
+[data-theme="light"] .jyc-hero p {
+  color: rgba(255,255,255,0.88) !important;
+}
+
+html.light .jyc-hero .text-white\/70,
+body.light .jyc-hero .text-white\/70,
+.light .jyc-hero .text-white\/70,
+[data-theme="light"] .jyc-hero .text-white\/70 {
+  color: rgba(255,255,255,0.88) !important;
+}
+
+
+/* ---------------------------------------------------------
+   MAIN LIGHT GLASS PANELS
+--------------------------------------------------------- */
+
+html.light .jyc-page .jyc-card,
+html.light .jyc-page .jyc-glass,
+html.light .jyc-page .jyc-content-panel,
+html.light .jyc-page .jyc-panel,
+body.light .jyc-page .jyc-card,
+body.light .jyc-page .jyc-glass,
+body.light .jyc-page .jyc-content-panel,
+body.light .jyc-page .jyc-panel,
+.light .jyc-page .jyc-card,
+.light .jyc-page .jyc-glass,
+.light .jyc-page .jyc-content-panel,
+.light .jyc-page .jyc-panel,
+[data-theme="light"] .jyc-page .jyc-card,
+[data-theme="light"] .jyc-page .jyc-glass,
+[data-theme="light"] .jyc-page .jyc-content-panel,
+[data-theme="light"] .jyc-page .jyc-panel {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.16),
+      rgba(244,236,217,0.10)
+    ) !important;
+
+  background-color: transparent !important;
+
+  border-color:
+    rgba(150,108,8,0.18) !important;
+
+  backdrop-filter:
+    blur(3px) saturate(106%) !important;
+
+  -webkit-backdrop-filter:
+    blur(3px) saturate(106%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.62),
+    0 14px 34px rgba(83,57,5,0.08) !important;
+}
+
+
+/* ---------------------------------------------------------
+   INDIVIDUAL WORKSPACE CARDS
+--------------------------------------------------------- */
+
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.13),
+      rgba(244,237,219,0.07)
+    ) !important;
+
+  background-color:
+    transparent !important;
+
+  border-color:
+    rgba(128,94,14,0.16) !important;
+
+  backdrop-filter:
+    blur(2px) saturate(104%) !important;
+
+  -webkit-backdrop-filter:
+    blur(2px) saturate(104%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.58),
+    0 10px 26px rgba(70,49,6,0.07) !important;
+}
+
+
+/* ---------------------------------------------------------
+   KPI CARDS
+--------------------------------------------------------- */
+
+html.light .jyc-page main .grid > div.border,
+html.light .jyc-page .jyc-stat-card,
+body.light .jyc-page main .grid > div.border,
+body.light .jyc-page .jyc-stat-card,
+.light .jyc-page main .grid > div.border,
+.light .jyc-page .jyc-stat-card,
+[data-theme="light"] .jyc-page main .grid > div.border,
+[data-theme="light"] .jyc-page .jyc-stat-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.20),
+      rgba(245,237,218,0.10)
+    ) !important;
+
+  border-color:
+    rgba(115,84,14,0.14) !important;
+
+  backdrop-filter:
+    blur(2px) !important;
+
+  -webkit-backdrop-filter:
+    blur(2px) !important;
+}
+
+
+/* ---------------------------------------------------------
+   GOLD LINES — MORE VISIBLE IN LIGHT MODE
+--------------------------------------------------------- */
+
+html.light .jyc-background-strings,
+body.light .jyc-background-strings,
+.light .jyc-background-strings,
+[data-theme="light"] .jyc-background-strings {
+  opacity:
+    0.62 !important;
+
+  filter:
+    drop-shadow(
+      0 0 3px rgba(179,126,0,0.24)
+    ) !important;
+}
+
+
+/* ---------------------------------------------------------
+   TAB BAR — LIGHT CLEAR GLASS
+--------------------------------------------------------- */
+
+html.light .jyc-tabs,
+body.light .jyc-tabs,
+.light .jyc-tabs,
+[data-theme="light"] .jyc-tabs {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.24),
+      rgba(241,232,211,0.12)
+    ) !important;
+
+  backdrop-filter:
+    blur(4px) !important;
+
+  -webkit-backdrop-filter:
+    blur(4px) !important;
+
+  border-color:
+    rgba(115,84,15,0.14) !important;
+}
+
+
+/* ---------------------------------------------------------
+   SEARCH / INPUTS
+--------------------------------------------------------- */
+
+html.light .jyc-page main input,
+html.light .jyc-page main textarea,
+html.light .jyc-page main select,
+body.light .jyc-page main input,
+body.light .jyc-page main textarea,
+body.light .jyc-page main select,
+.light .jyc-page main input,
+.light .jyc-page main textarea,
+.light .jyc-page main select,
+[data-theme="light"] .jyc-page main input,
+[data-theme="light"] .jyc-page main textarea,
+[data-theme="light"] .jyc-page main select {
+  background:
+    rgba(255,255,255,0.22) !important;
+
+  backdrop-filter:
+    blur(2px) !important;
+
+  -webkit-backdrop-filter:
+    blur(2px) !important;
+
+  border-color:
+    rgba(98,72,16,0.15) !important;
+}
+
+
+/* ---------------------------------------------------------
+   LIGHT CARD HOVER
+--------------------------------------------------------- */
+
+html.light .jyc-page main div.rounded-xl.border:hover,
+html.light .jyc-page main div.rounded-2xl.border:hover,
+html.light .jyc-page main div.rounded-3xl.border:hover,
+body.light .jyc-page main div.rounded-xl.border:hover,
+body.light .jyc-page main div.rounded-2xl.border:hover,
+body.light .jyc-page main div.rounded-3xl.border:hover,
+.light .jyc-page main div.rounded-xl.border:hover,
+.light .jyc-page main div.rounded-2xl.border:hover,
+.light .jyc-page main div.rounded-3xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border:hover,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border:hover {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.20),
+      rgba(245,235,205,0.11)
+    ) !important;
+
+  border-color:
+    rgba(193,143,0,0.34) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(245,197,24,0.03),
+    0 0 18px rgba(190,138,0,0.06),
+    0 12px 28px rgba(70,49,5,0.08) !important;
+}
+
+
+/* =========================================================
+   LIGHT MODE — FINAL DEPTH & GLASS EDGE POLISH
+========================================================= */
+
+/* Main glass surfaces */
+html.light .jyc-page .jyc-card,
+html.light .jyc-page .jyc-content-panel,
+html.light .jyc-page .jyc-panel,
+body.light .jyc-page .jyc-card,
+body.light .jyc-page .jyc-content-panel,
+body.light .jyc-page .jyc-panel,
+.light .jyc-page .jyc-card,
+.light .jyc-page .jyc-content-panel,
+.light .jyc-page .jyc-panel,
+[data-theme="light"] .jyc-page .jyc-card,
+[data-theme="light"] .jyc-page .jyc-content-panel,
+[data-theme="light"] .jyc-page .jyc-panel {
+  border-color:
+    rgba(166, 120, 8, 0.20) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.82),
+    0 0 0 1px rgba(245,197,24,0.018),
+    0 16px 38px rgba(79,55,6,0.09) !important;
+}
+
+
+/* Individual cards */
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  border-color:
+    rgba(100,74,15,0.18) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72),
+    0 11px 28px rgba(68,49,8,0.075) !important;
+}
+
+
+/* Slightly stronger gold filaments */
+html.light .jyc-background-strings,
+body.light .jyc-background-strings,
+.light .jyc-background-strings,
+[data-theme="light"] .jyc-background-strings {
+  opacity:
+    0.68 !important;
+
+  filter:
+    drop-shadow(0 0 3px rgba(174,122,0,0.22)) !important;
+}
+
+
+/* Premium tab glass */
+html.light .jyc-tabs,
+body.light .jyc-tabs,
+.light .jyc-tabs,
+[data-theme="light"] .jyc-tabs {
+  border-color:
+    rgba(102,76,17,0.15) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 8px 22px rgba(69,49,8,0.065) !important;
+}
+
+
+/* Header separation */
+html.light .jyc-header,
+body.light .jyc-header,
+.light .jyc-header,
+[data-theme="light"] .jyc-header {
+  border-bottom:
+    1px solid rgba(150,108,9,0.13) !important;
+
+  box-shadow:
+    0 8px 28px rgba(69,48,7,0.07) !important;
+}
+
+
+/* =========================================================
+   LIGHT MODE — FINAL GOLD LINE BALANCE
+========================================================= */
+
+html.light .jyc-background-strings,
+body.light .jyc-background-strings,
+.light .jyc-background-strings,
+[data-theme="light"] .jyc-background-strings {
+  opacity: 0.52 !important;
+
+  filter:
+    drop-shadow(
+      0 0 2px rgba(175, 122, 0, 0.16)
+    ) !important;
+}
+
+
+/* Keep cards transparent, but slightly calmer */
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.15),
+      rgba(244,237,219,0.08)
+    ) !important;
+
+  backdrop-filter:
+    blur(2px) saturate(104%) !important;
+
+  -webkit-backdrop-filter:
+    blur(2px) saturate(104%) !important;
+}
+
+
+/* Slightly stronger card borders for separation */
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  border-color:
+    rgba(117, 84, 12, 0.17) !important;
+}
+
+
+/* Keep the hero stronger than the rest of the page */
+html.light .jyc-hero,
+body.light .jyc-hero,
+.light .jyc-hero,
+[data-theme="light"] .jyc-hero {
+  box-shadow:
+    0 18px 42px rgba(79, 54, 6, 0.15) !important;
+}
+
+
+/* =========================================================
+   LIGHT MODE — FINAL GOLD LINE BALANCE
+========================================================= */
+
+html.light .jyc-background-strings,
+body.light .jyc-background-strings,
+.light .jyc-background-strings,
+[data-theme="light"] .jyc-background-strings {
+  opacity: 0.52 !important;
+
+  filter:
+    drop-shadow(
+      0 0 2px rgba(175, 122, 0, 0.16)
+    ) !important;
+}
+
+
+/* Keep cards transparent, but slightly calmer */
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.15),
+      rgba(244,237,219,0.08)
+    ) !important;
+
+  backdrop-filter:
+    blur(2px) saturate(104%) !important;
+
+  -webkit-backdrop-filter:
+    blur(2px) saturate(104%) !important;
+}
+
+
+/* Slightly stronger card borders for separation */
+html.light .jyc-page main div.rounded-xl.border,
+html.light .jyc-page main div.rounded-2xl.border,
+html.light .jyc-page main div.rounded-3xl.border,
+body.light .jyc-page main div.rounded-xl.border,
+body.light .jyc-page main div.rounded-2xl.border,
+body.light .jyc-page main div.rounded-3xl.border,
+.light .jyc-page main div.rounded-xl.border,
+.light .jyc-page main div.rounded-2xl.border,
+.light .jyc-page main div.rounded-3xl.border,
+[data-theme="light"] .jyc-page main div.rounded-xl.border,
+[data-theme="light"] .jyc-page main div.rounded-2xl.border,
+[data-theme="light"] .jyc-page main div.rounded-3xl.border {
+  border-color:
+    rgba(117, 84, 12, 0.17) !important;
+}
+
+
+/* Keep the hero stronger than the rest of the page */
+html.light .jyc-hero,
+body.light .jyc-hero,
+.light .jyc-hero,
+[data-theme="light"] .jyc-hero {
+  box-shadow:
+    0 18px 42px rgba(79, 54, 6, 0.15) !important;
+}
+
+
+/* =========================================================
+   PROJECTS + DASHBOARD CONTENT POLISH
+========================================================= */
+
+/* Main content panels */
+.jyc-page main .rounded-2xl.border,
+.jyc-page main .rounded-3xl.border {
+  position: relative;
+
+  border-color: rgba(245,197,24,0.16) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.035),
+    0 18px 44px rgba(0,0,0,0.20) !important;
+}
+
+/* Project search */
+.jyc-page main input[type="text"] {
+  min-height: 38px;
+
+  border-radius: 12px !important;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.jyc-page main input[type="text"]:focus {
+  border-color: rgba(245,197,24,0.55) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(245,197,24,0.07) !important;
+}
+
+/* Project filter buttons */
+.jyc-page main button {
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+.jyc-page main button:hover {
+  transform: translateY(-1px);
+}
+
+/* Project / Calendar segmented control */
+.jyc-page main button[class*="rounded"] {
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* Empty-state area */
+.jyc-page main .text-muted-foreground {
+  line-height: 1.45;
+}
+
+/* Dark mode */
+html:not(.light) .jyc-page main .rounded-2xl.border,
+html:not(.light) .jyc-page main .rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20,20,20,0.10),
+      rgba(4,4,4,0.17)
+    ) !important;
+
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+}
+
+/* Light mode */
+html.light .jyc-page main .rounded-2xl.border,
+html.light .jyc-page main .rounded-3xl.border,
+.light .jyc-page main .rounded-2xl.border,
+.light .jyc-page main .rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.14),
+      rgba(245,237,218,0.07)
+    ) !important;
+
+  border-color: rgba(136,97,9,0.17) !important;
+
+  backdrop-filter: blur(2px) saturate(104%) !important;
+  -webkit-backdrop-filter: blur(2px) saturate(104%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 14px 32px rgba(78,55,8,0.07) !important;
+}
+
+
+/* =========================================================
+   PREMIUM TOP HEADER CONTROLS
+========================================================= */
+
+.jyc-header button,
+.jyc-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 38px;
+  height: 38px;
+
+  border-radius: 12px !important;
+
+  border:
+    1px solid rgba(255,255,255,0.09) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.065),
+      rgba(255,255,255,0.025)
+    ) !important;
+
+  backdrop-filter: blur(12px) saturate(115%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.035),
+    0 8px 22px rgba(0,0,0,0.14);
+
+  transition:
+    transform .18s ease,
+    color .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+.jyc-header button:hover,
+.jyc-icon-button:hover {
+  transform: translateY(-1px);
+
+  color: #F5C518 !important;
+
+  border-color:
+    rgba(245,197,24,0.30) !important;
+
+  background:
+    rgba(245,197,24,0.08) !important;
+
+  box-shadow:
+    0 0 18px rgba(245,197,24,0.08),
+    0 8px 22px rgba(0,0,0,0.16);
+}
+
+
+/* Active / theme button */
+.jyc-header button[aria-pressed="true"] {
+  color: #F5C518 !important;
+
+  border-color:
+    rgba(245,197,24,0.35) !important;
+
+  background:
+    rgba(245,197,24,0.11) !important;
+}
+
+
+/* Light mode header buttons */
+html.light .jyc-header button,
+.light .jyc-header button {
+  color: #5E5648 !important;
+
+  border-color:
+    rgba(112,81,15,0.12) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.30),
+      rgba(245,236,214,0.15)
+    ) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72),
+    0 7px 20px rgba(74,52,8,0.06);
+}
+
+html.light .jyc-header button:hover,
+.light .jyc-header button:hover {
+  color: #A87900 !important;
+
+  border-color:
+    rgba(184,132,0,0.28) !important;
+
+  background:
+    rgba(245,197,24,0.10) !important;
+}
+
+
+/* =========================================================
+   TOP DASHBOARD NAVIGATION
+========================================================= */
+
+.jyc-tabs button {
+  min-height: 40px;
+
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+
+  border-radius: 11px !important;
+
+  border: 1px solid transparent;
+
+  font-weight: 600;
+
+  transition:
+    color .18s ease,
+    background .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease,
+    transform .18s ease;
+}
+
+.jyc-tabs button:hover {
+  transform: translateY(-1px);
+
+  color: #F5C518 !important;
+
+  background:
+    rgba(245,197,24,0.055) !important;
+}
+
+.jyc-tab-active {
+  color: #F5C518 !important;
+
+  border-color:
+    rgba(245,197,24,0.25) !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(245,197,24,0.17),
+      rgba(245,197,24,0.07)
+    ) !important;
+
+  box-shadow:
+    0 0 18px rgba(245,197,24,0.055) !important;
+}
+
+html.light .jyc-tab-active,
+.light .jyc-tab-active {
+  color: #A17000 !important;
+
+  border-color:
+    rgba(190,139,0,0.28) !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,214,78,0.22),
+      rgba(245,197,24,0.09)
+    ) !important;
+}
+
+
+/* =========================================================
+   PROJECTS + DASHBOARD CONTENT POLISH
+========================================================= */
+
+.jyc-page main .rounded-2xl.border,
+.jyc-page main .rounded-3xl.border {
+  position: relative;
+  border-color: rgba(245,197,24,0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.035),
+    0 18px 44px rgba(0,0,0,0.20) !important;
+}
+
+.jyc-page main input[type="text"] {
+  min-height: 38px;
+  border-radius: 12px !important;
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.jyc-page main input[type="text"]:focus {
+  border-color: rgba(245,197,24,0.55) !important;
+  box-shadow:
+    0 0 0 3px rgba(245,197,24,0.07) !important;
+}
+
+.jyc-page main button {
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+.jyc-page main button:hover {
+  transform: translateY(-1px);
+}
+
+html:not(.light) .jyc-page main .rounded-2xl.border,
+html:not(.light) .jyc-page main .rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20,20,20,0.10),
+      rgba(4,4,4,0.17)
+    ) !important;
+
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+}
+
+html.light .jyc-page main .rounded-2xl.border,
+html.light .jyc-page main .rounded-3xl.border,
+.light .jyc-page main .rounded-2xl.border,
+.light .jyc-page main .rounded-3xl.border {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.14),
+      rgba(245,237,218,0.07)
+    ) !important;
+
+  border-color: rgba(136,97,9,0.17) !important;
+
+  backdrop-filter: blur(2px) saturate(104%) !important;
+  -webkit-backdrop-filter: blur(2px) saturate(104%) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 14px 32px rgba(78,55,8,0.07) !important;
+}
+
+
+/* =========================================================
+   PREMIUM TOP HEADER CONTROLS
+========================================================= */
+
+.jyc-header button,
+.jyc-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 38px;
+  height: 38px;
+
+  border-radius: 12px !important;
+
+  border:
+    1px solid rgba(255,255,255,0.09) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.065),
+      rgba(255,255,255,0.025)
+    ) !important;
+
+  backdrop-filter: blur(12px) saturate(115%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.035),
+    0 8px 22px rgba(0,0,0,0.14);
+
+  transition:
+    transform .18s ease,
+    color .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+.jyc-header button:hover,
+.jyc-icon-button:hover {
+  transform: translateY(-1px);
+  color: #F5C518 !important;
+  border-color: rgba(245,197,24,0.30) !important;
+  background: rgba(245,197,24,0.08) !important;
+
+  box-shadow:
+    0 0 18px rgba(245,197,24,0.08),
+    0 8px 22px rgba(0,0,0,0.16);
+}
+
+html.light .jyc-header button,
+.light .jyc-header button {
+  color: #5E5648 !important;
+
+  border-color:
+    rgba(112,81,15,0.12) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.30),
+      rgba(245,236,214,0.15)
+    ) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72),
+    0 7px 20px rgba(74,52,8,0.06);
+}
+
+html.light .jyc-header button:hover,
+.light .jyc-header button:hover {
+  color: #A87900 !important;
+  border-color: rgba(184,132,0,0.28) !important;
+  background: rgba(245,197,24,0.10) !important;
+}
+
+
+/* =========================================================
+   TOP DASHBOARD NAVIGATION
+========================================================= */
+
+.jyc-tabs button {
+  min-height: 40px;
+
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+
+  border-radius: 11px !important;
+
+  border: 1px solid transparent;
+
+  font-weight: 600;
+
+  transition:
+    color .18s ease,
+    background .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease,
+    transform .18s ease;
+}
+
+.jyc-tabs button:hover {
+  transform: translateY(-1px);
+
+  color: #F5C518 !important;
+
+  background:
+    rgba(245,197,24,0.055) !important;
+}
+
+.jyc-tab-active {
+  color: #F5C518 !important;
+
+  border-color:
+    rgba(245,197,24,0.25) !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(245,197,24,0.17),
+      rgba(245,197,24,0.07)
+    ) !important;
+
+  box-shadow:
+    0 0 18px rgba(245,197,24,0.055) !important;
+}
+
+html.light .jyc-tab-active,
+.light .jyc-tab-active {
+  color: #A17000 !important;
+
+  border-color:
+    rgba(190,139,0,0.28) !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,214,78,0.22),
+      rgba(245,197,24,0.09)
+    ) !important;
+}
+

@@ -1,15 +1,39 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { Eye, EyeOff, ArrowLeft, Lock, Mail, Moon, Sun } from "lucide-react";
+import {
+    Eye,
+    EyeOff,
+    ArrowLeft,
+    ArrowRight,
+    ShieldCheck,
+    Lock,
+    Mail,
+    Moon,
+    Sun,
+} from "lucide-react";
+
 import { useTheme } from "./ThemeProvider";
 import { authApi } from "../services/authApi";
 import logo from "../../assets/images/jumpstart-logo.webp";
 
+
 export function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
+
     const { theme, toggleTheme } = useTheme();
+
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+
+    // =====================================================
+    // SAFE BACK NAVIGATION
+    // =====================================================
 
     const goBackSafely = (fallbackPath = "/dashboard") => {
         if (window.history.length > 1) {
@@ -19,10 +43,11 @@ export function LoginPage() {
 
         navigate(fallbackPath, { replace: true });
     };
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+
+
+    // =====================================================
+    // EXISTING SESSION CHECK
+    // =====================================================
 
     useEffect(() => {
         const token =
@@ -37,48 +62,83 @@ export function LoginPage() {
             const redirectPath =
                 location.state?.from?.pathname ||
                 sessionStorage.getItem("redirectAfterLogin") ||
-                (user?.role === "superadmin" || user?.role === "admin"
-                    ? "/admin"
-                    : "/dashboard");
+                (
+                    user?.role === "superadmin" ||
+                    user?.role === "admin"
+                        ? "/admin"
+                        : "/dashboard"
+                );
 
             sessionStorage.removeItem("redirectAfterLogin");
-            navigate(redirectPath, { replace: true });
+
+            navigate(redirectPath, {
+                replace: true,
+            });
         }
     }, [location.state, navigate]);
 
+
+    // =====================================================
+    // LOGIN
+    // =====================================================
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         setError("");
 
         console.log("=== LOGIN START ===");
+
 
         if (!email) {
             setError("Please enter your work email.");
             return;
         }
 
+
         if (!email.includes("@")) {
-            setError("Please enter a valid organisational email address.");
+            setError(
+                "Please enter a valid organisational email address."
+            );
             return;
         }
+
 
         if (!password.trim()) {
             setError("Please enter your password.");
             return;
         }
 
+
         setLoading(true);
 
+
         try {
-            const response = await authApi.login({ email, password });
+            const response = await authApi.login({
+                email,
+                password,
+            });
+
+
+            // =================================================
+            // FIRST LOGIN
+            // =================================================
 
             if (response?.first_login) {
-                localStorage.setItem("verification_email", response.email || email);
-                sessionStorage.removeItem("redirectAfterLogin");
+                localStorage.setItem(
+                    "verification_email",
+                    response.email || email
+                );
+
+                sessionStorage.removeItem(
+                    "redirectAfterLogin"
+                );
 
                 navigate("/create-password", {
                     state: {
-                        email: response.email || email,
+                        email:
+                            response.email || email,
+
                         isFirstLogin: true,
                     },
                 });
@@ -86,171 +146,453 @@ export function LoginPage() {
                 return;
             }
 
+
+            // =================================================
+            // SUCCESSFUL LOGIN
+            // =================================================
+
             if (response?.token) {
-                localStorage.setItem("token", response.token);
-                localStorage.setItem("currentUser", JSON.stringify(response.user || {}));
+                localStorage.setItem(
+                    "token",
+                    response.token
+                );
+
+                localStorage.setItem(
+                    "currentUser",
+                    JSON.stringify(
+                        response.user || {}
+                    )
+                );
+
 
                 const redirectPath =
                     location.state?.from?.pathname ||
-                    sessionStorage.getItem("redirectAfterLogin") ||
-                    (response.user?.role === "superadmin" || response.user?.role === "admin"
-                        ? "/admin"
-                        : "/dashboard");
+                    sessionStorage.getItem(
+                        "redirectAfterLogin"
+                    ) ||
+                    (
+                        response.user?.role === "superadmin" ||
+                        response.user?.role === "admin"
+                            ? "/admin"
+                            : "/dashboard"
+                    );
 
-                sessionStorage.removeItem("redirectAfterLogin");
-                navigate(redirectPath, { replace: true });
+
+                sessionStorage.removeItem(
+                    "redirectAfterLogin"
+                );
+
+
+                navigate(redirectPath, {
+                    replace: true,
+                });
+
+
                 return;
             }
+
+
+            // =================================================
+            // FORCE PASSWORD CHANGE
+            // =================================================
 
             if (response?.force_password_change) {
-                navigate("/password-expired", { state: { email } });
+                navigate("/password-expired", {
+                    state: {
+                        email,
+                    },
+                });
+
                 return;
             }
 
-            setError(response?.message || "Login failed. Please try again.");
-        } catch (err) {
+
+            setError(
+                response?.message ||
+                "Login failed. Please try again."
+            );
+        }
+
+        catch (err) {
             setError(
                 err?.response?.data?.error ||
                 err?.payload?.error ||
                 err?.message ||
                 "Unable to sign in. Please check your credentials."
             );
-        } finally {
+        }
+
+        finally {
             setLoading(false);
         }
     };
+
+
+    // =====================================================
+    // UI
+    // =====================================================
+
     return (
-        <div className="min-h-screen bg-background text-foreground flex items-center justify-center relative p-8">
-            {/* Theme Toggle Button */}
+        <div className="jyc-login-page">
+
+            {/* =================================================
+                BACK BUTTON
+            ================================================= */}
+
             <button
-                onClick={toggleTheme}
-                className="fixed top-6 right-6 z-50 w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-                aria-label="Toggle theme"
+                type="button"
+                onClick={() =>
+                    goBackSafely("/login")
+                }
+                className="jyc-login-back"
+                aria-label="Go back"
             >
-                {theme === "dark" ? (
-                    <Sun size={20} className="text-primary-foreground" />
-                ) : (
-                    <Moon size={20} className="text-primary-foreground" />
-                )}
+                <ArrowLeft size={23} />
             </button>
 
-            {/* Login form */}
-            <div className="w-full max-w-md relative">
-                {/* Back button */}
+
+            {/* =================================================
+                THEME CONTROL
+            ================================================= */}
+
+            <div className="jyc-login-theme">
+
                 <button
-                    onClick={() => goBackSafely("/login")}
-                    className="absolute -top-12 left-0 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+                    type="button"
+                    className={
+                        theme === "light"
+                            ? "active"
+                            : ""
+                    }
+                    onClick={() => {
+                        if (theme !== "light") {
+                            toggleTheme();
+                        }
+                    }}
+                    aria-label="Light mode"
+                    title="Light mode"
                 >
-                    <ArrowLeft size={16} /> Back
+                    <Sun size={21} />
                 </button>
 
-                {/* Logo */}
-                <div className="flex flex-col items-center mb-10">
-                    <div className="relative flex items-center justify-center">
-                        <div className="absolute w-20 h-20 bg-primary rounded-full blur-2xl opacity-30"></div>
+
+                <button
+                    type="button"
+                    className={
+                        theme === "dark"
+                            ? "active"
+                            : ""
+                    }
+                    onClick={() => {
+                        if (theme !== "dark") {
+                            toggleTheme();
+                        }
+                    }}
+                    aria-label="Dark mode"
+                    title="Dark mode"
+                >
+                    <Moon size={21} />
+                </button>
+
+            </div>
+
+
+            {/* =================================================
+                LOGIN CARD
+            ================================================= */}
+
+            <main className="jyc-login-card">
+
+
+                {/* =============================================
+                    BRAND
+                ============================================= */}
+
+                <div className="jyc-login-brand">
+
+                    <div className="jyc-login-logo">
 
                         <img
                             src={logo}
-                            alt="JumpStart Logo"
-                            className="relative w-16 h-16 object-contain"
+                            alt="JumpStart Your Career"
                         />
+
                     </div>
 
-                    <span className="text-foreground font-semibold text-xl mt-3">
-                        Jumpstart Connect
-                    </span>
+
+                    <h1 className="jyc-login-brand-title">
+                        Jumpstart{" "}
+                        <span>
+                            Connect
+                        </span>
+                    </h1>
+
+
+                    <div className="jyc-login-brand-subtitle">
+
+                        <span>
+                            People
+                        </span>
+
+                        <i />
+
+                        <span>
+                            Workspace
+                        </span>
+
+                        <i />
+
+                        <span>
+                            Communication
+                        </span>
+
+                    </div>
+
                 </div>
 
-                <div className="mb-6 rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
-                    First-time users can sign in with their work email and the one-time password sent by email.
+
+                {/* =============================================
+                    GOLD DIVIDER
+                ============================================= */}
+
+                <div className="jyc-login-divider" />
+
+
+                {/* =============================================
+                    WELCOME
+                ============================================= */}
+
+                <div className="jyc-login-welcome">
+
+                    <h2>
+                        Welcome back
+                    </h2>
+
+                    <p>
+                        Sign in to your organisational workspace
+                    </p>
+
                 </div>
 
-                {/* Error */}
+
+                {/* =============================================
+                    ERROR
+                ============================================= */}
+
                 {error && (
-                    <div className="mb-5 bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
+
+                    <div className="jyc-login-error">
+
                         {error}
+
                     </div>
+
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                        <label className="block text-sm text-muted-foreground mb-2">
-                            Work email
-                        </label>
 
-                        <div className="relative">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                                <Mail size={16} />
-                            </div>
+                {/* =============================================
+                    FORM
+                ============================================= */}
+
+                <form
+                    onSubmit={handleSubmit}
+                >
+
+
+                    <div className="jyc-login-fields">
+
+
+                        {/* EMAIL */}
+
+                        <div className="jyc-login-field">
+
+                            <Mail
+                                size={21}
+                                className="jyc-login-field-icon"
+                            />
+
 
                             <input
                                 type="email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@jumpstartyourcareer.org.za"
-                                className="w-full bg-input-background border border-border text-foreground pl-11 pr-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                                onChange={(e) =>
+                                    setEmail(
+                                        e.target.value
+                                    )
+                                }
+                                placeholder="Organisational email"
+                                autoComplete="email"
+                                spellCheck="false"
                             />
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="flex items-center justify-between mb-2">
-                            <label className="block text-sm text-muted-foreground">
-                                Password
-                            </label>
 
                         </div>
 
-                        <div className="relative">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                                <Lock size={16} />
-                            </div>
+
+                        {/* PASSWORD */}
+
+                        <div className="jyc-login-field">
+
+                            <Lock
+                                size={20}
+                                className="jyc-login-field-icon"
+                            />
+
 
                             <input
-                                type={showPassword ? "text" : "password"}
+                                type={
+                                    showPassword
+                                        ? "text"
+                                        : "password"
+                                }
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                className="w-full bg-input-background border border-border text-foreground pl-11 pr-11 py-3.5 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                                onChange={(e) =>
+                                    setPassword(
+                                        e.target.value
+                                    )
+                                }
+                                placeholder="Password"
+                                autoComplete="current-password"
                             />
+
 
                             <button
                                 type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                className="jyc-login-password-toggle"
+                                onClick={() =>
+                                    setShowPassword(
+                                        !showPassword
+                                    )
+                                }
+                                aria-label={
+                                    showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                }
+                                title={
+                                    showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                }
                             >
+
                                 {showPassword ? (
-                                    <EyeOff size={16} />
+
+                                    <EyeOff
+                                        size={20}
+                                    />
+
                                 ) : (
-                                    <Eye size={16} />
+
+                                    <Eye
+                                        size={20}
+                                    />
+
                                 )}
+
                             </button>
+
                         </div>
+
                     </div>
+
+
+                    {/* =========================================
+                        SIGN IN BUTTON
+                    ========================================= */}
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/15 mt-2"
+                        className="jyc-login-submit"
                     >
+
                         {loading ? (
+
                             <>
-                                <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                                Authenticating...
+
+                                <span className="jyc-login-spinner" />
+
+                                <span>
+                                    Authenticating...
+                                </span>
+
                             </>
+
                         ) : (
-                            "Sign In"
+
+                            <>
+
+                                <span>
+                                    Sign in
+                                </span>
+
+                                <ArrowRight
+                                    size={23}
+                                />
+
+                            </>
+
                         )}
+
                     </button>
+
+
                 </form>
 
-                <p className="text-center text-xs text-muted-foreground mt-8">
-                    Access is restricted to approved organisational domains only.{" "}
-                    <a href="#" className="text-primary/70 hover:text-primary">
-                        Contact IT Support
-                    </a>
-                </p>
-            </div>
+
+                {/* =============================================
+                    FORGOT PASSWORD
+                ============================================= */}
+
+                <button
+                    type="button"
+                    className="jyc-login-forgot"
+                    onClick={() =>
+                        navigate(
+                            "/forgot-password"
+                        )
+                    }
+                >
+                    Forgot your password?
+                </button>
+
+
+                {/* =============================================
+                    SECURITY PANEL
+                ============================================= */}
+
+                <div className="jyc-login-security">
+
+                    <div className="jyc-login-security-icon">
+
+                        <ShieldCheck
+                            size={34}
+                        />
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            Secure access
+                        </strong>
+
+
+                        <span>
+                            Your data is protected with
+                            enterprise-grade security and
+                            organisational controls.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+            </main>
+
         </div>
     );
 }
+
